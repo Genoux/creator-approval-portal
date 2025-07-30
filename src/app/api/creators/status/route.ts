@@ -14,7 +14,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const session = verifyAuthToken(token);
+    const session = await verifyAuthToken(token);
     if (!session) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, message: "Invalid token", data: null },

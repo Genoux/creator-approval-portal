@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = createAuthToken(boardId);
+    const token = await createAuthToken(boardId);
 
     const response = NextResponse.json<ApiResponse<{ token: string }>>({
       success: true,

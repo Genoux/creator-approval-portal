@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse } from "@/types";
+import type { BaseTask } from "@/types/tasks";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const session = verifyAuthToken(token);
+    const session = await verifyAuthToken(token);
     if (!session) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, message: "Invalid token", data: null },
@@ -38,9 +39,38 @@ export async function GET(request: NextRequest) {
     const clickup = new ClickUpAPI(apiToken);
     const creators = await clickup.getCreators(session.boardId);
 
-    return NextResponse.json<ApiResponse<any[]>>({
+    // Filter custom fields to only include the ones we need
+    // Note: Using exact field names from ClickUp (including emojis and spaces) is probably not the best way to do this. PASS POC
+    const allowedFields = [
+      "Name",
+      "✅ Client Approval ",
+      "Example",
+      "IG Profile",
+      "TT Profile",
+      "Creator Type",
+      "Engagement Rate",
+      "Comments",
+      "Usage Rights",
+      "Exclusivity",
+      "Ad Code",
+      "Deliverables",
+    ];
+
+    const filteredCreators = creators.map((creator) => {
+      const filteredFields =
+        creator.custom_fields?.filter((field: any) =>
+          allowedFields.includes(field.name)
+        ) || [];
+
+      return {
+        ...creator,
+        custom_fields: filteredFields,
+      };
+    });
+
+    return NextResponse.json<ApiResponse<BaseTask[]>>({
       success: true,
-      data: creators,
+      data: filteredCreators,
     });
   } catch (error) {
     console.error("Creators fetch error:", error);
