@@ -1,3 +1,5 @@
+import type { Task } from "@/types/tasks";
+
 export class ClickUpAPI {
   private apiToken: string;
   private baseUrl: string;
@@ -28,16 +30,11 @@ export class ClickUpAPI {
     return response.json();
   }
 
-  async getCreators(listId: string): Promise<any[]> {
+  async getCreators(listId: string): Promise<Task[]> {
     try {
       // Get tasks from ClickUp list with custom fields included
-      const response = await this.request(`/list/${listId}/task`);
-      console.log("Response:", response);
-
-      console.log(
-        "Raw ClickUp response:",
-        JSON.stringify(response.tasks?.[0], null, 2)
-      );
+      // Add parameters to get all tasks including archived/closed ones
+      const response = await this.request(`/list/${listId}/task?archived=false&include_closed=true&page=0&order_by=created&reverse=true&subtasks=true`);
       return response.tasks || [];
     } catch (error) {
       console.error("Error fetching creators from ClickUp:", error);

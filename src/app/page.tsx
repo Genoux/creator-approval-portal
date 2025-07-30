@@ -1,7 +1,13 @@
 "use client";
 
+// TODO: Install Genx UI guide
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const [boardId, setBoardId] = useState("");
@@ -38,48 +44,41 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold">
             Creator Approval Portal
-          </h1>
-          <p className="mt-2 text-gray-600">Enter your ClickUp credentials</p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="boardId"
-                className="block text-sm font-medium text-gray-700"
-              >
-                ClickUp List ID
-              </label>
-              <input
+          </CardTitle>
+          <p className="text-muted-foreground">
+            Enter your ClickUp credentials
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-6" onSubmit={handleLogin}>
+            <div className="space-y-2">
+              <Label htmlFor="boardId">ClickUp List ID</Label>
+              <Input
                 id="boardId"
                 type="text"
                 required
-                className="text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={boardId}
                 onChange={e => setBoardId(e.target.value)}
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
+            {error && (
+              <div className="text-destructive text-sm text-center">
+                {error}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            {loading ? "Authenticating..." : "Access Dashboard"}
-          </button>
-        </form>
-      </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Authenticating..." : "Access Dashboard"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

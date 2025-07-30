@@ -15,7 +15,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">Error loading tasks</div>
+        <div className="text-red-600">Error loading tasks</div>
       </div>
     );
   }
