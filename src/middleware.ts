@@ -2,7 +2,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  // Only protect dashboard routes
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
     const token = request.cookies.get("auth-token")?.value;
 
@@ -11,8 +12,9 @@ export function middleware(request: NextRequest) {
     }
 
     // Verify token
-    const session = verifyAuthToken(token);
+    const session = await verifyAuthToken(token);
     if (!session) {
+      // Invalid token, redirect to login and clean up
       const response = NextResponse.redirect(new URL("/", request.url));
       response.cookies.delete("auth-token");
       return response;

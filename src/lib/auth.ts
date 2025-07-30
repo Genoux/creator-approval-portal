@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { jwtVerify, SignJWT } from "jose";
 
 export interface AuthSession {
   boardId: string;
@@ -8,19 +8,32 @@ export interface AuthSession {
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-export function createAuthToken(boardId: string): string {
-  const payload: AuthSession = {
+// Convert secret to Uint8Array for jose
+const secret = new TextEncoder().encode(JWT_SECRET);
+
+export async function createAuthToken(boardId: string): Promise<string> {
+  const payload: Omit<AuthSession, "exp"> = {
     boardId: boardId,
-    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
   };
 
-  return jwt.sign(payload, JWT_SECRET);
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime("24h")
+    .setIssuedAt()
+    .sign(secret);
+
+  return jwt;
 }
 
-export function verifyAuthToken(token: string): AuthSession | null {
+export async function verifyAuthToken(
+  token: string
+): Promise<AuthSession | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthSession;
-    return decoded;
+    const { payload } = await jwtVerify(token, secret);
+    return {
+      boardId: payload.boardId as string,
+      exp: payload.exp as number,
+    };
   } catch (error) {
     console.error("JWT verification error:", error);
     return null;
