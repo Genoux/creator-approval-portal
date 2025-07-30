@@ -1,4 +1,8 @@
-export function renderFieldValue(field: any): string {
+import type { BaseTask } from "@/types/tasks";
+
+type CustomField = NonNullable<BaseTask["custom_fields"]>[0];
+
+export function renderFieldValue(field: CustomField): string {
   // Handle empty values - don't display if no value
   if (!field.value && field.value !== 0) return "";
 
@@ -7,9 +11,16 @@ export function renderFieldValue(field: any): string {
 
   switch (field.type) {
     case "drop_down": {
-      // Handle dropdown: value is index, options are in type_config.options
-      const options = field.type_config?.options || [];
-      const selectedOption = options[field.value];
+      const typeConfig = field.type_config;
+      const options =
+        typeof typeConfig === "object" && typeConfig?.options
+          ? typeConfig.options
+          : [];
+      const value = field.value;
+      const selectedOption =
+        typeof value === "number"
+          ? options[value]
+          : options.find((opt) => opt.id === String(value));
       return (
         selectedOption?.name || selectedOption?.label || field.value.toString()
       );
@@ -17,7 +28,11 @@ export function renderFieldValue(field: any): string {
 
     case "labels": {
       if (!Array.isArray(field.value)) return "";
-      const labelOptions = field.type_config?.options || [];
+      const typeConfig = field.type_config;
+      const labelOptions =
+        typeof typeConfig === "object" && typeConfig?.options
+          ? typeConfig.options
+          : [];
       const selectedLabels = field.value
         .map((valueId: string) => {
           const option = labelOptions.find(

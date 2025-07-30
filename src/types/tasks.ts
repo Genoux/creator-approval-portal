@@ -3,6 +3,7 @@ export type TaskType = "creator" | "project" | "generic";
 export interface BaseTask {
   id: string;
   name: string;
+
   status: {
     status: string;
     color?: string;
@@ -16,7 +17,18 @@ export interface BaseTask {
     profilePicture?: string;
   }>;
   custom_fields?: Array<{
-    [key: string]: string;
+    id: string;
+    name: string;
+    type: string;
+    value: string | number | boolean | null;
+    type_config?: {
+      options?: Array<{
+        id: string;
+        name?: string;
+        label?: string;
+        color?: string;
+      }>;
+    };
   }>;
 }
 
