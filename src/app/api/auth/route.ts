@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createAuthToken, validateClickUpCredentials } from "@/lib/auth";
+import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, AuthCredentials } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -11,6 +12,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, message: "Board ID is required", data: null },
         { status: 400 }
+      );
+    }
+
+    const apiToken = process.env.CLICKUP_API_TOKEN;
+    if (!apiToken) {
+      return NextResponse.json<ApiResponse<null>>(
+        { success: false, message: "ClickUp API token not configured", data: null },
+        { status: 500 }
       );
     }
 
@@ -27,7 +36,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = await createAuthToken(boardId);
+    // Get board name for session
+    let boardName: string | undefined;
+    try {
+      const clickup = new ClickUpAPI(apiToken);
+      const list = await clickup.getList(boardId);
+      boardName = list.name;
+    } catch (error) {
+      console.warn("Could not fetch board name:", error);
+    }
+
+    const token = await createAuthToken(boardId, apiToken, boardName);
 
     const response = NextResponse.json<ApiResponse<{ token: string }>>({
       success: true,

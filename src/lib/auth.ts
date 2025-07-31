@@ -1,7 +1,10 @@
 import { jwtVerify, SignJWT } from "jose";
+import { cookies } from "next/headers";
 
 export interface AuthSession {
   boardId: string;
+  boardName?: string;
+  apiToken?: string;
   exp: number;
 }
 
@@ -11,9 +14,15 @@ const JWT_SECRET =
 // Convert secret to Uint8Array for jose
 const secret = new TextEncoder().encode(JWT_SECRET);
 
-export async function createAuthToken(boardId: string): Promise<string> {
+export async function createAuthToken(
+  boardId: string,
+  apiToken: string,
+  boardName?: string
+): Promise<string> {
   const payload: Omit<AuthSession, "exp"> = {
     boardId: boardId,
+    boardName: boardName,
+    apiToken: apiToken,
   };
 
   const jwt = await new SignJWT(payload)
@@ -32,10 +41,28 @@ export async function verifyAuthToken(
     const { payload } = await jwtVerify(token, secret);
     return {
       boardId: payload.boardId as string,
+      boardName: payload.boardName as string | undefined,
+      apiToken: payload.apiToken as string | undefined,
       exp: payload.exp as number,
     };
   } catch (error) {
     console.error("JWT verification error:", error);
+    return null;
+  }
+}
+
+export async function getServerSession(): Promise<AuthSession | null> {
+  try {
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get("auth-token");
+
+    if (!authToken) {
+      return null;
+    }
+
+    return await verifyAuthToken(authToken.value);
+  } catch (error) {
+    console.error("Error getting server session:", error);
     return null;
   }
 }
@@ -55,7 +82,7 @@ export async function validateClickUpCredentials(
       `https://api.clickup.com/api/v2/list/${boardId}`,
       {
         headers: {
-          Authorization: apiToken,
+          Authorization: apiToken.startsWith('pk_') ? apiToken : `Bearer ${apiToken}`,
         },
       }
     );
