@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     const clickup = new ClickUpAPI(apiToken);
-    const creators = await clickup.getCreators(session.boardId);
+    const creators = await clickup.getTasks(session.boardId);
 
     // Filter custom fields to only include the ones we need
     // Note: Using exact field names from ClickUp (including emojis and spaces) is probably not the best way to do this. PASS POC
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     const filteredCreators = creators.map((creator) => {
       const filteredFields =
-        creator.custom_fields?.filter((field: any) =>
+        creator.custom_fields?.filter((field: { name: string }) =>
           allowedFields.includes(field.name)
         ) || [];
 
