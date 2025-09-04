@@ -1,53 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { SearchBar } from "@/components/search/SearchBar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Empty } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CUSTOM_FIELD_IDS } from "@/constants/customFields";
+import { useTaskSearch } from "@/hooks/search/useTaskSearch";
 import type { Task } from "@/types/tasks";
-import { Empty } from "../ui/empty";
-import { SearchBar } from "../ui/search-bar";
+import { APPROVAL_LABELS, type ApprovalLabel } from "@/utils/approval";
 import { TaskCard } from "./TaskCard";
 
-// Helper function to group tasks by status
-const groupTasksByStatus = (tasksToGroup: Task[]) => {
-  return tasksToGroup.reduce((groups: Record<string, Task[]>, task) => {
-    const clientApprovalField = task.custom_fields?.find(
-      field => field.id === CUSTOM_FIELD_IDS.CLIENT_APPROVAL
-    );
+// Constants
+const CATEGORIES = [
+  APPROVAL_LABELS.PERFECT,
+  APPROVAL_LABELS.GOOD,
+  APPROVAL_LABELS.SUFFICIENT,
+  APPROVAL_LABELS.POOR_FIT,
+  APPROVAL_LABELS.FOR_REVIEW,
+] as const;
 
-    let category = "Review";
-    if (
-      clientApprovalField?.value !== undefined &&
-      clientApprovalField?.value !== null
-    ) {
-      if (clientApprovalField.type === "drop_down") {
-        const options = clientApprovalField.type_config?.options || [];
-        const value = clientApprovalField.value;
-        const selectedOption =
-          typeof value === "number"
-            ? options[value]
-            : options.find(opt => opt.id === String(value));
-        const status =
-          selectedOption?.name || selectedOption?.label || "Unknown";
-
-        // TODO: USE CAT ID TO DETERMINE CATEGORY
-        if (status === "Perfect (Approved)" || status === "Good (Approved)") {
-          category = "Accepted";
-        } else if (status === "Poor Fit (Rejected)") {
-          category = "Declined";
-        } else {
-          category = "Review";
-        }
-      }
-    }
-
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(task);
-    return groups;
-  }, {});
-};
+const LOADING_SKELETON_COUNT = 8;
 
 interface TasksGridProps {
   tasks: Task[];
@@ -64,136 +35,177 @@ export function TasksGrid({
   onTabChange,
   onSearch,
 }: TasksGridProps) {
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>(tasks);
-  const [activeTab, setActiveTab] = useState("Accepted");
+  const searchResult = useTaskSearch(tasks, searchQuery);
+  const [activeTab, setActiveTab] = useState<ApprovalLabel | "">("");
 
-  // Filter tasks based on search query
+  // Handle smart tab switching and default tab in one effect
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredTasks(tasks);
+    // Smart tab switching has priority
+    if (
+      searchQuery &&
+      searchResult.suggestedTab &&
+      searchResult.suggestedTab !== activeTab
+    ) {
+      setActiveTab(searchResult.suggestedTab as ApprovalLabel);
+      onTabChange?.(searchResult.suggestedTab);
       return;
     }
 
-    const filtered = tasks.filter(task =>
-      task.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredTasks(filtered);
-
-    // Auto-switch to tab with results
-    if (filtered.length > 0) {
-      const groupedFiltered = groupTasksByStatus(filtered);
-      const tabWithResults = Object.keys(groupedFiltered).find(
-        tab => groupedFiltered[tab].length > 0
-      );
-      if (tabWithResults && tabWithResults !== activeTab) {
-        setActiveTab(tabWithResults);
-        onTabChange?.(tabWithResults);
-      }
+    // Set default tab if none selected
+    if (!activeTab) {
+      setActiveTab(CATEGORIES[0]);
+      onTabChange?.(CATEGORIES[0]);
     }
-  }, [searchQuery, tasks, activeTab, onTabChange]);
+  }, [searchResult.suggestedTab, searchQuery, activeTab, onTabChange]);
+
+  // Memoize grid style to prevent re-calculation
+  const gridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: `repeat(${CATEGORIES.length}, minmax(0, 1fr))`,
+    }),
+    []
+  );
 
   if (isLoading) {
-    return (
-      <div className="px-4 lg:px-6">
-        <div className="mb-4">
-          <Skeleton className="h-6 w-48" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => (
-            <Card key={i.toString()}>
-              <CardHeader className="pb-3">
-                <Skeleton className="h-5 w-3/4" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-12" />
-                  <Skeleton className="h-4 w-16" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Skeleton className="h-3 w-20 mb-2" />
-                <Skeleton className="h-3 w-full mb-1" />
-                <Skeleton className="h-3 w-2/3" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
-
-  const groupedTasks = groupTasksByStatus(filteredTasks);
-
-  // Define the 3 categories with simplified names
-  const fixedCategories = ["Accepted", "Declined", "Review"];
-
-  fixedCategories.forEach(category => {
-    if (!groupedTasks[category]) {
-      groupedTasks[category] = [];
-    }
-  });
-
-  // Return only the fixed categories in order
-  const orderedGroups: Record<string, Task[]> = {};
-  fixedCategories.forEach(category => {
-    orderedGroups[category] = groupedTasks[category];
-  });
 
   return (
     <div className="px-4 lg:px-6">
-      <div className="mb-4 flex flex-row items-center justify-between">
-        <h4 className="text-xl font-semibold tracking-tight">
-          {tasks.length} creators
-        </h4>
-        {onSearch && <SearchBar onSearch={onSearch} className="w-80" />}
-      </div>
+      <Header
+        totalResults={searchResult.totalResults}
+        searchQuery={searchQuery}
+        searchResult={searchResult}
+        onSearch={onSearch}
+      />
 
-      {filteredTasks.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="text-muted-foreground">
-            {searchQuery
-              ? `No creators found matching "${searchQuery}"`
-              : "No tasks found"}
-          </div>
-        </div>
+      {searchResult.totalResults === 0 ? (
+        <EmptyState searchQuery={searchQuery} />
       ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            {Object.entries(orderedGroups).map(([status, statusTasks]) => (
+        <Tabs
+          value={activeTab || CATEGORIES[0]}
+          onValueChange={(v) => setActiveTab(v as ApprovalLabel)}
+          className="w-full"
+        >
+          <TabsList className="grid w-full mb-4" style={gridStyle}>
+            {CATEGORIES.map((status) => (
               <TabsTrigger key={status} value={status} className="text-sm">
-                {status} ({statusTasks.length})
+                {status} ({searchResult.resultsByStatus[status]?.length || 0})
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {Object.entries(orderedGroups).map(([status, statusTasks]) => (
+          {CATEGORIES.map((status) => (
             <TabsContent key={status} value={status} className="mt-0">
-              {statusTasks.length === 0 ? (
-                <Empty
-                  title={
-                    status === "To Review"
-                      ? "No creators to review"
-                      : status === "Poor"
-                        ? "No creators declined"
-                        : `No ${status.toLowerCase()} creators`
-                  }
-                  description={
-                    status === "To Review"
-                      ? "All creators have been reviewed. New submissions will appear here for review."
-                      : status === "Poor"
-                        ? "No creators have been declined. Creators that don't meet the requirements will appear here."
-                        : "No creators have been approved yet. Successfully reviewed creators will appear here."
-                  }
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {statusTasks.map(task => (
-                    <TaskCard key={task.id} task={task} />
-                  ))}
-                </div>
-              )}
+              <TabContentSection
+                status={status}
+                tasks={searchResult.resultsByStatus[status] || []}
+                searchQuery={searchQuery}
+              />
             </TabsContent>
           ))}
         </Tabs>
       )}
+    </div>
+  );
+}
+
+// Extracted components for better organization
+function LoadingSkeleton() {
+  return (
+    <div className="px-4 lg:px-6">
+      <div className="mb-4">
+        <Skeleton className="h-6 w-48" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: LOADING_SKELETON_COUNT }, () => (
+          <Card key={`loading-${Math.random()}`}>
+            <CardHeader className="pb-3">
+              <Skeleton className="h-5 w-3/4" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Skeleton className="h-3 w-20 mb-2" />
+              <Skeleton className="h-3 w-full mb-1" />
+              <Skeleton className="h-3 w-2/3" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Header({
+  totalResults,
+  searchQuery,
+  searchResult,
+  onSearch,
+}: {
+  totalResults: number;
+  searchQuery: string;
+  searchResult: any;
+  onSearch?: (query: string) => void;
+}) {
+  return (
+    <div className="mb-4 flex flex-row items-center justify-between">
+      <h4 className="text-xl font-semibold tracking-tight">
+        {totalResults} creators
+      </h4>
+      {onSearch && (
+        <SearchBar
+          onSearch={onSearch}
+          totalResults={searchQuery ? totalResults : undefined}
+          suggestedTab={searchQuery ? searchResult.suggestedTab : undefined}
+          className="w-80"
+        />
+      )}
+    </div>
+  );
+}
+
+function EmptyState({ searchQuery }: { searchQuery: string }) {
+  return (
+    <div className="text-center py-8">
+      <div className="text-muted-foreground">
+        {searchQuery
+          ? `No creators found matching "${searchQuery}"`
+          : "No creators found"}
+      </div>
+    </div>
+  );
+}
+
+function TabContentSection({
+  status,
+  tasks,
+  searchQuery,
+}: {
+  status: string;
+  tasks: Task[];
+  searchQuery: string;
+}) {
+  if (tasks.length === 0) {
+    return (
+      <Empty
+        title={`No creators in "${status}"`}
+        description={
+          searchQuery
+            ? "Try adjusting your search terms to find creators in this status."
+            : "Creators will appear here when they're assigned this status."
+        }
+      />
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} />
+      ))}
     </div>
   );
 }
