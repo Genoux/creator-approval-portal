@@ -14,10 +14,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useTasks } from "@/hooks/tasks/useTasks";
+import { useCreators } from "@/hooks/creators/useCreators";
 
 export default function DashboardPage() {
-  const { data: tasks = [], isLoading, error } = useTasks();
+  const { data: tasks = [], isLoading, error } = useCreators();
+
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -59,6 +60,13 @@ export default function DashboardPage() {
       <SidebarInset>
         <SiteHeader onLogout={handleLogout} />
         <div className="flex flex-1 flex-col py-4">
+          {tasks.length > 0 && (
+            <div className="px-4 lg:px-6 mb-2">
+              <div className="text-xs text-muted-foreground">
+                Showing: {tasks.length} creators
+              </div>
+            </div>
+          )}
           <TasksGrid
             tasks={tasks}
             isLoading={isLoading}

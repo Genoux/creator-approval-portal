@@ -1,9 +1,16 @@
-export interface AuthCredentials {
-  boardId: string
-}
+import type { ApiResponse, AuthCredentials } from "./api";
+import type {
+  ClickUpDropdownOption,
+  StatusOptionsResponse,
+  StatusUpdate,
+} from "./status";
+import type { Task } from "./tasks";
 
-export interface ApiResponse<T> {
-  data: T
-  success: boolean
-  message?: string
-}
+export type {
+  AuthCredentials,
+  ApiResponse,
+  Task,
+  StatusUpdate,
+  ClickUpDropdownOption,
+  StatusOptionsResponse,
+};

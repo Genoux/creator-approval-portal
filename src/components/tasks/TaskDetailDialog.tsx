@@ -1,21 +1,13 @@
-import { CheckIcon, Loader2Icon, XIcon } from "lucide-react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CUSTOM_FIELD_IDS } from "@/constants/customFields";
-import { useTaskActions } from "@/hooks/tasks/useTaskActions";
-import { useTaskStatus } from "@/hooks/tasks/useTaskStatus";
+
 import type { Task } from "@/types/tasks";
-import { renderFieldValue } from "@/utils/fieldRenderer";
 
 interface TaskDetailDialogProps {
   task: Task;
@@ -30,9 +22,6 @@ export function TaskDetailDialog({
   onOpenChange,
   children,
 }: TaskDetailDialogProps) {
-  const { handleApprove, handleDecline, isPending } = useTaskActions();
-  const { currentStatus } = useTaskStatus(task);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
@@ -53,7 +42,9 @@ export function TaskDetailDialog({
               <h2 className="text-xl font-semibold">
                 {task.name.replace(/^\[TEST\]\s*/, "")}
               </h2>
-              <p className="text-sm text-muted-foreground">Creator Details</p>
+              <p className="text-sm text-muted-foreground">
+                Creator Management
+              </p>
             </div>
           </DialogTitle>
         </DialogHeader>
@@ -61,115 +52,50 @@ export function TaskDetailDialog({
         <div className="px-4 pb-4">
           {task.custom_fields && task.custom_fields.length > 0 && (
             <div className="space-y-3">
-              {task.custom_fields.map(field => {
-                const value = renderFieldValue(field);
-                if (!value) return null;
-
-                if (field.id === CUSTOM_FIELD_IDS.CLIENT_APPROVAL) {
-                  return null;
-                }
-
-                if (field.type === "url" && field.value) {
-                  const url = field.value.toString();
-
-                  return (
-                    <div key={field.id} className="border-b pb-2">
-                      <div className="font-medium text-sm text-muted-foreground mb-1">
-                        {field.name}
-                      </div>
-                      <Link
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {url}
-                      </Link>
-                    </div>
-                  );
-                }
+              <div className="text-sm font-medium text-blue-600 border-b pb-1 mb-3">
+                📊 Creator Information
+              </div>
+              {task.custom_fields.map((field) => {
+                if (!field.value) return null;
 
                 return (
                   <div key={field.id} className="border-b pb-2">
                     <div className="font-medium text-sm text-muted-foreground mb-1">
                       {field.name}
                     </div>
-                    <div className="text-sm">{value}</div>
+                    <div className="text-sm">{String(field.value)}</div>
                   </div>
                 );
               })}
             </div>
           )}
-        </div>
 
-        <DialogFooter>
-          <div className="flex gap-2 w-full">
-            {currentStatus === "Declined" ? (
-              <DialogClose asChild>
-                <Button
-                  onClick={() => handleApprove(task)}
-                  disabled={isPending}
-                  className="flex-1"
-                >
-                  {isPending ? (
-                    <Loader2Icon className="w-4 h-4 mr-1 animate-spin" />
-                  ) : (
-                    <CheckIcon className="w-4 h-4 mr-1" />
-                  )}
-                  Approve
-                </Button>
-              </DialogClose>
-            ) : currentStatus === "Accepted" ? (
-              <DialogClose asChild>
-                <Button
-                  variant="outline"
-                  onClick={() => handleDecline(task)}
-                  disabled={isPending}
-                  className="flex-1"
-                >
-                  {isPending ? (
-                    <Loader2Icon className="w-4 h-4 mr-1 animate-spin" />
-                  ) : (
-                    <XIcon className="w-4 h-4 mr-1" />
-                  )}
-                  Decline
-                </Button>
-              </DialogClose>
-            ) : currentStatus === "Review" ? (
-              <>
-                <DialogClose asChild>
-                  <Button
-                    onClick={() => handleApprove(task)}
-                    disabled={isPending}
-                    className="flex-1"
-                  >
-                    {isPending ? (
-                      <Loader2Icon className="w-4 h-4 mr-1 animate-spin" />
-                    ) : (
-                      <CheckIcon className="w-4 h-4 mr-1" />
-                    )}
-                    Approve
-                  </Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleDecline(task)}
-                    disabled={isPending}
-                    className="flex-1"
-                  >
-                    {isPending ? (
-                      <Loader2Icon className="w-4 h-4 mr-1 animate-spin" />
-                    ) : (
-                      <XIcon className="w-4 h-4 mr-1" />
-                    )}
-                    Decline
-                  </Button>
-                </DialogClose>
-              </>
-            ) : null}
-          </div>
-        </DialogFooter>
+          {task.status && (
+            <div className="mt-3 pt-3 border-t">
+              <div className="text-sm font-medium text-muted-foreground mb-1">
+                Status
+              </div>
+              <span
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                style={{
+                  backgroundColor: task.status.color || "#e5e7eb",
+                  color: "#374151",
+                }}
+              >
+                {task.status.status}
+              </span>
+            </div>
+          )}
+
+          {task.description && (
+            <div className="mt-3 pt-3 border-t">
+              <div className="text-sm font-medium text-muted-foreground mb-1">
+                Description
+              </div>
+              <div className="text-sm text-gray-700">{task.description}</div>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
