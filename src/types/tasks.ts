@@ -45,3 +45,4 @@ export interface GenericTask extends BaseTask {
 }
 
 export type Task = CreatorTask | GenericTask;
+
