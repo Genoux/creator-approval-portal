@@ -18,7 +18,7 @@ function getApprovalField(task: Task) {
 
 export function getApprovalStatus(task: Task): ApprovalLabel {
   const field = getApprovalField(task);
-  if (!field?.value) return APPROVAL_LABELS.FOR_REVIEW;
+  if (field?.value === null || field?.value === undefined) return APPROVAL_LABELS.FOR_REVIEW;
 
   const options = field.type_config?.options || [];
   const value = field.value;
