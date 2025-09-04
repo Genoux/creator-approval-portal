@@ -1,12 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
-import type { ApiResponse } from "@/types";
-import type { BaseTask } from "@/types/tasks";
+import type { ApiResponse, Task } from "@/types";
 
 export async function GET(request: NextRequest) {
   try {
-    // Get auth token from cookie
     const token = request.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -37,43 +35,31 @@ export async function GET(request: NextRequest) {
     }
 
     const clickup = new ClickUpAPI(apiToken);
-    const creators = await clickup.getTasks(session.boardId);
+    const allTasks = await clickup.getTasks(session.boardId);
 
-    // Filter custom fields to only include the ones we need
-    // Note: Using exact field names from ClickUp (including emojis and spaces) is probably not the best way to do this. PASS POC
-    const allowedFields = [
-      "Name",
-      "✅ Client Approval ",
-      "Example",
-      "IG Profile",
-      "TT Profile",
-      "Creator Type",
-      "Engagement Rate",
-      "Comments",
-      "Usage Rights",
-      "Exclusivity",
-      "Ad Code",
-      "Deliverables",
-    ];
+    const filter = ["client approval", "backup", "declined (client)"];
+    // Filter to only show creators with status "SELECTED"
+    const selectedTasks = allTasks.filter((task: Task) =>
+      filter.includes(task.status?.status?.toLowerCase())
+    );
 
-    const filteredCreators = creators.map((creator) => {
-      const filteredFields =
-        creator.custom_fields?.filter((field: { name: string }) =>
-          allowedFields.includes(field.name)
-        ) || [];
+    const creators = selectedTasks.map((task: Task) => ({
+      id: task.id,
+      name: task.name,
+      custom_fields: task.custom_fields || [],
+      status: task.status,
+    }));
 
-      return {
-        ...creator,
-        custom_fields: filteredFields,
-      };
-    });
+    console.log(
+      `Fetched ${allTasks.length} total creators, ${selectedTasks.length} with SELECTED status`
+    );
 
-    return NextResponse.json<ApiResponse<BaseTask[]>>({
+    return NextResponse.json<ApiResponse<typeof creators>>({
       success: true,
-      data: filteredCreators,
+      data: creators,
     });
   } catch (error) {
-    console.error("Creators fetch error:", error);
+    console.error("Error fetching creators:", error);
     return NextResponse.json<ApiResponse<null>>(
       { success: false, message: "Failed to fetch creators", data: null },
       { status: 500 }
