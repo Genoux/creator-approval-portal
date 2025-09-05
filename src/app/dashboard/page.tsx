@@ -20,7 +20,6 @@ export default function DashboardPage() {
   const { data: tasks = [], isLoading, error } = useCreators();
 
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const hasSeenDisclaimer = localStorage.getItem("hasSeenDisclaimer");
@@ -70,8 +69,6 @@ export default function DashboardPage() {
           <TasksGrid
             tasks={tasks}
             isLoading={isLoading}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
           />
         </div>
       </SidebarInset>
