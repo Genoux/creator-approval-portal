@@ -1,8 +1,11 @@
-import { BadgeCheck, Users } from "lucide-react";
+import { BadgeCheck, Users, XIcon } from "lucide-react";
+import { useState } from "react";
+import { CommentSection } from "@/components/comments/CommentSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -11,6 +14,7 @@ import {
 import { Image } from "@/components/ui/image";
 import { Separator } from "@/components/ui/separator";
 import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
+import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import { isTeamRecommended } from "@/utils/approval";
 
@@ -20,51 +24,36 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ task, children }: TaskModalProps) {
-  const { profileImageUrl, primaryHandle, name } = useCreatorProfile(task);
+  const [open, setOpen] = useState(false);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="!max-w-[1280px] !h-[calc(100vh-2rem)] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-xl">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden">
-              <Image
-                src={profileImageUrl}
-                alt={`${task.name} profile`}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="flex flex-col items-start">
-              <div className="flex items-center gap-2">
-                {name}
-                {isTeamRecommended(task) && (
-                  <BadgeCheck className="w-5 h-5 text-green-500" />
-                )}
-              </div>
-              {primaryHandle && (
-                <span className="text-sm text-muted-foreground font-normal">
-                  {primaryHandle}
-                </span>
-              )}
-            </div>
-          </DialogTitle>
-        </DialogHeader>
-        <section className="grid grid-cols-6 gap-4">
-          <TaskDetails task={task} />
-          <CommentSection />
+      <DialogContent
+        showCloseButton={false}
+        className="!max-w-[1280px] px-4 pb-4 pt-3"
+      >
+        <div className="flex justify-end w-full ">
+          <Button
+            className="rounded-full h-fit w-fit px-2.5 pt-2.5 pb-2 cursor-pointer "
+            onClick={() => setOpen(false)}
+            variant="secondary"
+            size="icon"
+          >
+            <XIcon className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <section className="flex justify-between gap-4  !h-[800px] ">
+          <TaskDetails task={task} className="flex-1 w-full" />
+          <CommentSection taskId={task.id} className="" />
         </section>
       </DialogContent>
     </Dialog>
   );
 }
 
-function CommentSection() {
-  return <div>CommentSection</div>;
-}
-
-function TaskDetails({ task }: { task: Task }) {
+function TaskDetails({ task, className }: { task: Task; className?: string }) {
   const {
     profileImageUrl,
     socialProfiles,
@@ -78,14 +67,13 @@ function TaskDetails({ task }: { task: Task }) {
     sow,
   } = useCreatorProfile(task);
   return (
-    <div className="col-span-3 border border-green-600">
-      {/* Profile Image */}
-      <div className="relative rounded-lg overflow-hidden bg-muted">
+    <div className={cn(className)}>
+      <div className="relative rounded-lg overflow-hidden bg-muted hidde">
         <Image
           src={profileImageUrl}
           alt={`${name} profile`}
-          width={512}
-          height={512}
+          width={300}
+          height={300}
           className="object-cover"
         />
       </div>
