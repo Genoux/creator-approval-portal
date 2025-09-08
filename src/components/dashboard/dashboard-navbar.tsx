@@ -20,7 +20,7 @@ export function DashboardNavbar({ onLogout }: DashboardNavbarProps) {
   const { clickupUrl } = useBoardInfo();
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="border-b border-black/5">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link
