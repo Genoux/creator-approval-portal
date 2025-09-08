@@ -79,7 +79,7 @@ function findFieldValue(
   return null;
 }
 
-export function extractCreatorData(task: Task): CreatorData {
+export default function extractCreatorData(task: Task): CreatorData {
   const customFields = task.custom_fields || [];
   const result: Record<string, unknown> = {};
 
@@ -106,23 +106,4 @@ export function extractCreatorData(task: Task): CreatorData {
   }
 
   return result as CreatorData;
-}
-
-export function formatFollowerCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M+`;
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K+`;
-  }
-  return count.toString();
-}
-
-export function formatRate(rate: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(rate);
 }

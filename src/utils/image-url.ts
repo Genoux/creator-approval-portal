@@ -1,7 +1,7 @@
 /**
  * Extracts image URL from various sources
  */
-export function extractImageUrl(
+export default function extractImageUrl(
   input:
     | string
     | { url?: string; avatar?: string; image?: string; profileImage?: string }
