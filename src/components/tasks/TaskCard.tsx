@@ -1,18 +1,10 @@
-import {
-  BadgeCheck,
-  ChevronDownIcon,
-  CircleCheckIcon,
-  CircleHelpIcon,
-  CircleIcon,
-  CircleXIcon,
-  ThumbsUpIcon,
-  Users,
-} from "lucide-react";
-import type React from "react";
+import { Squircle } from "@squircle-js/react";
+import { BadgeCheck, ChevronDownIcon, Users } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,15 +17,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCreatorActions } from "@/hooks/creators/useCreatorActions";
+import { useStatusActions } from "@/hooks/creators/useStatusActions";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import {
-  APPROVAL_LABELS,
   getApprovalStatus,
+  getDisplayLabel,
   isTeamRecommended,
 } from "@/utils/approval";
 import { extractCreatorData, formatFollowerCount } from "@/utils/creator-data";
+import { useImageColor } from "@/utils/image-color";
 import { extractImageUrl } from "@/utils/image-url";
 import { extractHandle } from "@/utils/social-media";
 
@@ -41,68 +34,22 @@ interface TaskCardProps {
   task: Task;
 }
 
-// Define status actions and derive options from it
-const STATUS_ACTIONS = {
-  [APPROVAL_LABELS.PERFECT]: (
-    task: Task,
-    actions: ReturnType<typeof useCreatorActions>
-  ) => actions.handleApprove(task),
-  [APPROVAL_LABELS.GOOD]: (
-    task: Task,
-    actions: ReturnType<typeof useCreatorActions>
-  ) => actions.handleGood(task),
-  [APPROVAL_LABELS.SUFFICIENT]: (
-    task: Task,
-    actions: ReturnType<typeof useCreatorActions>
-  ) => actions.handleBackup(task),
-  [APPROVAL_LABELS.POOR_FIT]: (
-    task: Task,
-    actions: ReturnType<typeof useCreatorActions>
-  ) => actions.handleDecline(task),
-  [APPROVAL_LABELS.FOR_REVIEW]: (
-    task: Task,
-    actions: ReturnType<typeof useCreatorActions>
-  ) => actions.handleMoveToReview(task),
-} as const;
-
-const STATUS_OPTIONS = Object.keys(STATUS_ACTIONS) as Array<
-  keyof typeof STATUS_ACTIONS
->;
-
 export function TaskCard({ task }: TaskCardProps) {
-  const creatorActions = useCreatorActions();
+  const { STATUS_OPTIONS, handleStatusChange } = useStatusActions();
   const currentLabel = getApprovalStatus(task);
   const creatorData = extractCreatorData(task);
+
+  // Temporary image
   const profileImageUrl = extractImageUrl(
     creatorData.profileImageUrl ||
-      "https://s2.imginn.com/post529452331_18518223043059787_5939114518899576111_n.jpg?t51.2885-15/529452331_18518223043059787_5939114518899576111_n.jpg?stp=dst-jpg_e35_p640x640_sh0.08_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMDgweDE0NDAuc2RyLmY4Mjc4Ny5kZWZhdWx0X2ltYWdlLmMyIn0&_nc_ht=scontent-atl3-3.cdninstagram.com&_nc_cat=107&_nc_oc=Q6cZ2QFTCOpnQT5m2kKWc1bQXZT448i-06pOggHp-vkFJvVSN1tWQOQD278f2gmtxc_daT5gUyrJTPaUay4QdfK5Ru7f&_nc_ohc=5bao35_3wIEQ7kNvwGFPoil&_nc_gid=LiJk12v8-iaWh4FOwFG6iQ&edm=ANTKIIoBAAAA&ccb=7-5&oh=00_Afa5q10xglmNzMaUUjsSkSDK5DjY203vH1YBo5re1x31Xw&oe=68C0DAC4&_nc_sid=d885a2"
+      "https://img.freepik.com/free-photo/man-doing-household-tasks_23-2151733167.jpg?semt=ais_hybrid&w=740&q=80"
   );
   const primaryHandle =
     extractHandle(creatorData.ttProfile) ||
     extractHandle(creatorData.igProfile) ||
     extractHandle(creatorData.ytProfile);
 
-  function handleStatusChange(status: string) {
-    const actionFn = STATUS_ACTIONS[status as keyof typeof STATUS_ACTIONS];
-    if (actionFn) {
-      actionFn(task, creatorActions);
-    }
-  }
-
-  function getStatusIcon(status: string) {
-    const iconMap: Record<
-      string,
-      React.ComponentType<{ className?: string }>
-    > = {
-      [APPROVAL_LABELS.PERFECT]: CircleCheckIcon,
-      [APPROVAL_LABELS.GOOD]: ThumbsUpIcon,
-      [APPROVAL_LABELS.SUFFICIENT]: CircleIcon,
-      [APPROVAL_LABELS.POOR_FIT]: CircleXIcon,
-    };
-
-    const IconComponent = iconMap[status] || CircleHelpIcon;
-    return <IconComponent className="w-4 h-4" />;
-  }
+  const { gradient } = useImageColor(profileImageUrl);
 
   function StatusDropdownMenu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -114,7 +61,7 @@ export function TaskCard({ task }: TaskCardProps) {
             variant="outline"
             className="flex gap-0.5 border border-white/30 bg-white/10 backdrop-blur-md rounded-3xl text-white hover:bg-white/20 hover:text-white transition-colors focus:ring-0! focus:ring-offset-0 data-[state=open]:ring-0"
           >
-            Status
+            {getDisplayLabel(currentLabel)}
             <ChevronDownIcon
               className={cn(
                 "w-4 h-4 transition-transform duration-200",
@@ -123,24 +70,23 @@ export function TaskCard({ task }: TaskCardProps) {
             />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-white/90 backdrop-blur-lg border border-white/20 shadow-lg w-[220px]">
+        <DropdownMenuContent className="bg-white/90 backdrop-blur-lg border border-white/20 shadow-lg w-[200px]">
           {STATUS_OPTIONS.map((status) => (
             <DropdownMenuItem
               key={status}
               onClick={() => {
                 if (currentLabel.toString() !== status) {
-                  handleStatusChange(status);
+                  handleStatusChange(task, status);
                 }
               }}
               className={cn(
                 "flex items-center gap-2",
                 currentLabel.toString() === status
-                  ? "bg-gray-100 cursor-default"
+                  ? "bg-black/5 cursor-default"
                   : "cursor-pointer"
               )}
             >
-              {getStatusIcon(status)}
-              {status}
+              {getDisplayLabel(status)}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -149,67 +95,87 @@ export function TaskCard({ task }: TaskCardProps) {
   }
 
   return (
-    <Card className="transition-colors relative h-[500px] rounded-3xl overflow-hidden p-2">
-      {/* Background Image */}
-      <div className="absolute inset-2 rounded-2xl overflow-hidden border border-black/10">
-        <Image src={profileImageUrl || ""} alt={`${task.name} profile`} fill />
-      </div>
-      {/* Gradient Blur Overlay */}
+    <AnimatePresence mode="wait">
       <div
-        className="absolute inset-2 backdrop-blur-lg rounded-2xl overflow-hidden"
+        className="shadow-lg"
         style={{
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 80%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, transparent 0%, black 80%)",
+          boxShadow:
+            "0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.12)",
+          borderRadius: "24px",
         }}
-      ></div>
+      >
+        <Squircle
+          cornerRadius={24}
+          cornerSmoothing={1}
+          className="transition-colors relative h-[500px] overflow-hidden will-change-transform"
+        >
+          {/* Background Image */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden ">
+            <Image
+              src={profileImageUrl || ""}
+              alt={`${task.name} profile`}
+              fill
+            />
+          </div>
+          <div
+            className="absolute inset-0 backdrop-blur-lg rounded-2xl overflow-hidden"
+            style={{
+              maskImage:
+                "linear-gradient(to bottom, transparent 0%, black 80%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, transparent 0%, black 80%)",
+            }}
+          ></div>
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{ background: gradient }}
+          ></div>
 
-      {/* Subtle Dark Gradient Overlay */}
-      <div className="absolute inset-2 rounded-2xl bg-gradient-to-b from-transparent via-transparent to-black/40"></div>
+          {/* Content Overlay */}
+          <div className="absolute inset-2 flex flex-col justify-between p-3 text-white">
+            {/* Empty top space */}
+            <div></div>
 
-      {/* Content Overlay */}
-      <div className="absolute inset-2 flex flex-col justify-between p-4 text-white rounded-lg">
-        {/* Empty top space */}
-        <div></div>
+            {/* Bottom Content */}
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  {task.name}
+                  {isTeamRecommended(task) ? (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <BadgeCheck className="w-5 h-5 text-green-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Team Recommended</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                </CardTitle>
 
-        {/* Bottom Content */}
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              {task.name}
-              {isTeamRecommended(task) ? (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <BadgeCheck className="w-5 h-5 text-green-400" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Team Recommended</p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : null}
-            </CardTitle>
+                <CardDescription className="text-white/80 text-base">
+                  {primaryHandle}
+                </CardDescription>
 
-            <CardDescription className="text-white/80 text-base">
-              {primaryHandle}
-            </CardDescription>
-
-            <div className="flex justify-between items-center mt-2">
-              <div className="flex items-center gap-3">
-                {creatorData.followerCount && (
-                  <div className="flex items-center gap-1.5 text-sm white/90">
-                    <Users className="w-4 h-4" />
-                    <span>
-                      {formatFollowerCount(creatorData.followerCount)}
-                    </span>
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-3">
+                    {creatorData.followerCount && (
+                      <div className="flex items-center gap-1.5 text-sm white/90">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {formatFollowerCount(creatorData.followerCount)}
+                        </span>
+                      </div>
+                    )}
+                    <SocialMediaButtons creatorData={creatorData} />
                   </div>
-                )}
-                <SocialMediaButtons creatorData={creatorData} />
+                  <StatusDropdownMenu />
+                </div>
               </div>
-              <StatusDropdownMenu />
             </div>
           </div>
-        </div>
+        </Squircle>
       </div>
-    </Card>
+    </AnimatePresence>
   );
 }

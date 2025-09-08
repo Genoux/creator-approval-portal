@@ -1,8 +1,10 @@
 "use client";
 
+import { LayoutDebug } from "layout-debug-tool";
 import { useEffect, useState } from "react";
-import { AppSidebar } from "@/components/blocks/app-sidebar";
-import { SiteHeader } from "@/components/blocks/site-header";
+import { Footer } from "@/components/blocks/footer";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import {
   AlertDialog,
@@ -13,7 +15,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCreators } from "@/hooks/creators/useCreators";
 
 export default function DashboardPage() {
@@ -47,52 +48,39 @@ export default function DashboardPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader onLogout={handleLogout} />
-        <div className="flex flex-1 flex-col py-4">
-          {tasks.length > 0 && (
-            <div className="px-4 lg:px-6 mb-2">
-              <div className="text-xs text-muted-foreground">
-                Showing: {tasks.length} creators
-              </div>
-            </div>
-          )}
-          <TasksGrid
-            tasks={tasks}
-            isLoading={isLoading}
-          />
-        </div>
-      </SidebarInset>
+    <LayoutDebug>
+      <div className="min-h-screen bg-white flex flex-col">
+        <DashboardNavbar onLogout={handleLogout} />
 
-      <AlertDialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>⚠️ Proof of Concept</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is a <strong>Proof of Concept</strong> application for
-              demonstration purposes.
-              <br />
-              <br />
-              All features, data, and functionality shown here are subject to
-              change and should not be considered final or production-ready.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleDisclaimerClose}>
-              I Understand
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </SidebarProvider>
+        {/* Main Content */}
+        <main className="flex-1 max-w-[1280px] mx-auto flex flex-col gap-6 py-12 px-6 w-full">
+          <DashboardHeader />
+          <TasksGrid tasks={tasks} isLoading={isLoading} />
+        </main>
+
+        <AlertDialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>⚠️ Alpha Version</AlertDialogTitle>
+              <AlertDialogDescription>
+                This is an <strong>Alpha version</strong> of the application and
+                is not yet finished.
+                <br />
+                <br />
+                You may encounter bugs, incomplete features, or unexpected
+                behavior. All functionality is subject to change and should not
+                be considered stable or production-ready.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={handleDisclaimerClose}>
+                I Understand
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <Footer />
+      </div>
+    </LayoutDebug>
   );
 }
