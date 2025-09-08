@@ -3,10 +3,34 @@ import { NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  // Only protect dashboard routes
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    const token = request.cookies.get("auth-token")?.value;
+  const token = request.cookies.get("auth-token")?.value;
 
+  // Debug logging for production
+  console.log("🔍 Middleware Debug:", {
+    path: request.nextUrl.pathname,
+    hasToken: !!token,
+    tokenPreview: token ? `${token.substring(0, 20)}...` : null,
+    cookies: request.cookies.getAll().map((c) => c.name),
+  });
+
+  // Handle home page - redirect to dashboard if authenticated
+  if (request.nextUrl.pathname === "/") {
+    if (token) {
+      console.log("🔐 Verifying token for home page redirect...");
+      const session = await verifyAuthToken(token);
+      console.log("🔐 Token verification result:", { valid: !!session });
+
+      if (session) {
+        console.log("✅ Redirecting authenticated user to dashboard");
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    }
+    console.log("➡️ No token or invalid - staying on login page");
+    return NextResponse.next();
+  }
+
+  // Handle dashboard protection
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/", request.url));
     }
@@ -25,5 +49,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/dashboard/:path*",
+  matcher: ["/", "/dashboard/:path*"],
 };

@@ -18,7 +18,11 @@ export async function POST(request: NextRequest) {
     const apiToken = process.env.CLICKUP_API_TOKEN;
     if (!apiToken) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "ClickUp API token not configured", data: null },
+        {
+          success: false,
+          message: "ClickUp API token not configured",
+          data: null,
+        },
         { status: 500 }
       );
     }
@@ -53,12 +57,21 @@ export async function POST(request: NextRequest) {
       data: { token },
     });
 
-    response.cookies.set("auth-token", token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax" as const, // Changed from "strict" to "lax" for better compatibility
       maxAge: 24 * 60 * 60, // 24 hours
+      path: "/", // Ensure cookie is available site-wide
+    };
+
+    console.log("🍪 Setting auth cookie with options:", {
+      ...cookieOptions,
+      tokenLength: token.length,
+      environment: process.env.NODE_ENV,
     });
+
+    response.cookies.set("auth-token", token, cookieOptions);
 
     return response;
   } catch (error) {
@@ -77,6 +90,14 @@ export async function DELETE() {
     data: null,
   });
 
-  response.cookies.delete("auth-token");
+  // Properly clear the cookie with same settings used when setting it
+  response.cookies.set("auth-token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0, // Expire immediately
+    path: "/",
+  });
+
   return response;
 }
