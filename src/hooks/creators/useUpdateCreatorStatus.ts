@@ -55,5 +55,10 @@ export function useUpdateCreatorStatus() {
         queryClient.setQueryData(["creators"], context.previous);
       }
     },
+
+    onSuccess: () => {
+      // Invalidate queries to ensure fresh data after successful update
+      queryClient.invalidateQueries({ queryKey: ["creators"] });
+    },
   });
 }
