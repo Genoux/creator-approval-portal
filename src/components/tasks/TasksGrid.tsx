@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { Empty } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,6 +8,7 @@ import {
   APPROVAL_LABELS,
   type ApprovalLabel,
   getApprovalStatus,
+  getDisplayLabel,
 } from "@/utils/approval";
 import { TaskCard } from "./TaskCard";
 
@@ -38,19 +40,21 @@ export function TasksGrid({ tasks, isLoading }: TasksGridProps) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col px-4 lg:px-6">
-        <div>
-          <Skeleton className="h-6 w-48" />
+      <div className="w-full flex flex-col gap-6">
+        {/* Skeleton Tabs */}
+        <div className="flex justify-between w-full bg-muted rounded-lg py-1">
+          {Array.from({ length: 5 }, () => (
+            <Skeleton key={Math.random()} className="h-9 flex-1 mx-0.5" />
+          ))}
         </div>
-        <div className="flex justify-between gap-4">
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }, () => (
-            <Skeleton key={crypto.randomUUID()} className="h-64 w-full" />
+
+        {/* Skeleton Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 9 }, () => (
+            <Skeleton
+              key={Math.random()}
+              className="h-[500px] w-full rounded-3xl"
+            />
           ))}
         </div>
       </div>
@@ -59,60 +63,61 @@ export function TasksGrid({ tasks, isLoading }: TasksGridProps) {
 
   if (tasks.length === 0) {
     return (
-      <div className="px-4 lg:px-6">
-        <div className="mb-4">
-          <h4 className="text-xl font-semibold tracking-tight">0 creators</h4>
-        </div>
-        <div className="text-center py-8">
-          <div className="text-muted-foreground">No creators found</div>
-        </div>
-      </div>
+      <Empty
+        title="No creators found"
+        description="Creators will appear here when they're assigned this status."
+      />
     );
   }
 
   return (
-    <div className="px-4 lg:px-6">
-      <div className="mb-4">
-        <h4 className="text-xl font-semibold tracking-tight">
-          {tasks.length} creators
-        </h4>
-      </div>
-
-      <Tabs
-        value={activeTab || CATEGORIES[0]}
-        onValueChange={(v) => setActiveTab(v as ApprovalLabel)}
-        className="w-full"
-      >
-        <TabsList
-          className="grid w-full mb-4"
-          style={{
-            gridTemplateColumns: `repeat(${CATEGORIES.length}, minmax(0, 1fr))`,
-          }}
-        >
-          {CATEGORIES.map((status) => (
-            <TabsTrigger key={status} value={status} className="text-sm">
-              {status} ({tasksByStatus[status]?.length || 0})
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
+    <Tabs
+      value={activeTab || CATEGORIES[0]}
+      onValueChange={(v) => setActiveTab(v as ApprovalLabel)}
+      className="w-full flex flex-col gap-6"
+    >
+      <TabsList className="flex justify-between w-full">
         {CATEGORIES.map((status) => (
-          <TabsContent key={status} value={status} className="mt-0">
-            {tasksByStatus[status]?.length === 0 ? (
-              <Empty
-                title={`No creators in "${status}"`}
-                description="Creators will appear here when they're assigned this status."
-              />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {tasksByStatus[status]?.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
+          <TabsTrigger
+            key={status}
+            value={status}
+            className="text-sm cursor-pointer"
+          >
+            {getDisplayLabel(status)} ({tasksByStatus[status]?.length || 0})
+          </TabsTrigger>
         ))}
-      </Tabs>
-    </div>
+      </TabsList>
+
+      {CATEGORIES.map((status) => (
+        <TabsContent key={status} value={status} className="mt-0">
+          {tasksByStatus[status]?.length === 0 ? (
+            <Empty
+              title={`No creators in "${getDisplayLabel(status)}"`}
+              description={`Creators will appear here when they're assigned this status.`}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tasksByStatus[status]?.map((task, index) => (
+                <motion.div
+                  key={task.id}
+                  initial={{ y: 25, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 25, opacity: 0 }}
+                  transition={{
+                    delay: index * 0.1 + 0.2,
+                    duration: 0.3,
+                    type: "spring",
+                    damping: 20,
+                    stiffness: 300,
+                  }}
+                >
+                  <TaskCard task={task} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      ))}
+    </Tabs>
   );
 }
