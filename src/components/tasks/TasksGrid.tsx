@@ -1,8 +1,9 @@
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Empty } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import {
   APPROVAL_LABELS,
@@ -42,9 +43,9 @@ export function TasksGrid({ tasks, isLoading }: TasksGridProps) {
     return (
       <div className="w-full flex flex-col gap-6">
         {/* Skeleton Tabs */}
-        <div className="flex justify-between w-full bg-muted rounded-lg py-1">
+        <div className="flex gap-2 w-full">
           {Array.from({ length: 5 }, () => (
-            <Skeleton key={Math.random()} className="h-9 flex-1 mx-0.5" />
+            <Skeleton key={Math.random()} className="h-10 flex-1 rounded-lg" />
           ))}
         </div>
 
@@ -70,54 +71,58 @@ export function TasksGrid({ tasks, isLoading }: TasksGridProps) {
     );
   }
 
+  const currentActiveTab = activeTab || CATEGORIES[0];
+
   return (
-    <Tabs
-      value={activeTab || CATEGORIES[0]}
-      onValueChange={(v) => setActiveTab(v as ApprovalLabel)}
-      className="w-full flex flex-col gap-6"
-    >
-      <TabsList className="flex justify-between w-full">
+    <div className="w-full flex flex-col gap-6">
+      {/* Simple Custom Tabs */}
+      <div className="flex gap-2 w-full">
         {CATEGORIES.map((status) => (
-          <TabsTrigger
+          <Button
             key={status}
-            value={status}
-            className="text-sm cursor-pointer"
+            variant="secondary"
+            onClick={() => setActiveTab(status)}
+            className={cn(
+              "py-6 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-100",
+              currentActiveTab === status &&
+                "bg-[#2A0006] text-white hover:bg-[#2A0006]"
+            )}
           >
             {getDisplayLabel(status)} ({tasksByStatus[status]?.length || 0})
-          </TabsTrigger>
+          </Button>
         ))}
-      </TabsList>
+      </div>
 
-      {CATEGORIES.map((status) => (
-        <TabsContent key={status} value={status} className="mt-0">
-          {tasksByStatus[status]?.length === 0 ? (
-            <Empty
-              title={`No creators in "${getDisplayLabel(status)}"`}
-              description={`Creators will appear here when they're assigned this status.`}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tasksByStatus[status]?.map((task, index) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 25, opacity: 0 }}
-                  transition={{
-                    delay: index * 0.1 + 0.2,
-                    duration: 0.3,
-                    type: "spring",
-                    damping: 20,
-                    stiffness: 300,
-                  }}
-                >
-                  <TaskCard task={task} />
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      ))}
-    </Tabs>
+      {/* Tab Content */}
+      <div>
+        {tasksByStatus[currentActiveTab]?.length === 0 ? (
+          <Empty
+            title={`No creators in "${getDisplayLabel(currentActiveTab)}"`}
+            description={`Creators will appear here when they're assigned this status.`}
+            className="h-[580px]"
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tasksByStatus[currentActiveTab]?.map((task, index) => (
+              <motion.div
+                key={task.id}
+                initial={{ y: 25, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 25, opacity: 0 }}
+                transition={{
+                  delay: index * 0.1 + 0.2,
+                  duration: 0.3,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 300,
+                }}
+              >
+                <TaskCard task={task} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

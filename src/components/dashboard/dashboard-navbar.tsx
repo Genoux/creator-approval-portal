@@ -57,7 +57,7 @@ export function DashboardNavbar({ onLogout }: DashboardNavbarProps) {
               <Button
                 onClick={onLogout}
                 variant="secondary"
-                className="cursor-pointer"
+                className="cursor-pointer rounded-full"
               >
                 Logout
               </Button>

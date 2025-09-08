@@ -25,7 +25,7 @@ export function DashboardHeader() {
       <div className="flex flex-col w-full">
         <div className="text-sm text-black/60">{folderName}</div>
         <div className="flex items-center gap-2 w-full justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-black/90">
             {"Creator Management"}
           </h1>
         </div>
