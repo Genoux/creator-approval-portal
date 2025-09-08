@@ -29,7 +29,7 @@ export function extractImageUrl(
     !url.includes("localhost") &&
     !url.startsWith("/")
   ) {
-    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    return `/api/proxy-image?url=${url}`;
   }
 
   return url;

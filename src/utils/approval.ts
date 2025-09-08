@@ -13,6 +13,13 @@ export type ApprovalLabel =
 
 export const APPROVAL_FIELD_ID = "524e49cd-f642-4203-a841-46b418dd8eb4";
 
+/**
+ * Gets display-friendly label without parentheses for UI
+ */
+export function getDisplayLabel(label: string): string {
+  return label.replace(/\s*\([^)]*\)/g, "");
+}
+
 function getApprovalField(task: Task) {
   return task.custom_fields?.find((field) => field.id === APPROVAL_FIELD_ID);
 }
@@ -48,8 +55,6 @@ export function getApprovalOptionId(task: Task, label: string): string | null {
 }
 
 export function isTeamRecommended(task: Task): boolean {
-  // Check if both CP/IS Rating and CM Rating are 'Perfect Fit'
-  console.log(task.custom_fields);
   const cpIsRatingField = task.custom_fields?.find(
     (field) => field.name === "CP/IS Rating"
   );

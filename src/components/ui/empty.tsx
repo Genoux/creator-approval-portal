@@ -12,8 +12,8 @@ export function Empty({
   icon,
 }: EmptyProps) {
   return (
-    <Card className="border-dashed border-2 w-full shadow-none h-[calc(100vh-20rem)] flex items-center justify-center">
-      <CardContent className="flex flex-col items-center justify-center py-12 px-6">
+    <div className="border-dashed border-2 w-full shadow-none h-[calc(100vh-30rem)] flex items-center justify-center rounded-3xl bg-white">
+      <div className="flex flex-col items-center justify-center py-12 px-6">
         {icon && <div className="mb-4 text-muted-foreground">{icon}</div>}
         <h3 className="text-lg font-normal text-muted-foreground mb-1">
           {title}
@@ -21,7 +21,7 @@ export function Empty({
         <p className="text-sm text-muted-foreground text-center max-w-sm">
           {description}
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
