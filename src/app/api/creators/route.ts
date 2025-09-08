@@ -39,7 +39,12 @@ export async function GET(request: NextRequest) {
     const clickup = new ClickUpAPI(apiToken);
     const allTasks = await clickup.getTasks(session.boardId);
 
-    const filter = ["client approval", "backup", "declined (client)"];
+    const filter = [
+      "client approval",
+      "backup",
+      "declined (client)",
+      "selected",
+    ];
     // Filter to only show creators with status "SELECTED"
     const selectedTasks = allTasks.filter((task: Task) =>
       filter.includes(task.status?.status?.toLowerCase())
