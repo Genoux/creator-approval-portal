@@ -179,4 +179,79 @@ export class ClickUpAPI {
   async getSpace(spaceId: string, cacheTTL = 15 * 60 * 1000) {
     return this.request(`/space/${spaceId}`, {}, cacheTTL);
   }
+
+  // Comment Methods
+  async getTaskComments(taskId: string, cacheTTL = 2 * 60 * 1000) {
+    console.log(`💬 Fetching comments for task ${taskId}`);
+    return this.request(`/task/${taskId}/comment`, {}, cacheTTL);
+  }
+
+  async createTaskComment(
+    taskId: string,
+    commentText: string,
+    assignee?: number
+  ) {
+    console.log(`💬 Creating comment for task ${taskId}`);
+    const body: {
+      comment_text: string;
+      assignee?: number;
+      notify_all?: boolean;
+    } = {
+      comment_text: commentText,
+      notify_all: true,
+    };
+
+    if (assignee) {
+      body.assignee = assignee;
+    }
+
+    const result = await this.request(`/task/${taskId}/comment`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    // Clear comments cache for this task
+    this.clearCommentsCache(taskId);
+    return result;
+  }
+
+  async updateComment(
+    commentId: string,
+    commentText: string,
+    resolved?: boolean
+  ) {
+    console.log(`💬 Updating comment ${commentId}`);
+    const body: {
+      comment_text: string;
+      resolved?: boolean;
+    } = {
+      comment_text: commentText,
+    };
+
+    if (resolved !== undefined) {
+      body.resolved = resolved;
+    }
+
+    return this.request(`/comment/${commentId}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteComment(commentId: string) {
+    console.log(`💬 Deleting comment ${commentId}`);
+    return this.request(`/comment/${commentId}`, {
+      method: "DELETE",
+    });
+  }
+
+  private clearCommentsCache(taskId: string): void {
+    const keysToDelete = Object.keys(this.cache).filter((key) =>
+      key.includes(`/task/${taskId}/comment`)
+    );
+    keysToDelete.forEach((key) => delete this.cache[key]);
+    console.log(
+      `🗑️  Cleared ${keysToDelete.length} comment cache entries for task ${taskId}`
+    );
+  }
 }

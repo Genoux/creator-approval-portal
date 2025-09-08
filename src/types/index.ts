@@ -1,5 +1,11 @@
 import type { ApiResponse, AuthCredentials } from "./api";
 import type {
+  ClickUpComment,
+  Comment,
+  CreateCommentRequest,
+  UpdateCommentRequest,
+} from "./comments";
+import type {
   ClickUpDropdownOption,
   StatusOptionsResponse,
   StatusUpdate,
@@ -13,4 +19,8 @@ export type {
   StatusUpdate,
   ClickUpDropdownOption,
   StatusOptionsResponse,
+  Comment,
+  ClickUpComment,
+  CreateCommentRequest,
+  UpdateCommentRequest,
 };
