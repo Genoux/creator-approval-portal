@@ -2,8 +2,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, Task } from "@/types";
-import { extractCreatorData } from "@/utils/creator-data";
-import { extractImageUrl } from "@/utils/image-url";
+import extractCreatorData from "@/utils/creator-data";
+import extractImageUrl from "@/utils/image-url";
 
 export async function GET(request: NextRequest) {
   try {
