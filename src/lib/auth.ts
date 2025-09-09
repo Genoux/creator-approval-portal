@@ -41,19 +41,7 @@ export async function verifyAuthToken(
   token: string
 ): Promise<AuthSession | null> {
   try {
-    console.log("🔐 Verifying JWT token:", {
-      tokenLength: token.length,
-      tokenStart: token.substring(0, 50) + "...",
-    });
-
     const { payload } = await jwtVerify(token, secret);
-
-    console.log("✅ JWT verification successful:", {
-      boardId: payload.boardId,
-      exp: payload.exp,
-      expDate: new Date((payload.exp as number) * 1000).toISOString(),
-      isExpired: (payload.exp as number) < Date.now() / 1000,
-    });
 
     return {
       boardId: payload.boardId as string,
