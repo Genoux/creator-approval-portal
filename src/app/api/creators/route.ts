@@ -3,7 +3,6 @@ import { verifyAuthToken } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, Task } from "@/types";
 import extractCreatorData from "@/utils/creator-data";
-import extractImageUrl from "@/utils/image-url";
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,19 +51,12 @@ export async function GET(request: NextRequest) {
 
     const creators = selectedTasks.map((task: Task) => {
       const creatorData = extractCreatorData(task);
-      const profileImageUrl = extractImageUrl(
-        creatorData.profileImageUrl ||
-          creatorData.igProfile ||
-          creatorData.ttProfile ||
-          creatorData.ytProfile
-      );
-
       return {
         id: task.id,
         name: task.name,
         custom_fields: task.custom_fields || [],
         status: task.status,
-        profileImageUrl,
+        profileImageUrl: creatorData.profileImageUrl,
       };
     });
 

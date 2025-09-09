@@ -1,16 +1,10 @@
 import type { Task } from "@/types/tasks";
 import extractCreatorData from "@/utils/creator-data";
-import extractImageUrl from "@/utils/image-url";
 import extractHandle from "@/utils/social-media";
-
-const DEFAULT_PROFILE_IMAGE =
-  "https://img.freepik.com/free-photo/man-doing-household-tasks_23-2151733167.jpg?semt=ais_hybrid&w=740&q=80";
 
 export function useCreatorProfile(task: Task) {
   const creatorData = extractCreatorData(task);
-  const profileImageUrl =
-    extractImageUrl(creatorData.profileImageUrl || DEFAULT_PROFILE_IMAGE) ||
-    DEFAULT_PROFILE_IMAGE;
+  const profileImageUrl = creatorData.profileImageUrl;
 
   const primaryHandle =
     extractHandle(creatorData.ttProfile) ||

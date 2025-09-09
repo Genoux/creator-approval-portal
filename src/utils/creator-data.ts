@@ -1,5 +1,7 @@
 import type { Task } from "@/types/tasks";
 
+const DEFAULT_PROFILE_IMAGE = "https://dummyimage.com/400x500/000/fff";
+
 // Define fields to extract with their ClickUp field names and expected types
 const CREATOR_FIELDS = {
   followerCount: {
@@ -45,7 +47,7 @@ const CREATOR_FIELDS = {
     type: "string" as const,
   },
   profileImageUrl: {
-    fieldNames: ["Profile Image URL", "Profile Image", "Avatar URL"],
+    fieldNames: ["Picture Pic URL"],
     type: "string" as const,
   },
 } as const;
@@ -105,5 +107,12 @@ export default function extractCreatorData(task: Task): CreatorData {
     }
   }
 
-  return result as CreatorData;
+  const creatorData = result as CreatorData;
+
+  // Apply default profile image if none exists
+  if (!creatorData.profileImageUrl) {
+    creatorData.profileImageUrl = DEFAULT_PROFILE_IMAGE;
+  }
+
+  return creatorData;
 }
