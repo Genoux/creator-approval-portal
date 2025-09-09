@@ -7,9 +7,10 @@ import { useCommentActions } from "@/hooks/comments/useCommentActions";
 
 interface CommentFormProps {
   taskId: string;
+  onCommentSent?: () => void;
 }
 
-export function CommentForm({ taskId }: CommentFormProps) {
+export function CommentForm({ taskId, onCommentSent }: CommentFormProps) {
   const [comment, setComment] = useState("");
   const { createComment, isCreating, createError } = useCommentActions(taskId);
 
@@ -21,6 +22,7 @@ export function CommentForm({ taskId }: CommentFormProps) {
     try {
       await createComment({ comment_text: comment.trim() });
       setComment("");
+      onCommentSent?.();
     } catch (error) {
       console.error("Failed to create comment:", error);
     }

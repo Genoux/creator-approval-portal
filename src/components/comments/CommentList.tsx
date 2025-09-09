@@ -1,3 +1,15 @@
+import { MessageCircle } from "lucide-react";
+import { useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Comment } from "@/types";
+import { Empty } from "../ui/empty";
+
+function parseCommentDate(dateInput: string): Date {
+  return new Date(Number(dateInput));
+}
+
 // Simple date formatting without external dependencies
 function formatTimeAgo(date: Date): string {
   const now = new Date();
@@ -12,25 +24,34 @@ function formatTimeAgo(date: Date): string {
   return date.toLocaleDateString();
 }
 
-import { MessageCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { Comment } from "@/types";
-import { Empty } from "../ui/empty";
-
 interface CommentListProps {
   comments: Comment[];
   isLoading: boolean;
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
+  onCommentsChange?: () => void;
 }
 
-export function CommentList({ comments, isLoading }: CommentListProps) {
+export function CommentList({
+  comments,
+  isLoading,
+  scrollRef,
+  onCommentsChange,
+}: CommentListProps) {
+  useEffect(() => {
+    if (!isLoading && comments.length > 0 && onCommentsChange) {
+      onCommentsChange();
+    }
+  }, [comments, isLoading, onCommentsChange]);
+
   if (isLoading) {
     return <CommentListSkeleton />;
   }
 
   return (
-    <ScrollArea className="h-[580px] overflow-hidden relative pt-2 pr-4">
+    <ScrollArea
+      ref={scrollRef}
+      className="h-[600px] overflow-hidden relative pt-2 pr-4 pl-1.5"
+    >
       {comments.length === 0 ? (
         <Empty
           title="No comments yet"
@@ -55,9 +76,9 @@ export function CommentList({ comments, isLoading }: CommentListProps) {
 }
 
 function CommentItem({ comment }: { comment: Comment }) {
-  const createdAt = new Date(comment.createdAt);
+  const createdAt = parseCommentDate(comment.createdAt);
+  console.log(createdAt);
   const timeAgo = formatTimeAgo(createdAt);
-  const fullDate = createdAt.toLocaleString();
 
   return (
     <div className="border rounded-lg p-4 space-y-3 w-full bg-white/40">
@@ -68,7 +89,7 @@ function CommentItem({ comment }: { comment: Comment }) {
           </div>
           <div>
             <p className="text-sm font-medium">{comment.author.name}</p>
-            <p className="text-xs text-muted-foreground" title={fullDate}>
+            <p className="text-xs text-muted-foreground" title={timeAgo}>
               {timeAgo}
             </p>
           </div>
