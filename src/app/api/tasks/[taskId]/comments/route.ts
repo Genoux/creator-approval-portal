@@ -5,7 +5,7 @@ import type { ApiResponse, ClickUpComment, Comment } from "@/types";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     const token = request.cookies.get("auth-token")?.value;
@@ -37,7 +37,7 @@ export async function GET(
       );
     }
 
-    const { taskId } = params;
+    const { taskId } = await params;
     const clickup = new ClickUpAPI(apiToken);
     const response = await clickup.getTaskComments(taskId);
 
@@ -71,7 +71,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     const token = request.cookies.get("auth-token")?.value;
@@ -103,7 +103,7 @@ export async function POST(
       );
     }
 
-    const { taskId } = params;
+    const { taskId } = await params;
     const body = await request.json();
     const { comment_text, assignee } = body;
 
@@ -121,7 +121,7 @@ export async function POST(
       assignee
     );
 
-    return NextResponse.json<ApiResponse<any>>({
+    return NextResponse.json<ApiResponse<ClickUpComment>>({
       success: true,
       data: result,
     });

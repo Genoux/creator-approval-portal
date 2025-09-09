@@ -4,6 +4,7 @@ import extractHandle from "@/utils/social-media";
 
 export function useCreatorProfile(task: Task) {
   const creatorData = extractCreatorData(task);
+  console.log(creatorData);
   const profileImageUrl = creatorData.profileImageUrl;
 
   const primaryHandle =

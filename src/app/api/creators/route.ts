@@ -57,12 +57,11 @@ export async function GET(request: NextRequest) {
         custom_fields: task.custom_fields || [],
         status: task.status,
         profileImageUrl: creatorData.profileImageUrl,
+        creatorData, // Add extracted creator data for testing
       };
     });
 
-    console.log(
-      `Fetched ${allTasks.length} total creators, ${selectedTasks.length} with SELECTED status`
-    );
+    console.log("Sample creator data:", creators[0]?.creatorData);
 
     return NextResponse.json<ApiResponse<typeof creators>>({
       success: true,

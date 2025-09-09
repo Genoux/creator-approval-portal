@@ -8,18 +8,18 @@ const CREATOR_FIELDS = {
     fieldNames: ["Follower Count"],
     type: "number" as const,
   },
-  // Social media profiles
+  // Social media profiles (URL fields)
   igProfile: {
     fieldNames: ["IG Profile"],
-    type: "string" as const,
+    type: "url" as const,
   },
   ttProfile: {
     fieldNames: ["TT Profile"],
-    type: "string" as const,
+    type: "url" as const,
   },
   ytProfile: {
     fieldNames: ["YT Profile"],
-    type: "string" as const,
+    type: "url" as const,
   },
   // Additional creator data
   engagementRate: {
@@ -28,7 +28,7 @@ const CREATOR_FIELDS = {
   },
   example: {
     fieldNames: ["Example"],
-    type: "string" as const,
+    type: "url" as const,
   },
   whyGoodFit: {
     fieldNames: ["Why good fit"],
@@ -36,7 +36,7 @@ const CREATOR_FIELDS = {
   },
   creatorType: {
     fieldNames: ["Creator Type"],
-    type: "string" as const,
+    type: "labels" as const,
   },
   sow: {
     fieldNames: ["SOW"],
@@ -44,11 +44,11 @@ const CREATOR_FIELDS = {
   },
   gender: {
     fieldNames: ["Gender"],
-    type: "string" as const,
+    type: "dropdown" as const,
   },
   profileImageUrl: {
     fieldNames: ["Picture Pic URL"],
-    type: "string" as const,
+    type: "url" as const,
   },
 } as const;
 
@@ -60,7 +60,7 @@ type CreatorFieldType<T extends CreatorFieldKey> =
 export type CreatorData = {
   [K in CreatorFieldKey]: CreatorFieldType<K> extends "number"
     ? number | null
-    : CreatorFieldType<K> extends "string"
+    : CreatorFieldType<K> extends "string" | "url" | "labels" | "dropdown"
     ? string | null
     : unknown | null;
 };
@@ -69,12 +69,36 @@ function findFieldValue(
   customFields: Array<{
     name: string;
     value: string | number | boolean | null;
+    type?: string;
+    type_config?: {
+      options?: Array<{
+        id: string;
+        name?: string;
+        label?: string;
+      }>;
+    };
   }> = [],
   fieldNames: readonly string[]
 ): string | number | boolean | null {
   for (const fieldName of fieldNames) {
     const field = customFields.find((f) => f.name === fieldName);
     if (field?.value !== null && field?.value !== undefined) {
+      // Handle dropdown/label fields
+      if (
+        (field.type === "labels" || field.type === "drop_down") &&
+        field.type_config?.options
+      ) {
+        const options = field.type_config.options;
+        const value = field.value;
+
+        const option =
+          typeof value === "number"
+            ? options[value]
+            : options.find((opt) => opt.id === String(value));
+
+        return option?.name || option?.label || null;
+      }
+
       return field.value;
     }
   }
@@ -100,7 +124,13 @@ export default function extractCreatorData(task: Task): CreatorData {
       } else {
         result[fieldKey] = null;
       }
-    } else if (config.type === "string") {
+    } else if (
+      config.type === "string" ||
+      config.type === "url" ||
+      config.type === "labels" ||
+      config.type === "dropdown"
+    ) {
+      // All these types should return strings (URLs are strings, dropdowns/labels are resolved to string labels)
       result[fieldKey] = typeof value === "string" ? value : null;
     } else {
       result[fieldKey] = value;
