@@ -1,6 +1,7 @@
 import { Squircle } from "@squircle-js/react";
 import { BadgeCheck, ChevronDownIcon, Users } from "lucide-react";
 import { motion } from "motion/react";
+import Image from "next/image";
 import { useState } from "react";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { TaskModal } from "@/components/tasks/TaskModal";
@@ -12,17 +13,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Image } from "@/components/ui/image";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCreatorActions } from "@/hooks/creators/useCreatorActions";
 import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
-import { useStatusActions } from "@/hooks/creators/useStatusActions";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import {
+  APPROVAL_LABELS,
   getApprovalStatus,
   getDisplayLabel,
   isTeamRecommended,
@@ -34,8 +35,25 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { STATUS_OPTIONS, handleStatusChange, isPending } = useStatusActions();
+  const {
+    handleApprove,
+    handleGood,
+    handleBackup,
+    handleDecline,
+    handleMoveToReview,
+    isPending,
+  } = useCreatorActions();
   const currentLabel = getApprovalStatus(task);
+
+  // Create status options array and action mapping
+  const STATUS_OPTIONS = Object.values(APPROVAL_LABELS);
+  const STATUS_ACTIONS = {
+    [APPROVAL_LABELS.PERFECT]: handleApprove,
+    [APPROVAL_LABELS.GOOD]: handleGood,
+    [APPROVAL_LABELS.SUFFICIENT]: handleBackup,
+    [APPROVAL_LABELS.POOR_FIT]: handleDecline,
+    [APPROVAL_LABELS.FOR_REVIEW]: handleMoveToReview,
+  } as const;
 
   // Get creator profile (this will be stable for the same task ID/name)
   const {
@@ -52,7 +70,10 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const handleStatusClick = (status: string) => {
     if (currentLabel.toString() !== status && !isPending) {
-      handleStatusChange(task, status);
+      const actionFn = STATUS_ACTIONS[status as keyof typeof STATUS_ACTIONS];
+      if (actionFn) {
+        actionFn(task);
+      }
     }
   };
 
@@ -100,14 +121,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
   return (
     <TaskModal task={task}>
-      <div
-        className="shadow-lg cursor-pointer"
-        style={{
-          boxShadow:
-            "0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.12)",
-          borderRadius: "24px",
-        }}
-      >
+      <div className="cursor-pointer rounded-3xl">
         <Squircle
           cornerRadius={24}
           cornerSmoothing={1}
@@ -119,20 +133,18 @@ export function TaskCard({ task }: TaskCardProps) {
               src={profileImageUrl || ""}
               alt={`${task.name} profile`}
               fill
+              className="object-cover"
             />
           </div>
           <div
-            className="absolute inset-0 backdrop-blur-lg rounded-2xl overflow-hidden"
+            className="absolute  backdrop-blur-xl overflow-hidden w-full h-full bottom-0"
             style={{
+              background: gradient,
               maskImage:
-                "linear-gradient(to bottom, transparent 0%, black 80%)",
+                "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
               WebkitMaskImage:
-                "linear-gradient(to bottom, transparent 0%, black 80%)",
+                "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
             }}
-          ></div>
-          <div
-            className="absolute inset-0 rounded-2xl"
-            style={{ background: gradient }}
           ></div>
 
           {/* Content Overlay */}
@@ -141,43 +153,41 @@ export function TaskCard({ task }: TaskCardProps) {
             <div></div>
 
             {/* Bottom Content */}
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  {task.name}
-                  {isTeamRecommended(task) ? (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <BadgeCheck className="w-5 h-5 text-green-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Team Recommended</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : null}
-                </CardTitle>
+            <div className="flex flex-col">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                {task.name}
+                {isTeamRecommended(task) ? (
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <BadgeCheck className="w-5 h-5 text-green-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Team Recommended</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : null}
+              </CardTitle>
 
-                <CardDescription className="text-white/80 text-base">
-                  {primaryHandle}
-                </CardDescription>
+              <CardDescription className="text-white/80 text-base">
+                {primaryHandle}
+              </CardDescription>
 
-                <motion.div className="flex justify-between items-end">
-                  <div className="flex items-center gap-3">
-                    {followerCount && (
-                      <div className="flex items-center gap-1.5 text-sm white/90">
-                        <Users className="w-4 h-4" />
-                        <span>{followerCount}</span>
-                      </div>
-                    )}
-                    <SocialMediaButtons
-                      igProfile={igProfile}
-                      ttProfile={ttProfile}
-                      ytProfile={ytProfile}
-                    />
-                  </div>
-                  <StatusDropdownMenu />
-                </motion.div>
-              </div>
+              <motion.div className="flex justify-between items-end">
+                <div className="flex items-center gap-3">
+                  {followerCount && (
+                    <div className="flex items-center gap-1.5 text-sm white/90">
+                      <Users className="w-4 h-4" />
+                      <span>{followerCount}</span>
+                    </div>
+                  )}
+                  <SocialMediaButtons
+                    igProfile={igProfile}
+                    ttProfile={ttProfile}
+                    ytProfile={ytProfile}
+                  />
+                </div>
+                <StatusDropdownMenu />
+              </motion.div>
             </div>
           </div>
         </Squircle>
