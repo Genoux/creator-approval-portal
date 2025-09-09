@@ -6,11 +6,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface SocialMediaButtonsProps {
   igProfile?: string | null;
   ttProfile?: string | null;
   ytProfile?: string | null;
+  variant?: "light" | "dark";
 }
 
 const PLATFORMS = [
@@ -25,6 +27,7 @@ export function SocialMediaButtons({
   igProfile,
   ttProfile,
   ytProfile,
+  variant = "light",
 }: SocialMediaButtonsProps) {
   const profiles = { igProfile, ttProfile, ytProfile };
 
@@ -50,9 +53,17 @@ export function SocialMediaButtons({
                 onClick={(e) => e.stopPropagation()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-1.5  rounded-md hover:bg-white/10 transition-colors"
+                className={cn(
+                  "group p-1.5  rounded-md hover:bg-white/10 transition-colors",
+                  variant === "dark" && "hover:bg-black/10"
+                )}
               >
-                <Icon className={ICON_STYLES} />
+                <Icon
+                  className={cn(
+                    ICON_STYLES,
+                    variant === "dark" && "text-black"
+                  )}
+                />
               </Link>
             </TooltipTrigger>
             <TooltipContent>{platform}</TooltipContent>
