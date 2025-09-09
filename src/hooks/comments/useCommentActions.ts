@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ApiResponse, CreateCommentRequest } from "@/types";
+import type {
+  ApiResponse,
+  ClickUpComment,
+  CreateCommentRequest,
+} from "@/types";
 
 async function createComment(taskId: string, request: CreateCommentRequest) {
   const response = await fetch(`/api/tasks/${taskId}/comments`, {
@@ -10,7 +14,7 @@ async function createComment(taskId: string, request: CreateCommentRequest) {
     body: JSON.stringify(request),
   });
 
-  const data: ApiResponse<any> = await response.json();
+  const data: ApiResponse<ClickUpComment> = await response.json();
 
   if (!data.success) {
     throw new Error(data.message || "Failed to create comment");

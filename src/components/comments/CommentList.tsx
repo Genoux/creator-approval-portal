@@ -110,7 +110,7 @@ function CommentItem({ comment }: { comment: Comment }) {
 function CommentListSkeleton() {
   return (
     <div className="space-y-2">
-      {Array.from({ length: 3 }).map((_) => (
+      {Array.from({ length: 3 }).map(() => (
         <div
           key={Math.random()}
           className="border border-black/5 rounded-lg p-4 space-y-2"
