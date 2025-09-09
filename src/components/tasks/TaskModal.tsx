@@ -1,18 +1,21 @@
 import { BadgeCheck, Users, XIcon } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Image } from "@/components/ui/image";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
@@ -33,6 +36,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
         showCloseButton={false}
         className="!max-w-[1280px] px-4 pb-4 pt-3"
       >
+        <DialogTitle className="sr-only">{task.name}</DialogTitle>
         <div className="flex justify-end w-full ">
           <Button
             className="rounded-full h-fit w-fit px-2.5 pt-2.5 pb-2 cursor-pointer "
@@ -70,12 +74,28 @@ function TaskDetails({ task, className }: { task: Task; className?: string }) {
     <div className={cn(className)}>
       <div className="relative rounded-lg overflow-hidden bg-muted hidde">
         <Image
-          src={profileImageUrl}
+          src={profileImageUrl || ""}
           alt={`${name} profile`}
           width={300}
           height={300}
           className="object-cover"
         />
+      </div>
+
+      <div>
+        <h1 className="text-lg font-semibold flex items-center">
+          {task.name}
+          {isTeamRecommended(task) ? (
+            <Tooltip>
+              <TooltipTrigger>
+                <BadgeCheck className="w-5 h-5 text-green-400" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Team Recommended</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : null}
+        </h1>
       </div>
 
       {/* Basic Stats */}
