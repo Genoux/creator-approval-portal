@@ -1,6 +1,8 @@
 "use client";
 
 import { LayoutDebug } from "layout-debug-tool";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Footer } from "@/components/blocks/footer";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
@@ -15,12 +17,44 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useCreators } from "@/hooks/creators/useCreators";
+import { useTasks } from "@/hooks/data/tasks/useTasks";
 
 export default function DashboardPage() {
-  const { data: tasks = [], isLoading, error } = useCreators();
+  const router = useRouter();
+  const { data: tasks = [], isLoading, error } = useTasks();
+  const [sessionValid, setSessionValid] = useState<boolean | null>(null);
 
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+
+  // Check if session has a valid list selected
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        // Try to make a request to check if we have a valid session with listId
+        const response = await fetch("/api/tasks");
+
+        if (response.status === 401) {
+          // No session at all - redirect to login
+          router.push("/");
+          return;
+        }
+
+        if (!response.ok) {
+          // Session exists but no valid list - redirect to board selection
+          router.push("/dashboard/select-board");
+          return;
+        }
+
+        // Valid session with list
+        setSessionValid(true);
+      } catch (error) {
+        console.error("Session check failed:", error);
+        router.push("/");
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   useEffect(() => {
     const hasSeenDisclaimer = localStorage.getItem("hasSeenDisclaimer");
@@ -38,6 +72,18 @@ export default function DashboardPage() {
     await fetch("/api/auth", { method: "DELETE" });
     window.location.href = "/";
   };
+
+  // // Show loading while checking session
+  // if (sessionValid === null) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="flex items-center space-x-2">
+  //         <Loader2 className="h-6 w-6 animate-spin" />
+  //         <span>Checking access...</span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
