@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export function LoginForm({
   className,
@@ -34,13 +34,6 @@ export function LoginForm({
               className="w-full"
               size="lg"
             >
-              <svg 
-                className="mr-2 h-5 w-5" 
-                viewBox="0 0 24 24" 
-                fill="currentColor"
-              >
-                <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.568 14.4c-.32.64-1.28 1.12-2.08 1.12-.48 0-.96-.16-1.28-.48l-3.36-2.72c-.32-.24-.48-.64-.48-1.04 0-.4.16-.8.48-1.04l3.36-2.72c.32-.32.8-.48 1.28-.48.8 0 1.76.48 2.08 1.12.32.64.16 1.44-.32 1.92l-2.24 1.84 2.24 1.84c.48.48.64 1.28.32 1.92z"/>
-              </svg>
               Continue with ClickUp
             </Button>
 

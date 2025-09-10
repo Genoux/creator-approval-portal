@@ -10,11 +10,6 @@ import {
 } from "@/components/ui/tooltip";
 
 export function Footer() {
-  const version = process.env.APP_VERSION;
-  const buildTime = process.env.BUILD_TIME;
-
-  console.log(version, buildTime);
-
   return (
     <footer className="px-6 py-3">
       <div className="flex justify-between items-center">
