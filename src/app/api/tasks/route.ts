@@ -6,10 +6,13 @@ import { extractCreatorData } from "@/utils/creators";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async (session) => {
-    // Ensure listId is selected
-    if (!session.listId) {
+    // Get listId from query parameter (sent by client)
+    const { searchParams } = new URL(request.url);
+    const listId = searchParams.get('listId');
+    
+    if (!listId) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "No board selected", data: null },
+        { success: false, message: "No listId provided", data: null },
         { status: 400 }
       );
     }
@@ -19,18 +22,9 @@ export async function GET(request: NextRequest) {
       session.apiToken,
       session.clickupAccessToken
     );
-    const allTasks = await clickup.getTasks(session.listId);
-    console.log("allTasks", allTasks[0].custom_fields);
-    const filter = [
-      "client approval",
-      "backup",
-      "declined (client)",
-      "selected",
-    ];
-    // Filter to only show creators with status "SELECTED"
-    const selectedTasks = allTasks.filter((task: Task) =>
-      filter.includes(task.status?.status?.toLowerCase())
-    );
+    // OPTIMIZATION: API now filters by status, no client-side filtering needed
+    const selectedTasks = await clickup.getTasks(listId);
+    console.log("🚀 ~ GET ~ selectedTasks:", selectedTasks)
 
     const creators = selectedTasks.map((task: Task) => {
       const creatorData = extractCreatorData(task);
@@ -40,7 +34,6 @@ export async function GET(request: NextRequest) {
         custom_fields: task.custom_fields || [],
         status: task.status,
         profileImageUrl: creatorData.profileImageUrl,
-        creatorData, // Add extracted creator data for testing
       };
     });
 
