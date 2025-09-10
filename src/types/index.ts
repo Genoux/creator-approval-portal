@@ -1,5 +1,12 @@
 import type { ApiResponse, AuthCredentials } from "./api";
 import type {
+  ClickUpAuthResponse,
+  ClickUpList,
+  ClickUpSessionData,
+  ClickUpTokenResponse,
+  ClickUpUser,
+} from "./clickup";
+import type {
   ClickUpComment,
   Comment,
   CreateCommentRequest,
@@ -23,4 +30,9 @@ export type {
   ClickUpComment,
   CreateCommentRequest,
   UpdateCommentRequest,
+  ClickUpUser,
+  ClickUpList,
+  ClickUpSessionData,
+  ClickUpTokenResponse,
+  ClickUpAuthResponse,
 };
