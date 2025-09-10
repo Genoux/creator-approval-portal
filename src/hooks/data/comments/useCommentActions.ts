@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/query-keys";
 import type {
   ApiResponse,
   ClickUpComment,
@@ -32,7 +33,7 @@ export function useCommentActions(taskId: string) {
     onSuccess: () => {
       // Invalidate comments query to refetch
       queryClient.invalidateQueries({
-        queryKey: ["task-comments", taskId],
+        queryKey: QUERY_KEYS.taskComments(taskId),
       });
     },
   });

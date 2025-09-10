@@ -1,25 +1,69 @@
-import { useUpdateCreatorStatus } from "@/hooks/creators/useUpdateCreatorStatus";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/query-keys";
+import type { ApiResponse } from "@/types";
 import type { Task } from "@/types/tasks";
-import {
-  APPROVAL_LABELS,
-  getApprovalOptionId,
-} from "@/utils/approval";
-import { showToast } from "@/utils/toast";
+import { APPROVAL_LABELS, getApprovalOptionId } from "@/utils";
+import { showToast } from "@/utils/ui";
+import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 
-export function useCreatorActions() {
-  const updateCreatorStatus = useUpdateCreatorStatus();
+interface UseTasksResult {
+  // Data
+  data: Task[];
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+
+  // Actions
+  handleApprove: (task: Task) => Promise<void>;
+  handleGood: (task: Task) => Promise<void>;
+  handleBackup: (task: Task) => Promise<void>;
+  handleDecline: (task: Task) => Promise<void>;
+  handleMoveToReview: (task: Task) => Promise<void>;
+  isPending: boolean;
+}
+
+export function useTasks(): UseTasksResult {
+  // Data fetching
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: QUERY_KEYS.tasks,
+    queryFn: async (): Promise<Task[]> => {
+      const response = await fetch("/api/tasks");
+      const data: ApiResponse<Task[]> = await response.json();
+
+      if (response.status === 401) {
+        window.location.href = "/";
+        return [];
+      }
+
+      if (!data.success) {
+        throw new Error(data.message || "Failed to fetch creators");
+      }
+
+      return data.data;
+    },
+    refetchInterval: 60000, // 1 minute
+    // staleTime, retry, retryDelay, refetchOnWindowFocus, refetchIntervalInBackground
+    // all inherited from global defaults
+  });
+
+  // Business logic
+  const updateTaskStatus = useUpdateTaskStatus();
 
   const handleApprove = async (task: Task) => {
-    if (updateCreatorStatus.isPending) {
+    if (updateTaskStatus.isPending) {
       return;
     }
 
     const perfectOptionId = getApprovalOptionId(task, APPROVAL_LABELS.PERFECT);
-
     const loadingId = showToast.loading(`Marking ${task.name} as Perfect...`);
 
     try {
-      await updateCreatorStatus.mutateAsync({
+      await updateTaskStatus.mutateAsync({
         taskId: task.id,
         status: perfectOptionId,
       });
@@ -42,16 +86,15 @@ export function useCreatorActions() {
   };
 
   const handleDecline = async (task: Task) => {
-    if (updateCreatorStatus.isPending) {
+    if (updateTaskStatus.isPending) {
       return;
     }
 
     const poorFitOptionId = getApprovalOptionId(task, APPROVAL_LABELS.POOR_FIT);
-
     const loadingId = showToast.loading(`Marking ${task.name} as Poor Fit...`);
 
     try {
-      await updateCreatorStatus.mutateAsync({
+      await updateTaskStatus.mutateAsync({
         taskId: task.id,
         status: poorFitOptionId,
       });
@@ -74,12 +117,12 @@ export function useCreatorActions() {
   };
 
   const handleMoveToReview = async (task: Task) => {
-    if (updateCreatorStatus.isPending) return;
+    if (updateTaskStatus.isPending) return;
 
     const loadingId = showToast.loading(`Moving ${task.name} to review...`);
 
     try {
-      await updateCreatorStatus.mutateAsync({
+      await updateTaskStatus.mutateAsync({
         taskId: task.id,
         status: null, // Clear field = For Review
       });
@@ -102,16 +145,15 @@ export function useCreatorActions() {
   };
 
   const handleGood = async (task: Task) => {
-    if (updateCreatorStatus.isPending) {
+    if (updateTaskStatus.isPending) {
       return;
     }
 
     const goodOptionId = getApprovalOptionId(task, APPROVAL_LABELS.GOOD);
-
     const loadingId = showToast.loading(`Marking ${task.name} as Good...`);
 
     try {
-      await updateCreatorStatus.mutateAsync({
+      await updateTaskStatus.mutateAsync({
         taskId: task.id,
         status: goodOptionId,
       });
@@ -134,18 +176,20 @@ export function useCreatorActions() {
   };
 
   const handleBackup = async (task: Task) => {
-    if (updateCreatorStatus.isPending) {
+    if (updateTaskStatus.isPending) {
       return;
     }
 
-    const sufficientOptionId = getApprovalOptionId(task, APPROVAL_LABELS.SUFFICIENT);
-
+    const sufficientOptionId = getApprovalOptionId(
+      task,
+      APPROVAL_LABELS.SUFFICIENT
+    );
     const loadingId = showToast.loading(
       `Marking ${task.name} as Sufficient...`
     );
 
     try {
-      await updateCreatorStatus.mutateAsync({
+      await updateTaskStatus.mutateAsync({
         taskId: task.id,
         status: sufficientOptionId,
       });
@@ -168,11 +212,18 @@ export function useCreatorActions() {
   };
 
   return {
+    // Data
+    data: response || [],
+    isLoading,
+    error: error as Error | null,
+    refetch,
+
+    // Actions
     handleApprove,
     handleGood,
     handleBackup,
     handleDecline,
     handleMoveToReview,
-    isPending: updateCreatorStatus.isPending,
+    isPending: updateTaskStatus.isPending,
   };
 }
