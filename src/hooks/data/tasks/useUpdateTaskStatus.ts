@@ -1,15 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import type { StatusUpdate } from "@/types/status";
-import type { Task } from "@/types/tasks";
-import { APPROVAL_FIELD_ID } from "@/utils";
+import type { StatusUpdate, Task } from "@/types";
+import { getApprovalFieldId } from "@/utils";
 
 interface UpdateStatusParams {
   taskId: string;
   status: StatusUpdate;
 }
 
-export function useUpdateTaskStatus() {
+export function useUpdateTaskStatus(listId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -37,37 +36,44 @@ export function useUpdateTaskStatus() {
     },
 
     onMutate: async ({ taskId, status }) => {
-      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.tasks });
+      if (!listId) {
+        return { previous: null };
+      }
 
-      const previous = queryClient.getQueryData<Task[]>(QUERY_KEYS.tasks);
+      const queryKey = QUERY_KEYS.tasks(listId);
+      await queryClient.cancelQueries({ queryKey });
 
-      queryClient.setQueryData<Task[]>(QUERY_KEYS.tasks, (old) =>
-        old?.map((task) =>
-          task.id === taskId
-            ? {
-                ...task,
-                custom_fields: task.custom_fields?.map((field) =>
-                  field.id === APPROVAL_FIELD_ID
-                    ? { ...field, value: status }
-                    : field
-                ),
-              }
-            : task
-        )
+      const previous = queryClient.getQueryData<Task[]>(queryKey);
+
+      queryClient.setQueryData<Task[]>(queryKey, (old) =>
+        old?.map((task) => {
+          if (task.id === taskId) {
+            const approvalFieldId = getApprovalFieldId(task);
+            return {
+              ...task,
+              custom_fields: task.custom_fields?.map((field) =>
+                field.id === approvalFieldId
+                  ? { ...field, value: status }
+                  : field
+              ),
+            };
+          }
+          return task;
+        })
       );
 
       return { previous };
     },
 
     onError: (_, __, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(QUERY_KEYS.tasks, context.previous);
+      if (context?.previous && listId) {
+        queryClient.setQueryData(QUERY_KEYS.tasks(listId), context.previous);
       }
     },
 
     onSuccess: () => {
-      // Invalidate queries to ensure fresh data after successful update
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tasks });
+      // Don't invalidate immediately - trust the optimistic update
+      // The background refetch will eventually sync with server
     },
   });
 }

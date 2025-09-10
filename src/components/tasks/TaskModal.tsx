@@ -18,7 +18,6 @@ import {
 import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
-import { isTeamRecommended } from "@/utils/approval";
 import { MediaEmbed } from "../social/MediaEmbed";
 import { SocialMediaButtons } from "../social/SocialMediaButtons";
 
@@ -83,16 +82,6 @@ function TaskDetails({ task, className }: { task: Task; className?: string }) {
         </div>
         <h1 className="text-lg font-semibold flex items-center gap-2 mb-1">
           {task.name}
-          {isTeamRecommended(task) && (
-            <Tooltip>
-              <TooltipTrigger>
-                <BadgeCheck className="w-4 h-4 text-green-500" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Team Recommended</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
         </h1>
       </div>
 
@@ -144,10 +133,10 @@ function TaskDetails({ task, className }: { task: Task; className?: string }) {
       <div className="space-y-3">
         {portfolio.whyGoodFit && (
           <div>
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1.5">
               Why Good Fit
             </h3>
-            <p className="text-xs leading-relaxed text-foreground/90">
+            <p className="text-sm text-foreground/90">
               {portfolio.whyGoodFit}
             </p>
           </div>
@@ -160,17 +149,6 @@ function TaskDetails({ task, className }: { task: Task; className?: string }) {
               {portfolio.example.toString()}
             </h3>
             <MediaEmbed url={portfolio.example} />
-          </div>
-        )}
-
-        {portfolio.sow && (
-          <div>
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
-              Scope of Work
-            </h3>
-            <p className="text-xs leading-relaxed text-foreground/90">
-              {portfolio.sow}
-            </p>
           </div>
         )}
       </div>

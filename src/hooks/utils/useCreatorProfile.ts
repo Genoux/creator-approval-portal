@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Task } from "@/types/tasks";
+import type { Task } from "@/types";
 import { extractCreatorData } from "@/utils/creators";
 import { extractHandle } from "@/utils/social";
 import { formatFollowerCount } from "@/utils/ui";
@@ -19,9 +19,9 @@ export function useCreatorProfile(task: Task) {
 
       // Social presence
       primaryHandle:
-        extractHandle(creatorData.ttProfile) ||
-        extractHandle(creatorData.igProfile) ||
-        extractHandle(creatorData.ytProfile),
+        extractHandle(creatorData.tiktokProfile) ||
+        extractHandle(creatorData.instagramProfile) ||
+        extractHandle(creatorData.youtubeProfile),
 
       followerCount: creatorData.followerCount
         ? formatFollowerCount(creatorData.followerCount)
@@ -31,36 +31,31 @@ export function useCreatorProfile(task: Task) {
       socialProfiles: [
         {
           platform: "TikTok" as const,
-          handle: extractHandle(creatorData.ttProfile),
-          url: creatorData.ttProfile,
+          handle: extractHandle(creatorData.tiktokProfile),
+          url: creatorData.tiktokProfile,
           icon: "tiktok",
         },
         {
           platform: "Instagram" as const,
-          handle: extractHandle(creatorData.igProfile),
-          url: creatorData.igProfile,
+          handle: extractHandle(creatorData.instagramProfile),
+          url: creatorData.instagramProfile,
           icon: "instagram",
         },
         {
           platform: "YouTube" as const,
-          handle: extractHandle(creatorData.ytProfile),
-          url: creatorData.ytProfile,
+          handle: extractHandle(creatorData.youtubeProfile),
+          url: creatorData.youtubeProfile,
           icon: "youtube",
         },
       ].filter((profile) => profile.handle && profile.url),
 
       // Creator details
       type: creatorData.creatorType,
-      gender: creatorData.gender,
-      engagementRate: creatorData.engagementRate
-        ? `${creatorData.engagementRate}%`
-        : null,
-
+      
       // Content examples
       portfolio: {
         example: creatorData.example,
         whyGoodFit: creatorData.whyGoodFit,
-        sow: creatorData.sow,
       },
     };
 

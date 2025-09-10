@@ -1,9 +1,11 @@
+import type { ApiResponse } from "./core";
+
+// Re-export from core for backward compatibility
+export type { ApiResponse };
+
+/**
+ * Authentication credentials for API access
+ */
 export interface AuthCredentials {
   listId: string;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
 }

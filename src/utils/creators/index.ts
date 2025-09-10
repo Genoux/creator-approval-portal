@@ -1,5 +1,5 @@
-// Creator data extraction
+// Creator data extraction and types
+export type { CreatorData } from "@/types";
 export {
-  type CreatorData,
   default as extractCreatorData,
 } from "./data-extraction";

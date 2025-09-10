@@ -7,12 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-
-interface SocialProfile {
-  platform: "Instagram" | "TikTok" | "YouTube";
-  url: string | null;
-  handle?: string | null;
-}
+import type { SocialProfile } from "@/types";
 
 interface SocialMediaButtonsProps {
   socialProfiles?: SocialProfile[];
@@ -31,9 +26,7 @@ export function SocialMediaButtons({
   socialProfiles = [],
   variant = "light",
 }: SocialMediaButtonsProps) {
-  const validProfiles = socialProfiles.filter(
-    (profile) => profile.url !== null
-  );
+  const validProfiles = socialProfiles.filter(profile => profile.url !== null);
   if (validProfiles.length === 0) return null;
 
   return (
@@ -46,7 +39,7 @@ export function SocialMediaButtons({
               <TooltipTrigger asChild>
                 <Link
                   href={url!}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={e => e.stopPropagation()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(

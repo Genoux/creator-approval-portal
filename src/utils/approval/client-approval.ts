@@ -1,69 +1,56 @@
-import type { Task } from "@/types/tasks";
+import type { ApprovalLabel, Task } from "@/types";
+import { APPROVAL_LABELS } from "@/types";
+import { FIELD_PATTERNS, findField, getDropdownOptionId, getDropdownValue } from "@/utils/fields";
 
 /**
- * Client Approval Status - Core business logic for creator approval workflow
+ * Client Approval Status - Using dynamic field discovery
  */
-
-export const CLIENT_APPROVAL = {
-  FIELD_ID: "524e49cd-f642-4203-a841-46b418dd8eb4",
-  LABELS: {
-    FOR_REVIEW: "For Review",
-    PERFECT: "Perfect (Approved)",
-    GOOD: "Good (Approved)",
-    SUFFICIENT: "Sufficient (Backup)",
-    POOR_FIT: "Poor Fit (Rejected)",
-  },
-} as const;
-
-export type ClientApprovalLabel =
-  (typeof CLIENT_APPROVAL.LABELS)[keyof typeof CLIENT_APPROVAL.LABELS];
 
 /**
- * Get the client approval field from a task
+ * Get current client approval status from task using dynamic field discovery
  */
-function getClientApprovalField(task: Task) {
-  return task.custom_fields?.find(
-    (field) => field.id === CLIENT_APPROVAL.FIELD_ID
-  );
-}
+export function getApprovalStatus(task: Task): ApprovalLabel {
+  const approvalField = findField(task.custom_fields, FIELD_PATTERNS.clientApproval);
+  
+  if (!approvalField) {
+    return APPROVAL_LABELS.FOR_REVIEW;
 
-/**
- * Get current client approval status from task
- */
-export function getClientApprovalStatus(task: Task): ClientApprovalLabel {
-  const field = getClientApprovalField(task);
-
-  if (field?.value === null || field?.value === undefined) {
-    return CLIENT_APPROVAL.LABELS.FOR_REVIEW;
   }
 
-  const options = field.type_config?.options || [];
-  const value = field.value;
+  const value = getDropdownValue(approvalField);
+  
+  // Try to match the value to our known labels
+  if (value) {
+    const lowerValue = value.toLowerCase();
+    if (lowerValue.includes('perfect') || lowerValue.includes('approved')) {
+      return value.includes('Perfect') ? APPROVAL_LABELS.PERFECT : APPROVAL_LABELS.GOOD;
+    }
+    if (lowerValue.includes('sufficient') || lowerValue.includes('backup')) {
+      return APPROVAL_LABELS.SUFFICIENT;
+    }
+    if (lowerValue.includes('poor') || lowerValue.includes('rejected')) {
+      return APPROVAL_LABELS.POOR_FIT;
+    }
+  }
 
-  const option =
-    typeof value === "number"
-      ? options[value]
-      : options.find((opt) => opt.id === String(value));
-
-  const label = option?.name || option?.label;
-  return (label as ClientApprovalLabel) || CLIENT_APPROVAL.LABELS.FOR_REVIEW;
+  return APPROVAL_LABELS.FOR_REVIEW;
 }
 
 /**
- * Get the ClickUp option ID for a specific approval label
+ * Get the ClickUp option ID for a specific approval label using dynamic field discovery
  */
-export function getClientApprovalOptionId(
-  task: Task,
-  label: string
-): string | null {
-  const field = getClientApprovalField(task);
-  if (!field) return null;
+export function getApprovalOptionId(task: Task, label: string): string | null {
+  const approvalField = findField(task.custom_fields, FIELD_PATTERNS.clientApproval);
+  if (!approvalField) return null;
 
-  const options = field.type_config?.options || [];
-  const found = options.find((opt) => {
-    const name = (opt.name || opt.label || "").toLowerCase();
-    return name.includes(label.toLowerCase());
-  });
-
-  return found?.id || null;
+  return getDropdownOptionId(approvalField, label);
 }
+
+/**
+ * Get the approval field ID for API updates
+ */
+export function getApprovalFieldId(task: Task): string | null {
+  const approvalField = findField(task.custom_fields, FIELD_PATTERNS.clientApproval);
+  return approvalField?.id || null;
+}
+

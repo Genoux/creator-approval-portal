@@ -23,19 +23,3 @@ export function formatFollowerCount(count: number): string {
   }
   return count.toString();
 }
-
-/**
- * Format engagement rate for display
- * Example: 3.45 → "3.5%"
- */
-export function formatEngagementRate(rate: number): string {
-  return `${rate.toFixed(1)}%`;
-}
-
-/**
- * Truncate text with ellipsis
- */
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength)}...`;
-}

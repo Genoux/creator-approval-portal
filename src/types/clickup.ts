@@ -1,22 +1,11 @@
-// Core ClickUp Entities
-export interface ClickUpUser {
-  id: number;
-  username: string;
-  email: string;
-  color: string;
-  profilePicture: string;
-  initials: string;
-  week_start_day?: number;
-  global_font_support?: boolean;
-  timezone?: string;
-}
+import type { User } from "./core";
 
 export interface ClickUpWorkspace {
   id: string;
   name: string;
   color: string;
   avatar: string | null;
-  members: ClickUpUser[];
+  members: User[];
 }
 
 export interface ClickUpSpace {
@@ -59,7 +48,7 @@ export interface ClickUpWorkspaceWithSpaces extends ClickUpWorkspace {
 // OAuth Session Data
 export interface ClickUpSessionData {
   accessToken: string;
-  user: ClickUpUser;
+  user: User;
   workspaces: ClickUpWorkspace[];
 }
 
@@ -71,6 +60,6 @@ export interface ClickUpTokenResponse {
 
 // OAuth Auth Response
 export interface ClickUpAuthResponse {
-  user: ClickUpUser;
+  user: User;
   workspaces: ClickUpWorkspace[];
 }

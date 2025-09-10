@@ -1,10 +1,8 @@
-// Client approval logic
+// Re-export types from centralized location
+export type { ApprovalLabel } from "@/types";
+export { APPROVAL_LABELS } from "@/types";
 export {
-  CLIENT_APPROVAL,
-  type ClientApprovalLabel,
-  getClientApprovalOptionId,
-  getClientApprovalStatus,
+  getApprovalFieldId,
+  getApprovalOptionId,
+  getApprovalStatus,
 } from "./client-approval";
-
-// Team rating logic
-export { getTeamRating, isTeamRecommended } from "./team-ratings";

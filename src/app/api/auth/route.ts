@@ -61,12 +61,6 @@ export async function POST(request: NextRequest) {
       data: { token },
     });
 
-    console.log("🍪 Setting auth cookie with options:", {
-      ...COOKIE_OPTIONS,
-      tokenLength: token.length,
-      environment: process.env.NODE_ENV,
-    });
-
     response.cookies.set("auth-token", token, COOKIE_OPTIONS);
 
     return response;

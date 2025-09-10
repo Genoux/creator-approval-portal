@@ -1,4 +1,8 @@
-// ClickUp Comment Response Structure
+import type { User } from "./core";
+
+/**
+ * ClickUp comment structure from API response
+ */
 export interface ClickUpComment {
   id: string;
   comment: {
@@ -6,31 +10,10 @@ export interface ClickUpComment {
     html: string;
   }[];
   comment_text: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    color: string;
-    profilePicture: string;
-    initials: string;
-  };
+  user: User;
   resolved: boolean;
-  assignee: {
-    id: number;
-    username: string;
-    email: string;
-    color: string;
-    initials: string;
-    profilePicture: string;
-  } | null;
-  assigned_by: {
-    id: number;
-    username: string;
-    email: string;
-    color: string;
-    initials: string;
-    profilePicture: string;
-  } | null;
+  assignee: User | null;
+  assigned_by: User | null;
   reactions: unknown[];
   date: string;
 }

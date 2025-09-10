@@ -81,25 +81,6 @@ export async function extractImageColor(
 }
 
 /**
- * Darkens a color by a percentage
- */
-export function darkenColor(
-  color: ColorResult,
-  percentage: number = 0.3
-): ColorResult {
-  const factor = 1 - percentage;
-  const r = Math.floor(color.rgb.r * factor);
-  const g = Math.floor(color.rgb.g * factor);
-  const b = Math.floor(color.rgb.b * factor);
-
-  const hex = `#${r.toString(16).padStart(2, "0")}${g
-    .toString(16)
-    .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
-
-  return { hex, rgb: { r, g, b } };
-}
-
-/**
  * Creates a gradient CSS string from image color
  */
 export function createImageGradient(
