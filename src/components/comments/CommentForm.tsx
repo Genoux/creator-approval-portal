@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCommentActions } from "@/hooks/comments/useCommentActions";
+import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
 
 interface CommentFormProps {
   taskId: string;

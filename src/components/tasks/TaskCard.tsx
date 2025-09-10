@@ -18,8 +18,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCreatorActions } from "@/hooks/creators/useCreatorActions";
-import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
+import { useTasks } from "@/hooks/data/tasks/useTasks";
+import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import {
@@ -27,8 +27,8 @@ import {
   getApprovalStatus,
   getDisplayLabel,
   isTeamRecommended,
-} from "@/utils/approval";
-import { useImageColor } from "@/utils/image-color";
+} from "@/utils";
+import { useImageColor } from "@/utils/ui";
 
 interface TaskCardProps {
   task: Task;
@@ -42,7 +42,7 @@ export function TaskCard({ task }: TaskCardProps) {
     handleDecline,
     handleMoveToReview,
     isPending,
-  } = useCreatorActions();
+  } = useTasks();
   const currentLabel = getApprovalStatus(task);
 
   // Create status options array and action mapping
@@ -56,16 +56,10 @@ export function TaskCard({ task }: TaskCardProps) {
   } as const;
 
   // Get creator profile (this will be stable for the same task ID/name)
-  const {
-    profileImageUrl,
-    primaryHandle,
-    followerCount,
-    igProfile,
-    ttProfile,
-    ytProfile,
-  } = useCreatorProfile(task);
+  const { avatar, primaryHandle, followerCount, socialProfiles } =
+    useCreatorProfile(task);
 
-  const { gradient } = useImageColor(profileImageUrl);
+  const { gradient } = useImageColor(avatar);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleStatusClick = (status: string) => {
@@ -130,7 +124,7 @@ export function TaskCard({ task }: TaskCardProps) {
           {/* Background Image */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden ">
             <Image
-              src={profileImageUrl || ""}
+              src={avatar || ""}
               alt={`${task.name} profile`}
               fill
               className="object-cover"
@@ -180,11 +174,7 @@ export function TaskCard({ task }: TaskCardProps) {
                       <span>{followerCount}</span>
                     </div>
                   )}
-                  <SocialMediaButtons
-                    igProfile={igProfile}
-                    ttProfile={ttProfile}
-                    ytProfile={ytProfile}
-                  />
+                  <SocialMediaButtons socialProfiles={socialProfiles} />
                 </div>
                 <StatusDropdownMenu />
               </motion.div>

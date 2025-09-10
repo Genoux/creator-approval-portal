@@ -2,7 +2,6 @@ import { BadgeCheck, Users, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { CommentSection } from "@/components/comments/CommentSection";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,10 +15,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
+import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import { isTeamRecommended } from "@/utils/approval";
+import { MediaEmbed } from "../social/MediaEmbed";
+import { SocialMediaButtons } from "../social/SocialMediaButtons";
 
 interface TaskModalProps {
   task: Task;
@@ -59,135 +60,117 @@ export function TaskModal({ task, children }: TaskModalProps) {
 
 function TaskDetails({ task, className }: { task: Task; className?: string }) {
   const {
-    profileImageUrl,
+    avatar,
     socialProfiles,
     followerCount,
     name,
-    creatorType,
-    gender,
-    engagementRate,
-    example,
-    whyGoodFit,
-    sow,
+    type: creatorType,
+    portfolio,
   } = useCreatorProfile(task);
-  return (
-    <div className={cn(className)}>
-      <div className="relative rounded-lg overflow-hidden bg-muted hidde">
-        <Image
-          src={profileImageUrl || ""}
-          alt={`${name} profile`}
-          width={300}
-          height={300}
-          className="object-cover"
-        />
-      </div>
 
-      <div>
-        <h1 className="text-lg font-semibold flex items-center">
+  return (
+    <div className={cn("space-y-4", className)}>
+      {/* Header Section */}
+      <div className="flex flex-col items-start gap-3">
+        <div className="relative rounded-lg overflow-hidden">
+          <Image
+            src={avatar || ""}
+            alt={`${name} profile`}
+            width={250}
+            height={250}
+            className="object-cover w-full h-full"
+          />
+        </div>
+        <h1 className="text-lg font-semibold flex items-center gap-2 mb-1">
           {task.name}
-          {isTeamRecommended(task) ? (
+          {isTeamRecommended(task) && (
             <Tooltip>
               <TooltipTrigger>
-                <BadgeCheck className="w-5 h-5 text-green-400" />
+                <BadgeCheck className="w-4 h-4 text-green-500" />
               </TooltipTrigger>
               <TooltipContent>
                 <p>Team Recommended</p>
               </TooltipContent>
             </Tooltip>
-          ) : null}
+          )}
         </h1>
       </div>
 
-      {/* Basic Stats */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Stats Grid */}
+      <div className="flex gap-2">
         {followerCount && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm text-muted-foreground">Followers</p>
-              <p className="font-semibold">{followerCount}</p>
+          <div className="p-2 rounded-md bg-muted/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Users className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                Follower Count
+              </span>
             </div>
+            <p className="text-sm font-semibold">{followerCount}</p>
           </div>
         )}
 
-        {engagementRate && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-            <div>
-              <p className="text-sm text-muted-foreground">Engagement Rate</p>
-              <p className="font-semibold">{engagementRate}%</p>
+        {creatorType && (
+          <div className="p-2 rounded-md bg-muted/20">
+            <div className="flex items-center gap-1.5 mb-1">
+              <BadgeCheck className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                Creator Type
+              </span>
             </div>
+            <p className="text-sm font-semibold">{creatorType}</p>
           </div>
         )}
       </div>
 
-      {/* Creator Information */}
-      <div className="space-y-4">
-        {creatorType && (
+      {/* Social Profiles */}
+      {socialProfiles.length > 0 && (
+        <div>
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+            Social Profiles
+          </h3>
+          <div className="flex gap-2">
+            <SocialMediaButtons
+              variant="dark"
+              socialProfiles={socialProfiles}
+            />
+          </div>
+        </div>
+      )}
+
+      <Separator className="my-3" />
+
+      {/* Content Sections */}
+      <div className="space-y-3">
+        {portfolio.whyGoodFit && (
           <div>
-            <h3 className="font-semibold mb-2">Creator Type</h3>
-            <Badge variant="secondary">{creatorType}</Badge>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+              Why Good Fit
+            </h3>
+            <p className="text-xs leading-relaxed text-foreground/90">
+              {portfolio.whyGoodFit}
+            </p>
           </div>
         )}
 
-        {gender && (
+        {portfolio.example && (
           <div>
-            <h3 className="font-semibold mb-2">Gender</h3>
-            <p className="text-sm text-muted-foreground">{gender}</p>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+              Example
+              {portfolio.example.toString()}
+            </h3>
+            <MediaEmbed url={portfolio.example} />
           </div>
         )}
 
-        {/* Social Media Profiles */}
-        {socialProfiles.length > 0 && (
+        {portfolio.sow && (
           <div>
-            <h3 className="font-semibold mb-2">Social Media Profiles</h3>
-            <div className="space-y-2">
-              {socialProfiles.map((profile) => (
-                <div
-                  key={profile.platform}
-                  className="flex items-center justify-between p-2 rounded border"
-                >
-                  <div>
-                    <span className="font-medium">{profile.platform}</span>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      {profile.handle}
-                    </span>
-                  </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={profile.url || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visit
-                    </a>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Separator />
-
-        {/* Detailed Information */}
-        {whyGoodFit && (
-          <div>
-            <h3 className="font-semibold mb-2">Why Good Fit</h3>
-            <p className="text-sm leading-relaxed">{whyGoodFit}</p>
-          </div>
-        )}
-
-        {example && (
-          <div>
-            <h3 className="font-semibold mb-2">Example</h3>
-            <p className="text-sm leading-relaxed">{example}</p>
-          </div>
-        )}
-
-        {sow && (
-          <div>
-            <h3 className="font-semibold mb-2">Scope of Work</h3>
-            <p className="text-sm leading-relaxed">{sow}</p>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+              Scope of Work
+            </h3>
+            <p className="text-xs leading-relaxed text-foreground/90">
+              {portfolio.sow}
+            </p>
           </div>
         )}
       </div>

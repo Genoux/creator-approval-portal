@@ -10,14 +10,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useBoardInfo } from "@/hooks/board/useBoardInfo";
+// Removed unused import
 
 interface DashboardNavbarProps {
   onLogout?: () => void;
 }
 
 export function DashboardNavbar({ onLogout }: DashboardNavbarProps) {
-  const { clickupUrl } = useBoardInfo();
 
   return (
     <nav className="border-b border-black/5">
@@ -43,7 +42,7 @@ export function DashboardNavbar({ onLogout }: DashboardNavbarProps) {
                   <Button
                     variant="ghost"
                     className="cursor-pointer"
-                    onClick={() => window.open(clickupUrl, "_blank")}
+                    onClick={() => window.open("https://app.clickup.com", "_blank")}
                   >
                     <ClickupIcon className="w-4 h-4" />
                   </Button>

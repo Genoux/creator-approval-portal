@@ -8,68 +8,65 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+interface SocialProfile {
+  platform: "Instagram" | "TikTok" | "YouTube";
+  url: string | null;
+  handle?: string | null;
+}
+
 interface SocialMediaButtonsProps {
-  igProfile?: string | null;
-  ttProfile?: string | null;
-  ytProfile?: string | null;
+  socialProfiles?: SocialProfile[];
   variant?: "light" | "dark";
 }
 
-const PLATFORMS = [
-  { key: "igProfile" as const, Icon: InstagramIcon, platform: "Instagram" },
-  { key: "ttProfile" as const, Icon: TikTokIcon, platform: "TikTok" },
-  { key: "ytProfile" as const, Icon: YouTubeIcon, platform: "YouTube" },
-] as const;
+const PLATFORM_ICONS = {
+  Instagram: InstagramIcon,
+  TikTok: TikTokIcon,
+  YouTube: YouTubeIcon,
+} as const;
 
 const ICON_STYLES = "w-4 h-4 text-white  transition-colors";
 
 export function SocialMediaButtons({
-  igProfile,
-  ttProfile,
-  ytProfile,
+  socialProfiles = [],
   variant = "light",
 }: SocialMediaButtonsProps) {
-  const profiles = { igProfile, ttProfile, ytProfile };
-
-  const socialProfiles = PLATFORMS.map(({ key, Icon, platform }) => {
-    const url = profiles[key];
-    if (!url) return null;
-
-    return { url, Icon, platform };
-  }).filter(
-    (profile): profile is NonNullable<typeof profile> => profile !== null
+  const validProfiles = socialProfiles.filter(
+    (profile) => profile.url !== null
   );
-
-  if (socialProfiles.length === 0) return null;
+  if (validProfiles.length === 0) return null;
 
   return (
     <section className="flex">
-      {socialProfiles.map(({ url, Icon, platform }) => (
-        <TooltipProvider key={url}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href={url}
-                onClick={(e) => e.stopPropagation()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "group p-1.5  rounded-md hover:bg-white/10 transition-colors",
-                  variant === "dark" && "hover:bg-black/10"
-                )}
-              >
-                <Icon
+      {validProfiles.map(({ url, platform }) => {
+        const Icon = PLATFORM_ICONS[platform];
+        return (
+          <TooltipProvider key={url!}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={url!}
+                  onClick={(e) => e.stopPropagation()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={cn(
-                    ICON_STYLES,
-                    variant === "dark" && "text-black"
+                    "group p-1.5  rounded-md hover:bg-white/10 transition-colors",
+                    variant === "dark" && "hover:bg-black/10"
                   )}
-                />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>{platform}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ))}
+                >
+                  <Icon
+                    className={cn(
+                      ICON_STYLES,
+                      variant === "dark" && "text-black"
+                    )}
+                  />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>{platform}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      })}
     </section>
   );
 }

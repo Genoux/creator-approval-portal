@@ -10,7 +10,7 @@ import {
   type ApprovalLabel,
   getApprovalStatus,
   getDisplayLabel,
-} from "@/utils/approval";
+} from "@/utils";
 import { TaskCard } from "./TaskCard";
 
 const CATEGORIES = [
