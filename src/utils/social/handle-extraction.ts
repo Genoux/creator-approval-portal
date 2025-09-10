@@ -17,9 +17,7 @@ const PLATFORM_PATTERNS = [
   },
 ];
 
-export default function extractHandle(
-  url: string | null | undefined
-): string | null {
+export function extractHandle(url: string | null | undefined): string | null {
   if (!url || typeof url !== "string") return null;
 
   for (const { pattern, handleIndex } of PLATFORM_PATTERNS) {
