@@ -1,55 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { COOKIE_OPTIONS, createAuthToken } from "@/lib/auth";
 import type { ClickUpAuthResponse, ClickUpTokenResponse } from "@/types";
-
-// Auto-select first available shared list and create auth token
-async function autoSelectFirstList(
-  sharedData: { shared?: { lists?: Array<{ id: string; name: string }> } },
-  tokenData: ClickUpTokenResponse,
-  userData: ClickUpAuthResponse
-) {
-  const sharedLists = sharedData.shared?.lists || [];
-
-  if (sharedLists.length === 0) {
-    return null; // No shared lists available
-  }
-
-  // Get first available list
-  const firstList = sharedLists[0];
-  const listId = firstList.id;
-  const listName = firstList.name;
-
-  // Verify the list is accessible
-  const listResponse = await fetch(
-    `https://api.clickup.com/api/v2/list/${listId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`,
-      },
-    }
-  );
-
-  if (!listResponse.ok) {
-    console.error("Failed to access first list, falling back to select-board");
-    return null;
-  }
-
-  // Create auth token with auto-selected list
-  const token = await createAuthToken(
-    listId,
-    process.env.CLICKUP_API_TOKEN || "",
-    listName,
-    tokenData.access_token,
-    {
-      id: userData.user.id,
-      username: userData.user.username,
-      email: userData.user.email,
-    }
-  );
-
-  return token;
-}
-
 // Handle ClickUp OAuth callback
 export async function GET(request: NextRequest) {
   try {
@@ -116,64 +67,26 @@ export async function GET(request: NextRequest) {
 
     const userData: ClickUpAuthResponse = await userResponse.json();
 
-    // Get user's teams separately
-    const teamsResponse = await fetch("https://api.clickup.com/api/v2/team", {
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`,
-      },
-    });
-
-    if (!teamsResponse.ok) {
-      const errorText = await teamsResponse.text();
-      console.error(
-        "Failed to fetch workspaces:",
-        teamsResponse.status,
-        errorText
-      );
-    }
-
-    const teamsData = await teamsResponse.json();
-    console.log("🚀 ~ GET ~ teamsData:", teamsData.teams[0].id);
-
-    const sharedResponse = await fetch(
-      ` https://api.clickup.com/api/v2/team/${teamsData.teams[0].id}/shared`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
-        },
-      }
-    );
-
-    // const sharedData = await sharedResponse.json();
-
-    // Try to auto-select first available list (comment out this block to disable auto-selection)
-    // const autoSelectedToken = await autoSelectFirstList(
-    //   sharedData,
-    //   tokenData,
-    //   userData
-    // );
-
     const token: string = await createAuthToken(
-      undefined, // No list selected yet
+      null,
       process.env.CLICKUP_API_TOKEN || "",
-      undefined,
+      null,
       tokenData.access_token,
       {
         id: userData.user.id,
         username: userData.user.username,
         email: userData.user.email,
+        color: userData.user.color,
+        profilePicture: userData.user.profilePicture,
+        initials: userData.user.initials,
+        week_start_day: userData.user.week_start_day,
+        global_font_support: userData.user.global_font_support,
+        timezone: userData.user.timezone,
       }
     );
-    const redirectUrl: string = "/dashboard/select-board";
 
-    // if (autoSelectedToken) {
-    // Auto-selection successful - redirect to dashboard
-    //token = autoSelectedToken;
-    //  redirectUrl = "/dashboard";
-    // } else {
-    // Auto-selection code removed - always redirect to board selection
-    //}
-
+    // Redirect to dashboard - it will handle list search
+    const redirectUrl: string = "/dashboard";
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
     response.cookies.set("auth-token", token, COOKIE_OPTIONS);

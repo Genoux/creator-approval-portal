@@ -1,19 +1,15 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, User } from "@/types";
 import { ClickUpAPI } from "./clickup";
 
 export interface AuthSession {
-  listId?: string; // Optional - no list selected yet
+  listId?: string;
   listName?: string;
   apiToken?: string;
   clickupAccessToken?: string;
-  clickupUser?: {
-    id: number;
-    username: string;
-    email: string;
-  };
+  clickupUser?: User;
   exp: number;
 }
 
@@ -36,15 +32,15 @@ export const COOKIE_OPTIONS = {
 };
 
 export async function createAuthToken(
-  listId: string | undefined,
+  listId: string | null,
   apiToken: string,
-  listName?: string,
+  listName?: string | null,
   clickupAccessToken?: string,
-  clickupUser?: { id: number; username: string; email: string }
+  clickupUser?: User
 ): Promise<string> {
   const payload: Omit<AuthSession, "exp"> = {
-    listId: listId,
-    listName: listName,
+    listId: listId ?? undefined,
+    listName: listName ?? undefined,
     apiToken: apiToken,
     clickupAccessToken: clickupAccessToken,
     clickupUser: clickupUser,
@@ -70,9 +66,7 @@ export async function verifyAuthToken(
       listName: payload.listName as string | undefined,
       apiToken: payload.apiToken as string | undefined,
       clickupAccessToken: payload.clickupAccessToken as string | undefined,
-      clickupUser: payload.clickupUser as
-        | { id: number; username: string; email: string }
-        | undefined,
+      clickupUser: payload.clickupUser as User | undefined,
       exp: payload.exp as number,
     };
   } catch (error) {

@@ -18,10 +18,6 @@ export async function GET() {
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set("response_type", "code");
 
-  console.log("🔗 OAuth URL:", authUrl.toString());
-  console.log("🔑 Client ID:", clientId);
-  console.log("📍 Redirect URI:", redirectUri);
-
   // Redirect user to ClickUp OAuth
   return NextResponse.redirect(authUrl.toString());
 }
