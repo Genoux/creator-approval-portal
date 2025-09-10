@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,44 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [boardId, setBoardId] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardId }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        router.push("/dashboard");
-      } else {
-        setError(data.message || "Login failed");
-      }
-    } catch (error) {
-      setError(
-        `Connection error: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
-    } finally {
-      setLoading(false);
-    }
+  const handleClickUpLogin = () => {
+    window.location.href = "/auth/clickup";
   };
 
   return (
@@ -57,35 +24,30 @@ export function LoginForm({
         <CardHeader className="text-center">
           <CardTitle>Creator Approval Portal</CardTitle>
           <CardDescription>
-            Enter your ClickUp credentials to access the dashboard
+            Sign in to access your creator management boards
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="boardId">ClickUp List ID</Label>
-                <Input
-                  id="boardId"
-                  type="text"
-                  placeholder="Enter your ClickUp List ID"
-                  required
-                  value={boardId}
-                  onChange={(e) => setBoardId(e.target.value)}
-                />
-              </div>
+          <div className="flex flex-col gap-6">
+            <Button 
+              onClick={handleClickUpLogin}
+              className="w-full"
+              size="lg"
+            >
+              <svg 
+                className="mr-2 h-5 w-5" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+              >
+                <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.568 14.4c-.32.64-1.28 1.12-2.08 1.12-.48 0-.96-.16-1.28-.48l-3.36-2.72c-.32-.24-.48-.64-.48-1.04 0-.4.16-.8.48-1.04l3.36-2.72c.32-.32.8-.48 1.28-.48.8 0 1.76.48 2.08 1.12.32.64.16 1.44-.32 1.92l-2.24 1.84 2.24 1.84c.48.48.64 1.28.32 1.92z"/>
+              </svg>
+              Continue with ClickUp
+            </Button>
 
-              {error && (
-                <div className="text-destructive text-sm text-center">
-                  {error}
-                </div>
-              )}
-
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Authenticating..." : "Access Dashboard"}
-              </Button>
-            </div>
-          </form>
+            <p className="text-sm text-muted-foreground text-center">
+              Sign in with your ClickUp account to access shared creator management boards.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

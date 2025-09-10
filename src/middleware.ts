@@ -43,6 +43,21 @@ export async function middleware(request: NextRequest) {
       response.cookies.delete("auth-token");
       return response;
     }
+
+    // If no list selected and not already on select-board page, redirect there
+    if (
+      !session.listId &&
+      !request.nextUrl.pathname.includes("/select-board")
+    ) {
+      return NextResponse.redirect(
+        new URL("/dashboard/select-board", request.url)
+      );
+    }
+
+    // If list selected but trying to access select-board, redirect to main dashboard
+    if (session.listId && request.nextUrl.pathname.includes("/select-board")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();
