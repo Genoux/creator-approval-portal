@@ -19,6 +19,14 @@ export class ClickUpAPI {
     this.baseUrl = baseUrl;
   }
 
+  static createFromSession(apiToken?: string, oauthToken?: string): ClickUpAPI {
+    const tokenToUse = oauthToken || apiToken || process.env.CLICKUP_API_TOKEN;
+    if (!tokenToUse) {
+      throw new Error("No ClickUp API token available");
+    }
+    return new ClickUpAPI(tokenToUse);
+  }
+
   private getCacheKey(endpoint: string, options: RequestInit = {}): string {
     return `${endpoint}:${JSON.stringify(options)}`;
   }
@@ -180,6 +188,17 @@ export class ClickUpAPI {
     return this.request(`/space/${spaceId}`, {}, cacheTTL);
   }
 
+  // Team/Workspace Methods
+  async getTeams(cacheTTL = 15 * 60 * 1000) {
+    console.log("🏢 Fetching user teams/workspaces");
+    return this.request("/team", {}, cacheTTL);
+  }
+
+  async getSharedResources(teamId: string, cacheTTL = 10 * 60 * 1000) {
+    console.log(`🔗 Fetching shared resources for team ${teamId}`);
+    return this.request(`/team/${teamId}/shared`, {}, cacheTTL);
+  }
+
   // Comment Methods
   async getTaskComments(taskId: string, cacheTTL = 2 * 60 * 1000) {
     console.log(`💬 Fetching comments for task ${taskId}`);
@@ -244,6 +263,7 @@ export class ClickUpAPI {
       method: "DELETE",
     });
   }
+
 
   private clearCommentsCache(taskId: string): void {
     const keysToDelete = Object.keys(this.cache).filter((key) =>
