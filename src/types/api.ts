@@ -1,5 +1,5 @@
 export interface AuthCredentials {
-  boardId: string;
+  listId: string;
 }
 
 export interface ApiResponse<T> {
