@@ -77,7 +77,6 @@ export function CommentList({
 
 function CommentItem({ comment }: { comment: Comment }) {
   const createdAt = parseCommentDate(comment.createdAt);
-  console.log(createdAt);
   const timeAgo = formatTimeAgo(createdAt);
 
   return (

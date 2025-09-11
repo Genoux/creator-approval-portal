@@ -1,7 +1,7 @@
 "use client";
 
-import { useScrollToBottom } from "@/hooks/comments/useScrollToBottom";
-import { useTaskComments } from "@/hooks/comments/useTaskComments";
+import { useTaskComments } from "@/hooks/data/comments/useTaskComments";
+import { useScrollToBottom } from "@/hooks/ui/useScrollToBottom";
 import { cn } from "@/lib/utils";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";

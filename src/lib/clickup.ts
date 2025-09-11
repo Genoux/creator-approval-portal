@@ -19,6 +19,14 @@ export class ClickUpAPI {
     this.baseUrl = baseUrl;
   }
 
+  static createFromSession(apiToken?: string, oauthToken?: string): ClickUpAPI {
+    const tokenToUse = oauthToken || apiToken || process.env.CLICKUP_API_TOKEN;
+    if (!tokenToUse) {
+      throw new Error("No ClickUp API token available");
+    }
+    return new ClickUpAPI(tokenToUse);
+  }
+
   private getCacheKey(endpoint: string, options: RequestInit = {}): string {
     return `${endpoint}:${JSON.stringify(options)}`;
   }
@@ -38,13 +46,9 @@ export class ClickUpAPI {
     if ((!options.method || options.method === "GET") && this.cache[cacheKey]) {
       const cached = this.cache[cacheKey];
       if (this.isValidCache(cached)) {
-        console.log(`📦 Cache hit for: ${endpoint}`);
         return cached.data;
       }
     }
-
-    console.log(`🚀 Making request to: ${this.baseUrl}${endpoint}`);
-    const startTime = Date.now();
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -57,11 +61,6 @@ export class ClickUpAPI {
       },
     });
 
-    const duration = Date.now() - startTime;
-    console.log(
-      `⏱️  Request completed in ${duration}ms - Status: ${response.status}`
-    );
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
@@ -73,9 +72,6 @@ export class ClickUpAPI {
     }
 
     const data = await response.json();
-    console.log(
-      `✅ Response received - Size: ${JSON.stringify(data).length} chars`
-    );
 
     // Cache GET requests
     if (!options.method || options.method === "GET") {
@@ -84,7 +80,6 @@ export class ClickUpAPI {
         timestamp: Date.now(),
         ttl: cacheTTL || this.defaultCacheTTL,
       };
-      console.log(`💾 Cached response for: ${endpoint}`);
     }
 
     return data;
@@ -92,7 +87,6 @@ export class ClickUpAPI {
 
   clearCache(): void {
     this.cache = {};
-    console.log("🗑️  Cache cleared");
   }
 
   clearExpiredCache(): void {
@@ -100,39 +94,43 @@ export class ClickUpAPI {
       (key) => !this.isValidCache(this.cache[key])
     );
     keysToDelete.forEach((key) => delete this.cache[key]);
-    console.log(`🧹 Cleared ${keysToDelete.length} expired cache entries`);
   }
 
-  async getTasks(listId: string, cacheTTL = 2 * 60 * 1000) {
+  async getTasks(listId: string, cacheTTL = 10 * 60 * 1000) {
+    // OPTIMIZATION: Increase page limit to reduce API calls
     const allTasks = [];
     let page = 0;
     let hasMore = true;
 
     while (hasMore) {
       const response = await this.request(
-        `/list/${listId}/task?archived=false&include_closed=true&page=${page}&order_by=created&reverse=true&subtasks=true`,
+        `/list/${listId}/task?archived=false&include_closed=true&page=${page}&order_by=created&reverse=true&limit=100&statuses[]=client%20approval&statuses[]=backup&statuses[]=declined%20(client)&statuses[]=selected`,
         {},
         cacheTTL
       );
 
       const pageTasks = response.tasks || [];
       allTasks.push(...pageTasks);
-
-      if (pageTasks.length === 0) {
+      console.log(`✅ Fetched ${pageTasks.length} tasks in ${page + 1} page(s)`);
+      // OPTIMIZATION: Check if we got less than limit, means we're done
+      if (pageTasks.length === 0 || pageTasks.length < 100) {
         hasMore = false;
       } else {
         page++;
-        if (page > 50) {
+        if (page > 20) { // Reduced from 50 since we're getting more per page
           console.warn(`⚠️  Reached pagination limit for list ${listId}`);
           break;
         }
       }
     }
-
-    console.log(
-      `📋 Fetched ${allTasks.length} total tasks from list ${listId}`
-    );
+    
+    console.log(`✅ Fetched ${allTasks.length} tasks in ${page + 1} page(s)`);
     return allTasks;
+  }
+
+  async getTask(taskId: string, cacheTTL = 1 * 60 * 1000) {
+    const response = await this.request(`/task/${taskId}`, {}, cacheTTL);
+    return response;
   }
 
   async updateTaskCustomField(
@@ -144,8 +142,6 @@ export class ClickUpAPI {
     if (typeof value === "string" && /^\d+$/.test(value)) {
       actualValue = parseInt(value, 10);
     }
-
-    console.log(`🔄 Updating task ${taskId} field ${fieldId} to:`, actualValue);
 
     const result = await this.request(`/task/${taskId}/field/${fieldId}`, {
       method: "POST",
@@ -163,9 +159,6 @@ export class ClickUpAPI {
       (key) => key.includes(`/task/${taskId}`) || key.includes(`/list/`)
     );
     keysToDelete.forEach((key) => delete this.cache[key]);
-    console.log(
-      `🗑️  Cleared ${keysToDelete.length} cache entries related to task ${taskId}`
-    );
   }
 
   async getList(listId: string, cacheTTL = 10 * 60 * 1000) {
@@ -180,9 +173,17 @@ export class ClickUpAPI {
     return this.request(`/space/${spaceId}`, {}, cacheTTL);
   }
 
+  // Team/Workspace Methods
+  async getTeams(cacheTTL = 15 * 60 * 1000) {
+    return this.request("/team", {}, cacheTTL);
+  }
+
+  async getSharedResources(teamId: string, cacheTTL = 10 * 60 * 1000) {
+    return this.request(`/team/${teamId}/shared`, {}, cacheTTL);
+  }
+
   // Comment Methods
   async getTaskComments(taskId: string, cacheTTL = 2 * 60 * 1000) {
-    console.log(`💬 Fetching comments for task ${taskId}`);
     return this.request(`/task/${taskId}/comment`, {}, cacheTTL);
   }
 
@@ -191,7 +192,6 @@ export class ClickUpAPI {
     commentText: string,
     assignee?: number
   ) {
-    console.log(`💬 Creating comment for task ${taskId}`);
     const body: {
       comment_text: string;
       assignee?: number;
@@ -220,7 +220,6 @@ export class ClickUpAPI {
     commentText: string,
     resolved?: boolean
   ) {
-    console.log(`💬 Updating comment ${commentId}`);
     const body: {
       comment_text: string;
       resolved?: boolean;
@@ -239,19 +238,17 @@ export class ClickUpAPI {
   }
 
   async deleteComment(commentId: string) {
-    console.log(`💬 Deleting comment ${commentId}`);
     return this.request(`/comment/${commentId}`, {
       method: "DELETE",
     });
   }
+
 
   private clearCommentsCache(taskId: string): void {
     const keysToDelete = Object.keys(this.cache).filter((key) =>
       key.includes(`/task/${taskId}/comment`)
     );
     keysToDelete.forEach((key) => delete this.cache[key]);
-    console.log(
-      `🗑️  Cleared ${keysToDelete.length} comment cache entries for task ${taskId}`
-    );
+    // Cache cleared successfully
   }
 }

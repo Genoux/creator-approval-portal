@@ -1,5 +1,5 @@
 import { Squircle } from "@squircle-js/react";
-import { BadgeCheck, ChevronDownIcon, Users } from "lucide-react";
+import { ChevronDownIcon, Users } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -13,22 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useCreatorActions } from "@/hooks/creators/useCreatorActions";
-import { useCreatorProfile } from "@/hooks/creators/useCreatorProfile";
+import { useTaskActions } from "@/contexts/TaskActionsContext";
+import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
-import {
-  APPROVAL_LABELS,
-  getApprovalStatus,
-  getDisplayLabel,
-  isTeamRecommended,
-} from "@/utils/approval";
-import { useImageColor } from "@/utils/image-color";
+import { APPROVAL_LABELS, getApprovalStatus, getDisplayLabel } from "@/utils";
 
 interface TaskCardProps {
   task: Task;
@@ -41,8 +30,8 @@ export function TaskCard({ task }: TaskCardProps) {
     handleBackup,
     handleDecline,
     handleMoveToReview,
-    isPending,
-  } = useCreatorActions();
+    isTaskPending,
+  } = useTaskActions();
   const currentLabel = getApprovalStatus(task);
 
   // Create status options array and action mapping
@@ -56,20 +45,13 @@ export function TaskCard({ task }: TaskCardProps) {
   } as const;
 
   // Get creator profile (this will be stable for the same task ID/name)
-  const {
-    profileImageUrl,
-    primaryHandle,
-    followerCount,
-    igProfile,
-    ttProfile,
-    ytProfile,
-  } = useCreatorProfile(task);
+  const { avatar, primaryHandle, followerCount, socialProfiles } =
+    useCreatorProfile(task);
 
-  const { gradient } = useImageColor(profileImageUrl);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleStatusClick = (status: string) => {
-    if (currentLabel.toString() !== status && !isPending) {
+    if (currentLabel.toString() !== status && !isTaskPending(task.id)) {
       const actionFn = STATUS_ACTIONS[status as keyof typeof STATUS_ACTIONS];
       if (actionFn) {
         actionFn(task);
@@ -83,7 +65,7 @@ export function TaskCard({ task }: TaskCardProps) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            disabled={isPending}
+            disabled={isTaskPending(task.id)}
             className="flex gap-0.5 border border-white/30 bg-white/10 backdrop-blur-md rounded-3xl text-white hover:bg-white/20 hover:text-white transition-colors focus:ring-0! focus:ring-offset-0 data-[state=open]:ring-0 disabled:opacity-50"
           >
             {getDisplayLabel(currentLabel)}
@@ -96,14 +78,14 @@ export function TaskCard({ task }: TaskCardProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {STATUS_OPTIONS.map((status) => (
+          {STATUS_OPTIONS.map(status => (
             <DropdownMenuItem
               key={status}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleStatusClick(status);
               }}
-              disabled={isPending}
+              disabled={isTaskPending(task.id)}
               className={cn(
                 "flex items-center gap-2",
                 currentLabel.toString() === status
@@ -130,20 +112,26 @@ export function TaskCard({ task }: TaskCardProps) {
           {/* Background Image */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden ">
             <Image
-              src={profileImageUrl || ""}
+              src={avatar || ""}
               alt={`${task.name} profile`}
               fill
+              sizes="100%"
               className="object-cover"
+              priority
+              loading="eager"
+              placeholder="blur"
+              blurDataURL={avatar || ""}
             />
           </div>
           <div
-            className="absolute  backdrop-blur-xl overflow-hidden w-full h-full bottom-0"
+            className="absolute  backdrop-blur-md overflow-hidden w-full h-full bottom-0"
             style={{
-              background: gradient,
               maskImage:
                 "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
               WebkitMaskImage:
                 "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
+              background:
+                "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.01) 10%, rgba(0,0,0,0.04) 20%, rgba(0,0,0,0.09) 30%, rgba(0,0,0,0.16) 40%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.36) 60%, rgba(0,0,0,0.49) 70%, rgba(0,0,0,0.64) 80%, rgba(0,0,0,0.81) 90%, rgba(0,0,0,0.9) 100%)",
             }}
           ></div>
 
@@ -154,18 +142,8 @@ export function TaskCard({ task }: TaskCardProps) {
 
             {/* Bottom Content */}
             <div className="flex flex-col">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <CardTitle className="text-lg font-semibold flex items-center">
                 {task.name}
-                {isTeamRecommended(task) ? (
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <BadgeCheck className="w-5 h-5 text-green-400" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Team Recommended</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ) : null}
               </CardTitle>
 
               <CardDescription className="text-white/80 text-base">
@@ -180,11 +158,7 @@ export function TaskCard({ task }: TaskCardProps) {
                       <span>{followerCount}</span>
                     </div>
                   )}
-                  <SocialMediaButtons
-                    igProfile={igProfile}
-                    ttProfile={ttProfile}
-                    ytProfile={ytProfile}
-                  />
+                  <SocialMediaButtons socialProfiles={socialProfiles} />
                 </div>
                 <StatusDropdownMenu />
               </motion.div>

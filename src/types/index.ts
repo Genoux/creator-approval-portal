@@ -1,26 +1,52 @@
-import type { ApiResponse, AuthCredentials } from "./api";
-import type {
+// Core types (shared across the application)
+
+
+// API types
+export type {
+  AuthCredentials,
+} from "./api";
+// ClickUp API types
+export type {
+  ClickUpAuthResponse,
+  ClickUpFolder,
+  ClickUpList,
+  ClickUpSessionData,
+  ClickUpSpace,
+  ClickUpSpaceWithLists,
+  ClickUpTokenResponse,
+  ClickUpWorkspace,
+  ClickUpWorkspaceWithSpaces,
+} from "./clickup";
+// Comment types
+export type {
   ClickUpComment,
   Comment,
   CreateCommentRequest,
   UpdateCommentRequest,
 } from "./comments";
-import type {
-  ClickUpDropdownOption,
-  StatusOptionsResponse,
-  StatusUpdate,
-} from "./status";
-import type { Task } from "./tasks";
-
 export type {
-  AuthCredentials,
   ApiResponse,
-  Task,
+  CustomField,
+  DropdownOption,
   StatusUpdate,
-  ClickUpDropdownOption,
+  User,
+} from "./core";
+// Creator-related types
+export type {
+  ApprovalLabel,
+  CreatorData,
+  CreatorProfile,
+  SocialPlatform,
+  SocialProfile,
+} from "./creators";
+export { APPROVAL_LABELS } from "./creators";
+
+// Status types
+export type {
   StatusOptionsResponse,
-  Comment,
-  ClickUpComment,
-  CreateCommentRequest,
-  UpdateCommentRequest,
-};
+} from "./status";
+// Task types
+export type {
+  Task,
+  TaskStatus,
+} from "./tasks";
