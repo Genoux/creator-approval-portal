@@ -97,7 +97,6 @@ export class ClickUpAPI {
   }
 
   async getTasks(listId: string, cacheTTL = 10 * 60 * 1000) {
-    // OPTIMIZATION: Increase page limit to reduce API calls
     const allTasks = [];
     let page = 0;
     let hasMore = true;
@@ -111,8 +110,7 @@ export class ClickUpAPI {
 
       const pageTasks = response.tasks || [];
       allTasks.push(...pageTasks);
-      console.log(`✅ Fetched ${pageTasks.length} tasks in ${page + 1} page(s)`);
-      // OPTIMIZATION: Check if we got less than limit, means we're done
+
       if (pageTasks.length === 0 || pageTasks.length < 100) {
         hasMore = false;
       } else {
@@ -124,7 +122,6 @@ export class ClickUpAPI {
       }
     }
     
-    console.log(`✅ Fetched ${allTasks.length} tasks in ${page + 1} page(s)`);
     return allTasks;
   }
 

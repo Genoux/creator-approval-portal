@@ -1,5 +1,3 @@
-// Creator-related types and interfaces
-
 /**
  * Essential creator data extracted from ClickUp custom fields
  * This represents the clean, UI-ready data after field discovery and processing
@@ -29,7 +27,7 @@ export interface CreatorData {
 /**
  * Social media platform types
  */
-export type SocialPlatform = "TikTok" | "Instagram" | "YouTube";
+export type SocialPlatform = "TikTok" | "Instagram" | "YouTube" | "External";
 
 /**
  * Social profile information for UI display

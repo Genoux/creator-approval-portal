@@ -36,10 +36,10 @@ export function CommentForm({ taskId, onCommentSent }: CommentFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3 px-4 mt-2">
       <Textarea
         value={comment}
-        onChange={(e) => setComment(e.target.value)}
+        onChange={e => setComment(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Add a comment..."
         className="min-h-[90px] resize-none bg-white rounded-2xl"

@@ -15,7 +15,34 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const handleClickUpLogin = () => {
-    window.location.href = "/auth/clickup";
+    const popup = window.open(
+      "/auth/clickup",
+      "clickup-auth",
+      "width=500,height=600,scrollbars=yes,resizable=yes"
+    );
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+
+      if (event.data.type === "auth_success") {
+        cleanup();
+        window.location.href = "/dashboard";
+      }
+    };
+
+    const cleanup = () => {
+      window.removeEventListener("message", handleMessage);
+      if (checkClosed) clearInterval(checkClosed);
+      popup?.close();
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    const checkClosed = setInterval(() => {
+      if (popup?.closed) {
+        cleanup();
+      }
+    }, 1000);
   };
 
   return (
@@ -29,16 +56,13 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
-            <Button 
-              onClick={handleClickUpLogin}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={handleClickUpLogin} className="w-full" size="lg">
               Continue with ClickUp
             </Button>
 
             <p className="text-sm text-muted-foreground text-center">
-              Sign in with your ClickUp account to access shared creator management boards.
+              Sign in with your ClickUp account to access shared creator
+              management boards.
             </p>
           </div>
         </CardContent>

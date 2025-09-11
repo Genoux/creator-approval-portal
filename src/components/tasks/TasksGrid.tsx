@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Button } from "@/components/ui/button";
-import { Empty } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
 import {
@@ -99,14 +99,14 @@ export function TasksGrid({ tasks }: TasksGridProps) {
 
   if (tasks.length === 0) {
     return (
-      <Empty
+      <ErrorBlock
         title="No creators found"
         description="Creators will appear here when they're assigned this status."
       />
     );
   }
 
-  const currentActiveTab = activeTab || CATEGORIES[4];
+  const currentActiveTab = activeTab || CATEGORIES[0];
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -131,7 +131,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
       {/* Tab Content */}
       <div>
         {tasksByStatus[currentActiveTab]?.length === 0 ? (
-          <Empty
+          <ErrorBlock
             title={`No creators in "${getDisplayLabel(currentActiveTab)}"`}
             description={`Creators will appear here when they're assigned this status.`}
             className="h-[580px]"

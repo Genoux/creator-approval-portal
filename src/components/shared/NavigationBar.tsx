@@ -1,11 +1,9 @@
 "use client";
 
 import { Bug, LogOutIcon } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { ClickupIcon } from "@/components/icons";
+import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,12 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { AuthSession } from "@/lib/auth";
 
 const handleLogout = async () => {
@@ -34,6 +26,7 @@ interface DashboardNavbarProps {
 
 export function DashboardNavbar({ session }: DashboardNavbarProps) {
   const user = session.clickupUser;
+
   return (
     <nav className="border-b border-black/5">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,40 +36,31 @@ export function DashboardNavbar({ session }: DashboardNavbarProps) {
             target="_blank"
             className="flex items-center gap-2"
           >
-            <Image
-              src="/inBeat.svg"
-              alt="inBeat"
-              width={100}
-              height={100}
-              className="cursor-pointer"
-            />
+            <InBeatIcon width={48} className="cursor-pointer" />
           </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="transition-all duration-125 cursor-pointer hover:border-black/50 hover:border p-0.5 rounded-full border border-transparent data-[state=open]:border-black/50">
-                <Avatar>
-                  <AvatarImage src={user?.profilePicture} />
-                  <AvatarFallback>
-                    {user?.initials || user?.username.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            </DropdownMenuTrigger>
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="transition-all duration-125 cursor-pointer hover:border-black/50 hover:border p-0.5 rounded-full border border-transparent data-[state=open]:border-black/50">
+                  <Avatar>
+                    <AvatarImage src={user.profilePicture} />
+                    <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </div>
+              </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" sideOffset={4}>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profilePicture} />
-                      <AvatarFallback>
-                        {user?.initials || user?.username.charAt(0)}
-                      </AvatarFallback>
+                      <AvatarImage src={user.profilePicture} />
+                      <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">
-                        {user?.username}
+                        {user.username}
                       </span>
                       <span className="text-muted-foreground truncate text-xs">
-                        {user?.email}
+                        {user.email}
                       </span>
                     </div>
                   </div>
@@ -89,7 +73,7 @@ export function DashboardNavbar({ session }: DashboardNavbarProps) {
                     }
                     className="cursor-pointer"
                   >
-                    <ClickupIcon className="w-3 h-3" />
+                    <ClickupIcon width={14} height={14} />
                     Go to ClickUp
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -107,11 +91,12 @@ export function DashboardNavbar({ session }: DashboardNavbarProps) {
                   onClick={handleLogout}
                   className="cursor-pointer"
                 >
-                  <LogOutIcon className="w-4 h-4" />
+                  <LogOutIcon className="w-3.5 h-3.5" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
-          </DropdownMenu>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </nav>

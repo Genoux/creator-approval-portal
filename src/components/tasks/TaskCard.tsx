@@ -1,6 +1,5 @@
 import { Squircle } from "@squircle-js/react";
 import { ChevronDownIcon, Users } from "lucide-react";
-import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
@@ -44,7 +43,6 @@ export function TaskCard({ task }: TaskCardProps) {
     [APPROVAL_LABELS.FOR_REVIEW]: handleMoveToReview,
   } as const;
 
-  // Get creator profile (this will be stable for the same task ID/name)
   const { avatar, primaryHandle, followerCount, socialProfiles } =
     useCreatorProfile(task);
 
@@ -137,20 +135,20 @@ export function TaskCard({ task }: TaskCardProps) {
 
           {/* Content Overlay */}
           <div className="absolute inset-2 flex flex-col justify-between p-3 text-white">
-            {/* Empty top space */}
             <div></div>
 
             {/* Bottom Content */}
             <div className="flex flex-col">
-              <CardTitle className="text-lg font-semibold flex items-center">
-                {task.name}
-              </CardTitle>
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-lg font-semibold flex items-center leading-none">
+                  {task.name}
+                </CardTitle>
 
-              <CardDescription className="text-white/80 text-base">
-                {primaryHandle}
-              </CardDescription>
-
-              <motion.div className="flex justify-between items-end">
+                <CardDescription className="text-white/80 text-base">
+                  {primaryHandle}
+                </CardDescription>
+              </div>
+              <div className="flex justify-between items-end">
                 <div className="flex items-center gap-3">
                   {followerCount && (
                     <div className="flex items-center gap-1.5 text-sm white/90">
@@ -161,7 +159,7 @@ export function TaskCard({ task }: TaskCardProps) {
                   <SocialMediaButtons socialProfiles={socialProfiles} />
                 </div>
                 <StatusDropdownMenu />
-              </motion.div>
+              </div>
             </div>
           </div>
         </Squircle>

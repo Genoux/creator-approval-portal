@@ -2,9 +2,41 @@ import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type { ApiResponse, Comment } from "@/types";
 
-async function fetchTaskComments(taskId: string): Promise<Comment[]> {
-  const response = await fetch(`/api/tasks/${taskId}/comments`);
-  const data: ApiResponse<Comment[]> = await response.json();
+async function fetchTaskComments(taskId: string, signal?: AbortSignal): Promise<Comment[]> {
+  if (!taskId?.trim()) {
+    throw new Error("taskId is required");
+  }
+
+  const response = await fetch(`/api/tasks/${taskId}/comments`, {
+    signal,
+    headers: {
+      "Accept": "application/json",
+    },
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  if (!response.ok) {
+    let message = `Failed to fetch comments (${response.status})`;
+    if (contentType.includes("application/json")) {
+      try {
+        const errJson: Partial<ApiResponse<unknown>> & { message?: string } = await response.json();
+        message = errJson.message || message;
+      } catch { /* ignore */ }
+    } else {
+      try {
+        const text = await response.text();
+        if (text) message = text;
+      } catch { /* ignore */ }
+    }
+    throw new Error(message);
+  }
+
+  let data: ApiResponse<Comment[]>;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("Invalid server response");
+  }
 
   if (!data.success) {
     throw new Error(data.message || "Failed to fetch comments");
@@ -16,7 +48,7 @@ async function fetchTaskComments(taskId: string): Promise<Comment[]> {
 export function useTaskComments(taskId: string) {
   return useQuery({
     queryKey: QUERY_KEYS.taskComments(taskId),
-    queryFn: () => fetchTaskComments(taskId),
+    queryFn: ({ signal }) => fetchTaskComments(taskId, signal),
     enabled: !!taskId,
     staleTime: 2 * 60 * 1000, // 2 minutes (override global 5min default)
     refetchInterval: 60 * 1000, // 60 seconds (reduced from 20s)

@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { COOKIE_OPTIONS, createAuthToken } from "@/lib/auth";
 import type { ClickUpAuthResponse, ClickUpTokenResponse } from "@/types";
-// Handle ClickUp OAuth callback
+
+/**
+ * Handle ClickUp OAuth callback
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -85,9 +88,34 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    // Redirect to dashboard - it will handle list search
-    const redirectUrl: string = "/dashboard";
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+    // For popup login, return a page that closes the popup and notifies parent
+    const response = new NextResponse(
+      `
+        <html>
+          <body>
+            <script>
+              // Set the auth token cookie
+              document.cookie = "auth-token=${token}; path=/; max-age=${COOKIE_OPTIONS.maxAge}; ${COOKIE_OPTIONS.secure ? 'secure;' : ''} samesite=${COOKIE_OPTIONS.sameSite}";
+              
+              // Close popup and notify parent
+              if (window.opener) {
+                window.opener.postMessage({ type: 'auth_success' }, window.location.origin);
+                window.close();
+              } else {
+                // Fallback for direct navigation
+                window.location.href = '/dashboard';
+              }
+            </script>
+          </body>
+        </html>
+      `,
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      }
+    );
 
     response.cookies.set("auth-token", token, COOKIE_OPTIONS);
 

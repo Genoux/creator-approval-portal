@@ -17,10 +17,6 @@ export async function findListByName(
 ): Promise<ListResult | null> {
   try {
     const clickup = ClickUpAPI.createFromSession(apiToken, userAccessToken);
-    
-    console.log("🔍 Finding list:", listName);
-    const startTime = Date.now();
-    
     const teamsData = await clickup.getTeams();
     const teams = teamsData.teams || [];
     
@@ -46,11 +42,8 @@ export async function findListByName(
       }
     });
     
-    // Wait for all teams to complete in parallel
     const results = await Promise.all(teamPromises);
     const foundList = results.find(result => result !== null);
-    
-    console.log("✅ List search completed in", Date.now() - startTime, "ms");
     
     return foundList || null;
   } catch (error) {

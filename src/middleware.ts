@@ -8,10 +8,19 @@ export async function middleware(request: NextRequest) {
   // Handle home page - redirect to dashboard if authenticated
   if (request.nextUrl.pathname === "/") {
     if (token) {
-      const session = await verifyAuthToken(token);
-
-      if (session) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+      try {
+        const session = await verifyAuthToken(token);
+        if (session) {
+          return NextResponse.redirect(new URL("/dashboard", request.url));
+        }
+        // Token exists but is invalid - clear it
+        const res = NextResponse.next();
+        res.cookies.delete("auth-token");
+        return res;
+      } catch {
+        const res = NextResponse.next();
+        res.cookies.delete("auth-token");
+        return res;
       }
     }
     return NextResponse.next();

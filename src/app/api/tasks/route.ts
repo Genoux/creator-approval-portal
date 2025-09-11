@@ -6,7 +6,6 @@ import { extractCreatorData } from "@/utils/creators";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async (session) => {
-    // Get listId from query parameter (sent by client)
     const { searchParams } = new URL(request.url);
     const listId = searchParams.get('listId');
     
@@ -22,9 +21,7 @@ export async function GET(request: NextRequest) {
       session.apiToken,
       session.clickupAccessToken
     );
-    // OPTIMIZATION: API now filters by status, no client-side filtering needed
     const selectedTasks = await clickup.getTasks(listId);
-    console.log("🚀 ~ GET ~ selectedTasks:", selectedTasks)
 
     const creators = selectedTasks.map((task: Task) => {
       const creatorData = extractCreatorData(task);
