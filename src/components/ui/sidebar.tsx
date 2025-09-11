@@ -21,7 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/ui/use-mobile";
 import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -89,7 +89,7 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open);
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
@@ -266,7 +266,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon"
       className={cn("size-7", className)}
-      onClick={event => {
+      onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}

@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
 import { InstagramIcon, TikTokIcon, YouTubeIcon } from "@/components/icons";
 import {
@@ -6,51 +7,64 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { CreatorData } from "@/utils/creator-data";
+import { cn } from "@/lib/utils";
+import type { SocialProfile } from "@/types";
 
 interface SocialMediaButtonsProps {
-  creatorData: CreatorData;
+  socialProfiles?: SocialProfile[];
+  variant?: "light" | "dark";
+  className?: string;
 }
 
-const PLATFORMS = [
-  { key: "igProfile", Icon: InstagramIcon, platform: "Instagram" },
-  { key: "ttProfile", Icon: TikTokIcon, platform: "TikTok" },
-  { key: "ytProfile", Icon: YouTubeIcon, platform: "YouTube" },
-] as const;
+const PLATFORM_ICONS = {
+  Instagram: InstagramIcon,
+  TikTok: TikTokIcon,
+  YouTube: YouTubeIcon,
+  External: ExternalLinkIcon,
+} as const;
 
 const ICON_STYLES = "w-4 h-4 text-white  transition-colors";
 
-export function SocialMediaButtons({ creatorData }: SocialMediaButtonsProps) {
-  const socialProfiles = PLATFORMS.map(({ key, Icon, platform }) => {
-    const url = creatorData[key];
-    if (!url) return null;
-
-    return { url, Icon, platform };
-  }).filter(
-    (profile): profile is NonNullable<typeof profile> => profile !== null
-  );
-
-  if (socialProfiles.length === 0) return null;
+export function SocialMediaButtons({
+  socialProfiles = [],
+  variant = "light",
+  className,
+}: SocialMediaButtonsProps) {
+  const validProfiles = socialProfiles.filter(profile => profile.url !== null);
+  if (validProfiles.length === 0) return null;
 
   return (
-    <div className="flex">
-      {socialProfiles.map(({ url, Icon, platform }) => (
-        <TooltipProvider key={url}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group p-1.5  rounded-md hover:bg-white/10 transition-colors"
-              >
-                <Icon className={ICON_STYLES} />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>{platform}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ))}
-    </div>
+    <section className="flex">
+      {validProfiles.map(({ url, platform }) => {
+        const Icon = PLATFORM_ICONS[platform];
+        return (
+          <TooltipProvider key={url}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={url || ""}
+                  onClick={e => e.stopPropagation()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "group p-1.5  rounded-md hover:bg-white/10 transition-colors",
+                    variant === "dark" && "hover:bg-black/10",
+                    className
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      ICON_STYLES,
+                      variant === "dark" && "text-black"
+                    )}
+                  />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>{platform}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      })}
+    </section>
   );
 }

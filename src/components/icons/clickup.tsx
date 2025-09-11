@@ -1,10 +1,25 @@
-export function ClickupIcon({ className }: { className?: string }) {
+interface IconProps {
+  className?: string;
+  width?: number | string;
+  height?: number | string;
+}
+
+export function ClickupIcon({ className, width, height }: IconProps) {
+  const style: React.CSSProperties = {};
+  if (width) style.width = width;
+  if (height) style.height = height;
+  if (!width && !height && !className?.includes('w-') && !className?.includes('h-')) {
+    style.width = 14;
+    style.height = 14;
+  }
+
   return (
     <svg
       role="img"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      style={style}
       aria-label="Clickup"
     >
       <path

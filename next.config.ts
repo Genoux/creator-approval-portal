@@ -5,6 +5,22 @@ const nextConfig: NextConfig = {
     APP_VERSION: require("./package.json").version,
     BUILD_TIME: new Date().toISOString(),
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "instagram.faep9-3.fna.fbcdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "www.instagram.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -1,28 +1,49 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import type { ApiResponse, User } from "@/types";
+import { ClickUpAPI } from "./clickup";
 
 export interface AuthSession {
-  boardId: string;
-  boardName?: string;
+  listId?: string;
+  listName?: string;
   apiToken?: string;
+  clickupAccessToken?: string;
+  clickupUser?: User;
   exp: number;
 }
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 // Convert secret to Uint8Array for jose
 const secret = new TextEncoder().encode(JWT_SECRET);
 
+// Shared cookie configuration
+export const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  maxAge: 24 * 60 * 60, // 24 hours
+  path: "/",
+};
+
 export async function createAuthToken(
-  boardId: string,
+  listId: string | null,
   apiToken: string,
-  boardName?: string
+  listName?: string | null,
+  clickupAccessToken?: string,
+  clickupUser?: User
 ): Promise<string> {
   const payload: Omit<AuthSession, "exp"> = {
-    boardId: boardId,
-    boardName: boardName,
+    listId: listId ?? undefined,
+    listName: listName ?? undefined,
     apiToken: apiToken,
+    clickupAccessToken: clickupAccessToken,
+    clickupUser: clickupUser,
   };
 
   const jwt = await new SignJWT(payload)
@@ -39,14 +60,17 @@ export async function verifyAuthToken(
 ): Promise<AuthSession | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
+
     return {
-      boardId: payload.boardId as string,
-      boardName: payload.boardName as string | undefined,
+      listId: payload.listId as string | undefined,
+      listName: payload.listName as string | undefined,
       apiToken: payload.apiToken as string | undefined,
+      clickupAccessToken: payload.clickupAccessToken as string | undefined,
+      clickupUser: payload.clickupUser as User | undefined,
       exp: payload.exp as number,
     };
   } catch (error) {
-    console.error("JWT verification error:", error);
+    console.error("❌ JWT verification error:", error);
     return null;
   }
 }
@@ -68,7 +92,7 @@ export async function getServerSession(): Promise<AuthSession | null> {
 }
 
 export async function validateClickUpCredentials(
-  boardId: string
+  listId: string
 ): Promise<boolean> {
   try {
     const apiToken = process.env.CLICKUP_API_TOKEN;
@@ -77,19 +101,45 @@ export async function validateClickUpCredentials(
       return false;
     }
 
-    // Simple validation: try to access the list
-    const response = await fetch(
-      `https://api.clickup.com/api/v2/list/${boardId}`,
-      {
-        headers: {
-          Authorization: apiToken.startsWith('pk_') ? apiToken : `Bearer ${apiToken}`,
-        },
-      }
-    );
-
-    return response.ok;
+    // Use ClickUpAPI wrapper for consistent error handling and caching
+    const clickup = new ClickUpAPI(apiToken);
+    await clickup.getList(listId);
+    return true;
   } catch (error) {
     console.error("ClickUp validation error:", error);
     return false;
+  }
+}
+
+// Shared auth middleware for API routes
+export async function withAuth<T>(
+  request: NextRequest,
+  handler: (session: AuthSession, request: NextRequest) => Promise<T>
+): Promise<NextResponse | T> {
+  try {
+    const token = request.cookies.get("auth-token")?.value;
+
+    if (!token) {
+      return NextResponse.json<ApiResponse<null>>(
+        { success: false, message: "Authentication required", data: null },
+        { status: 401 }
+      );
+    }
+
+    const session = await verifyAuthToken(token);
+    if (!session) {
+      return NextResponse.json<ApiResponse<null>>(
+        { success: false, message: "Invalid token", data: null },
+        { status: 401 }
+      );
+    }
+
+    return await handler(session, request);
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    return NextResponse.json<ApiResponse<null>>(
+      { success: false, message: "Authentication failed", data: null },
+      { status: 500 }
+    );
   }
 }
