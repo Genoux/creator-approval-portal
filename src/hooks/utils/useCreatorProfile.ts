@@ -22,12 +22,17 @@ export function useCreatorProfile(task: Task) {
         extractHandle(creatorData.tiktokProfile) ||
         extractHandle(creatorData.instagramProfile) ||
         extractHandle(creatorData.youtubeProfile),
+      
+      primaryProfileUrl:
+        creatorData.tiktokProfile ||
+        creatorData.instagramProfile ||
+        creatorData.youtubeProfile,
 
       followerCount: creatorData.followerCount
         ? formatFollowerCount(creatorData.followerCount)
         : null,
 
-      // Social platforms (only with valid data)
+      // Social platforms
       socialProfiles: [
         {
           platform: "TikTok" as const,
