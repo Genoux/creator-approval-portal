@@ -4,8 +4,6 @@ import { FIELD_PATTERNS, findField, getDropdownValue } from './field-finder';
 
 const DEFAULT_PROFILE_IMAGE = "https://dummyimage.com/400x500/000/fff";
 
-// CreatorData is now imported from types
-
 /**
  * Create a smart field extractor function from ClickUp schema
  */
@@ -23,7 +21,14 @@ export function createFieldExtractor(customFields: Task['custom_fields']) {
       id: z.string(),
       name: z.string(),
       type: z.string(),
-      value: z.union([z.string(), z.number(), z.boolean(), z.null(), z.undefined()]).nullable(),
+      value: z.union([
+        z.string(), 
+        z.number(), 
+        z.boolean(), 
+        z.null(), 
+        z.undefined(),
+        z.array(z.any())
+      ]).nullable(),
       type_config: z.object({
         options: z.array(z.object({
           id: z.string(),
