@@ -4,7 +4,7 @@ import { LayoutDebug } from "layout-debug-tool";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Footer } from "@/components/shared/FooterBar";
-import { DashboardNavbar } from "@/components/shared/NavigationBar";
+import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { TasksGridSkeleton } from "@/components/tasks/TasksGridSkeleton";
 import { TaskActionsProvider } from "@/contexts/TaskActionsContext";
@@ -39,12 +39,12 @@ export function DashboardClient({ session }: DashboardClientProps) {
   return (
     <LayoutDebug>
       <div className="min-h-screen bg-white flex flex-col">
-        <DashboardNavbar session={session} />
+        <NavigationBar session={session} />
 
         {/* Main Content */}
         <main className="flex-1 max-w-[1440px] mx-auto flex flex-col gap-6 py-12 px-8 w-full relative">
           <div className="flex justify-between items-center">
-            <DashboardHeader />
+            <DashboardHeader taskCount={tasks.length} isLoading={isLoading} />
           </div>
           {isLoading ? (
             <TasksGridSkeleton />
