@@ -1,103 +1,20 @@
 import { Squircle } from "@squircle-js/react";
-import { ChevronDownIcon, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { TaskModal } from "@/components/tasks/TaskModal";
-import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useTaskActions } from "@/contexts/TaskActionsContext";
 import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
-import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
-import { APPROVAL_LABELS, getApprovalStatus, getDisplayLabel } from "@/utils";
 
 interface TaskCardProps {
   task: Task;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const {
-    handleApprove,
-    handleGood,
-    handleBackup,
-    handleDecline,
-    handleMoveToReview,
-    isTaskPending,
-  } = useTaskActions();
-  const currentLabel = getApprovalStatus(task);
-
-  // Create status options array and action mapping
-  const STATUS_OPTIONS = Object.values(APPROVAL_LABELS);
-  const STATUS_ACTIONS = {
-    [APPROVAL_LABELS.PERFECT]: handleApprove,
-    [APPROVAL_LABELS.GOOD]: handleGood,
-    [APPROVAL_LABELS.SUFFICIENT]: handleBackup,
-    [APPROVAL_LABELS.POOR_FIT]: handleDecline,
-    [APPROVAL_LABELS.FOR_REVIEW]: handleMoveToReview,
-  } as const;
-
   const { avatar, primaryHandle, followerCount, socialProfiles } =
     useCreatorProfile(task);
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const handleStatusClick = (status: string) => {
-    if (currentLabel.toString() !== status && !isTaskPending(task.id)) {
-      const actionFn = STATUS_ACTIONS[status as keyof typeof STATUS_ACTIONS];
-      if (actionFn) {
-        actionFn(task);
-      }
-    }
-  };
-
-  function StatusDropdownMenu() {
-    return (
-      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            disabled={isTaskPending(task.id)}
-            className="flex gap-0.5 border border-white/30 bg-white/10 backdrop-blur-md rounded-3xl text-white hover:bg-white/20 hover:text-white transition-colors focus:ring-0! focus:ring-offset-0 data-[state=open]:ring-0 disabled:opacity-50"
-          >
-            {getDisplayLabel(currentLabel)}
-            <ChevronDownIcon
-              className={cn(
-                "w-4 h-4 transition-transform duration-200",
-                isDropdownOpen && "rotate-180"
-              )}
-            />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {STATUS_OPTIONS.map(status => (
-            <DropdownMenuItem
-              key={status}
-              onClick={e => {
-                e.stopPropagation();
-                handleStatusClick(status);
-              }}
-              disabled={isTaskPending(task.id)}
-              className={cn(
-                "flex items-center gap-2",
-                currentLabel.toString() === status
-                  ? "bg-black/5 cursor-default"
-                  : "cursor-pointer"
-              )}
-            >
-              {getDisplayLabel(status)}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
 
   return (
     <TaskModal task={task}>
@@ -148,7 +65,7 @@ export function TaskCard({ task }: TaskCardProps) {
                   {primaryHandle}
                 </CardDescription>
               </div>
-              <div className="flex justify-between items-end">
+              <div className="flex sm:flex-col lg:flex-row md:flex-col gap-2 justify-between lg:items-end items-start">
                 <div className="flex items-center gap-3">
                   {followerCount && (
                     <div className="flex items-center gap-1.5 text-sm white/90">
@@ -158,7 +75,11 @@ export function TaskCard({ task }: TaskCardProps) {
                   )}
                   <SocialMediaButtons socialProfiles={socialProfiles} />
                 </div>
-                <StatusDropdownMenu />
+                <StatusDropdown
+                  task={task}
+                  variant="light"
+                  className="sm:w-full md:w-full lg:w-auto w-auto"
+                />
               </div>
             </div>
           </div>
