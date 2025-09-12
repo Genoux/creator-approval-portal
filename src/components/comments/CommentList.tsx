@@ -60,7 +60,6 @@ export function CommentList({
       ) : (
         <div className="w-full">
           <div className="h-6 absolute top-0 left-0 right-0 w-full bg-gradient-to-b from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
-
           <div className="h-6 absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
           <div className="space-y-2 pt-1 pb-4">
             {comments.map(comment => (

@@ -79,10 +79,11 @@ export function createFieldExtractor(customFields: Task['custom_fields']) {
       instagramProfile: extractFieldValue(discoveredFields.instagramProfile),
       tiktokProfile: extractFieldValue(discoveredFields.tiktokProfile),
       youtubeProfile: extractFieldValue(discoveredFields.youtubeProfile),
+      linkedinProfile: extractFieldValue(discoveredFields.linkedinProfile),
+      inBeatPortfolio: extractFieldValue(discoveredFields.inBeatPortfolio),
       followerCount: extractNumber(discoveredFields.followerCount),
       example: extractFieldValue(discoveredFields.example),
       whyGoodFit: extractFieldValue(discoveredFields.whyGoodFit),
-      creatorType: extractFieldValue(discoveredFields.creatorType),
       clientApproval: extractFieldValue(discoveredFields.clientApproval),
       clientApprovalId: getApprovalId(),
     };

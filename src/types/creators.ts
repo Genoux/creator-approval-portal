@@ -10,6 +10,8 @@ export interface CreatorData {
   instagramProfile: string | null;
   tiktokProfile: string | null;
   youtubeProfile: string | null;
+  linkedinProfile: string | null;
+  inBeatPortfolio: string | null;
   
   // Metrics
   followerCount: number | null;
@@ -17,7 +19,6 @@ export interface CreatorData {
   // Content
   example: string | null;
   whyGoodFit: string | null;
-  creatorType: string | null;
   
   // Approval status
   clientApproval: string | null;
@@ -27,7 +28,7 @@ export interface CreatorData {
 /**
  * Social media platform types
  */
-export type SocialPlatform = "TikTok" | "Instagram" | "YouTube" | "External";
+export type SocialPlatform = "TikTok" | "Instagram" | "YouTube" | "LinkedIn" | "External";
 
 /**
  * Social profile information for UI display
@@ -49,23 +50,16 @@ export interface CreatorProfile {
   
   // Social presence
   primaryHandle: string | null;
+  primaryProfileUrl: string | null;
   followerCount: string | null;
   socialProfiles: SocialProfile[];
-  
-  // Creator details
-  type: string | null;
   
   // Content examples
   portfolio: {
     example: string | null;
     whyGoodFit: string | null;
+    inBeatPortfolio: string | null;
   };
-  
-  // UI helpers
-  hasSocialProfiles: boolean;
-  hasPortfolio: boolean;
-  displayName: string;
-  mainPlatform: SocialPlatform | null;
 }
 
 /**

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       return NextResponse.redirect(
-        new URL(`/?error=${encodeURIComponent(error)}`, request.url)
+        new URL(`/?error=${encodeURIComponent(error)}`, request.url),
       );
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     if (!clientId || !clientSecret) {
       return NextResponse.redirect(
-        new URL("/?error=oauth_config", request.url)
+        new URL("/?error=oauth_config", request.url),
       );
     }
 
@@ -43,14 +43,14 @@ export async function GET(request: NextRequest) {
           client_secret: clientSecret,
           code: code,
         }),
-      }
+      },
     );
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error("Token exchange failed:", errorText);
       return NextResponse.redirect(
-        new URL("/?error=token_exchange", request.url)
+        new URL("/?error=token_exchange", request.url),
       );
     }
 
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         week_start_day: userData.user.week_start_day,
         global_font_support: userData.user.global_font_support,
         timezone: userData.user.timezone,
-      }
+      },
     );
 
     // For popup login, return a page that closes the popup and notifies parent
@@ -95,8 +95,8 @@ export async function GET(request: NextRequest) {
           <body>
             <script>
               // Set the auth token cookie
-              document.cookie = "auth-token=${token}; path=/; max-age=${COOKIE_OPTIONS.maxAge}; ${COOKIE_OPTIONS.secure ? 'secure;' : ''} samesite=${COOKIE_OPTIONS.sameSite}";
-              
+              document.cookie = "auth-token=${token}; path=/; max-age=${COOKIE_OPTIONS.maxAge}; ${COOKIE_OPTIONS.secure ? "secure;" : ""} samesite=${COOKIE_OPTIONS.sameSite}";
+
               // Close popup and notify parent
               if (window.opener) {
                 window.opener.postMessage({ type: 'auth_success' }, window.location.origin);
@@ -112,9 +112,9 @@ export async function GET(request: NextRequest) {
       {
         status: 200,
         headers: {
-          'Content-Type': 'text/html',
+          "Content-Type": "text/html",
         },
-      }
+      },
     );
 
     response.cookies.set("auth-token", token, COOKIE_OPTIONS);
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("OAuth callback error:", error);
     return NextResponse.redirect(
-      new URL("/?error=callback_error", request.url)
+      new URL("/?error=callback_error", request.url),
     );
   }
 }

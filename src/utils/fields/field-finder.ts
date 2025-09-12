@@ -1,13 +1,6 @@
 import type { CustomField, Task } from "@/types";
 
 /**
- * Field discovery utilities using fuzzy matching
- * No more hardcoded field names!
- */
-
-// CustomField is now imported from types
-
-/**
  * Find a custom field by fuzzy matching patterns
  */
 export function findField(
@@ -82,9 +75,10 @@ export const FIELD_PATTERNS = {
   instagramProfile: ['ig profile'],
   tiktokProfile: ['tt profile'],
   youtubeProfile: ['yt profile'],
+  linkedinProfile: ['linkedin profile'],
   followerCount: ['follower count'],
+  inBeatPortfolio: ['inbeat portfolio'],
   example: ['example'],
   whyGoodFit: ["why they're a good fit"],
-  creatorType: ['creator type'],
   clientApproval: ['client approval', '✅ client approval'],
 } as const;
