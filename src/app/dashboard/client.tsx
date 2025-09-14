@@ -1,3 +1,5 @@
+//TODO: Handle edge case where a client have more than one creator management list
+
 "use client";
 
 import { LayoutDebug } from "layout-debug-tool";

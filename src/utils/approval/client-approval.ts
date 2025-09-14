@@ -3,10 +3,6 @@ import { APPROVAL_LABELS } from "@/types";
 import { FIELD_PATTERNS, findField, getDropdownOptionId, getDropdownValue } from "@/utils/fields";
 
 /**
- * Client Approval Status - Using dynamic field discovery
- */
-
-/**
  * Get current client approval status from task using dynamic field discovery
  */
 export function getApprovalStatus(task: Task): ApprovalLabel {

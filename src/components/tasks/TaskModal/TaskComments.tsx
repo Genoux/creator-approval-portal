@@ -37,7 +37,7 @@ export function TaskComments({
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="h-8 w-8"
+          className="h-8 w-8 cursor-pointer rounded-full"
         >
           <ArrowLeftIcon className="w-4 h-4" />
         </Button>

@@ -1,6 +1,5 @@
 /**
  * Essential creator data extracted from ClickUp custom fields
- * This represents the clean, UI-ready data after field discovery and processing
  */
 export interface CreatorData {
   // Profile

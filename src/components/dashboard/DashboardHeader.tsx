@@ -22,7 +22,9 @@ export function DashboardHeader({
         ) : (
           <>
             <p className="text-xl font-bold text-black/90">{taskCount}</p>
-            <h3 className="text-sm text-black/60">Available Creators</h3>
+            <h3 className="text-sm text-black/60 text-right">
+              Available Creators
+            </h3>
           </>
         )}
       </div>
