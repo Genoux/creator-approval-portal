@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { InBeatIcon } from "@/components/icons/inBeat";
 import { LoginForm } from "@/components/login/LoginForm";
-import { Footer } from "@/components/shared/FooterBar";
 import { Card } from "@/components/ui/card";
 
 export default function Page() {

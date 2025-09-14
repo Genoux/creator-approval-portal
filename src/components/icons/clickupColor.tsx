@@ -28,11 +28,27 @@ export function ClickupColorIcon({ className, width, height }: IconProps) {
       aria-label="Clickup"
     >
       <defs>
-        <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="0" y1="15.0492" x2="54.8446" y2="15.0492" gradientTransform="matrix(1 0 0 -1 0 69.3604)">
+        <linearGradient
+          id="SVGID_1_"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="15.0492"
+          x2="54.8446"
+          y2="15.0492"
+          gradientTransform="matrix(1 0 0 -1 0 69.3604)"
+        >
           <stop offset="0" stopColor="#8930FD" />
           <stop offset="1" stopColor="#49CCF9" />
         </linearGradient>
-        <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="1.1953" y1="53.166" x2="53.7447" y2="53.166" gradientTransform="matrix(1 0 0 -1 0 69.3604)">
+        <linearGradient
+          id="SVGID_2_"
+          gradientUnits="userSpaceOnUse"
+          x1="1.1953"
+          y1="53.166"
+          x2="53.7447"
+          y2="53.166"
+          gradientTransform="matrix(1 0 0 -1 0 69.3604)"
+        >
           <stop offset="0" stopColor="#FF02F0" />
           <stop offset="1" stopColor="#FFC800" />
         </linearGradient>

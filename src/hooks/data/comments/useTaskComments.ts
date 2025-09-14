@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type { ApiResponse, Comment } from "@/types";
 
-async function fetchTaskComments(taskId: string, signal?: AbortSignal): Promise<Comment[]> {
+async function fetchTaskComments(
+  taskId: string,
+  signal?: AbortSignal
+): Promise<Comment[]> {
   if (!taskId?.trim()) {
     throw new Error("taskId is required");
   }
@@ -10,7 +13,7 @@ async function fetchTaskComments(taskId: string, signal?: AbortSignal): Promise<
   const response = await fetch(`/api/tasks/${taskId}/comments`, {
     signal,
     headers: {
-      "Accept": "application/json",
+      Accept: "application/json",
     },
   });
 
@@ -19,14 +22,19 @@ async function fetchTaskComments(taskId: string, signal?: AbortSignal): Promise<
     let message = `Failed to fetch comments (${response.status})`;
     if (contentType.includes("application/json")) {
       try {
-        const errJson: Partial<ApiResponse<unknown>> & { message?: string } = await response.json();
+        const errJson: Partial<ApiResponse<unknown>> & { message?: string } =
+          await response.json();
         message = errJson.message || message;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else {
       try {
         const text = await response.text();
         if (text) message = text;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     throw new Error(message);
   }

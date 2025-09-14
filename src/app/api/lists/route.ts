@@ -5,7 +5,7 @@ import { findListByName } from "@/utils/lists/list-finder";
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
     const listName = searchParams.get("name");
 
     if (!listName) {
-      return NextResponse.json({ error: "List name is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "List name is required" },
+        { status: 400 }
+      );
     }
 
     const list = await findListByName(
@@ -24,10 +27,13 @@ export async function GET(request: NextRequest) {
     );
 
     if (!list) {
-      return NextResponse.json({ 
-        error: `List "${listName}" not found`,
-        message: `Make sure you have a list named "${listName}" shared with your account`
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: `List "${listName}" not found`,
+          message: `Make sure you have a list named "${listName}" shared with your account`,
+        },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(list);

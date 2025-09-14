@@ -1,4 +1,2 @@
 // Social media utilities
-export {
-  extractHandle,
-} from "./handle-extraction";
+export { extractHandle } from "./handle-extraction";

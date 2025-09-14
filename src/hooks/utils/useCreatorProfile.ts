@@ -23,7 +23,7 @@ export function useCreatorProfile(task: Task) {
         extractHandle(creatorData.tiktokProfile) ||
         extractHandle(creatorData.instagramProfile) ||
         extractHandle(creatorData.youtubeProfile),
-      
+
       primaryProfileUrl:
         creatorData.tiktokProfile ||
         creatorData.instagramProfile ||
@@ -59,7 +59,7 @@ export function useCreatorProfile(task: Task) {
           url: creatorData.linkedinProfile,
           icon: "linkedin",
         },
-      ].filter((profile) => profile.handle && profile.url),
+      ].filter(profile => profile.handle && profile.url),
 
       // Content examples
       portfolio: {

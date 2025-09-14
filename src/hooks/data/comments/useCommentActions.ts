@@ -15,7 +15,7 @@ async function createComment(taskId: string, request: CreateCommentRequest) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     body: JSON.stringify(request),
   });
@@ -25,14 +25,19 @@ async function createComment(taskId: string, request: CreateCommentRequest) {
     let message = `Failed to create comment (${response.status})`;
     if (contentType.includes("application/json")) {
       try {
-        const errJson: Partial<ApiResponse<unknown>> & { message?: string } = await response.json();
+        const errJson: Partial<ApiResponse<unknown>> & { message?: string } =
+          await response.json();
         message = errJson.message || message;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else {
       try {
         const text = await response.text();
         if (text) message = text;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     throw new Error(message);
   }

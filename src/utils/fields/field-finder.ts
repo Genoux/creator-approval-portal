@@ -4,25 +4,25 @@ import type { CustomField, Task } from "@/types";
  * Find a custom field by fuzzy matching patterns
  */
 export function findField(
-  customFields: Task['custom_fields'],
+  customFields: Task["custom_fields"],
   patterns: readonly string[]
 ): CustomField | null {
   if (!customFields) return null;
 
   for (const pattern of patterns) {
     // First try exact match
-    const exactMatch = customFields.find(field => 
-      field.name.toLowerCase() === pattern.toLowerCase()
+    const exactMatch = customFields.find(
+      field => field.name.toLowerCase() === pattern.toLowerCase()
     );
     if (exactMatch) return exactMatch;
-    
+
     // Then try includes match
-    const field = customFields.find(field => 
+    const field = customFields.find(field =>
       field.name.toLowerCase().includes(pattern.toLowerCase())
     );
     if (field) return field;
   }
-  
+
   return null;
 }
 
@@ -39,12 +39,12 @@ export function getDropdownValue(field: CustomField): string | null {
   ) {
     const options = field.type_config.options;
     const value = field.value;
-    
+
     const option =
       typeof value === "number"
         ? options[value]
-        : options.find((opt) => opt.id === String(value));
-    
+        : options.find(opt => opt.id === String(value));
+
     return option?.name || option?.label || null;
   }
 
@@ -54,11 +54,14 @@ export function getDropdownValue(field: CustomField): string | null {
 /**
  * Extract dropdown option ID for updates
  */
-export function getDropdownOptionId(field: CustomField, targetLabel: string): string | null {
+export function getDropdownOptionId(
+  field: CustomField,
+  targetLabel: string
+): string | null {
   if (!field?.type_config?.options) return null;
 
   const options = field.type_config.options;
-  const found = options.find((opt) => {
+  const found = options.find(opt => {
     const name = (opt.name || opt.label || "").toLowerCase();
     return name.includes(targetLabel.toLowerCase());
   });
@@ -71,14 +74,14 @@ export function getDropdownOptionId(field: CustomField, targetLabel: string): st
  */
 export const FIELD_PATTERNS = {
   // Essential fields only
-  profileImageUrl: ['profile pic url'],
-  instagramProfile: ['ig profile'],
-  tiktokProfile: ['tt profile'],
-  youtubeProfile: ['yt profile'],
-  linkedinProfile: ['linkedin profile'],
-  followerCount: ['follower count'],
-  inBeatPortfolio: ['inbeat portfolio'],
-  example: ['example'],
+  profileImageUrl: ["profile pic url"],
+  instagramProfile: ["ig profile"],
+  tiktokProfile: ["tt profile"],
+  youtubeProfile: ["yt profile"],
+  linkedinProfile: ["linkedin profile"],
+  followerCount: ["follower count"],
+  inBeatPortfolio: ["inbeat portfolio"],
+  example: ["example"],
   whyGoodFit: ["why they're a good fit"],
-  clientApproval: ['client approval', '✅ client approval'],
+  clientApproval: ["client approval", "✅ client approval"],
 } as const;
