@@ -25,13 +25,13 @@ export default function Page() {
             </Card>
             <div className="flex w-full justify-between px-2">
               <p className="text-xs text-black/50">
-                v{process.env.APP_VERSION}
+                beta-{process.env.APP_VERSION}
               </p>
               <Link
                 className="text-xs text-black/50 hover:underline"
                 href="mailto:dev@inbeat.agency"
               >
-                I need help
+                Contact Support
               </Link>
             </div>
           </div>

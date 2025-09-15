@@ -36,6 +36,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
             target.closest("[data-radix-dropdown-menu-trigger]")
           ) {
             e.preventDefault();
+            e.stopPropagation();
           }
         }}
       >

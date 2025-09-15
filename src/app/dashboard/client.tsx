@@ -9,6 +9,7 @@ import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { TasksGridSkeleton } from "@/components/tasks/TasksGridSkeleton";
+import { DropdownProvider } from "@/contexts/DropdownContext";
 import { TaskActionsProvider } from "@/contexts/TaskActionsContext";
 import { useList } from "@/hooks/data/lists/useList";
 import { useTasks } from "@/hooks/data/tasks/useTasks";
@@ -66,7 +67,9 @@ export function DashboardClient({ session }: DashboardClientProps) {
             />
           ) : (
             <TaskActionsProvider listId={creatorList?.listId || null}>
-              <TasksGrid tasks={tasks} />
+              <DropdownProvider>
+                <TasksGrid tasks={tasks} />
+              </DropdownProvider>
             </TaskActionsProvider>
           )}
         </main>

@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
+import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDropdown } from "@/contexts/DropdownContext";
 import { useTaskActions } from "@/contexts/TaskActionsContext";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/tasks";
@@ -32,8 +33,11 @@ export function StatusDropdown({
     isTaskPending,
   } = useTaskActions();
 
+  const { openDropdownId, setOpenDropdownId } = useDropdown();
   const currentLabel = getApprovalStatus(task);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const uniqueId = useId();
+  const dropdownId = `status-dropdown-${task.id}-${uniqueId}`;
+  const isDropdownOpen = openDropdownId === dropdownId;
 
   // Create status options array and action mapping
   const STATUS_OPTIONS = Object.values(APPROVAL_LABELS);
@@ -60,7 +64,12 @@ export function StatusDropdown({
       : "bg-[#2A0006] text-white border-none hover:bg-[#2A0006]/90 text-white";
 
   return (
-    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+    <DropdownMenu
+      open={isDropdownOpen}
+      onOpenChange={open => {
+        setOpenDropdownId(open ? dropdownId : null);
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           disabled={isTaskPending(task.id)}
@@ -69,6 +78,10 @@ export function StatusDropdown({
             variantStyles,
             className
           )}
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
           {getDisplayLabel(currentLabel)}
           <ChevronDownIcon
