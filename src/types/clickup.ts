@@ -63,3 +63,48 @@ export interface ClickUpAuthResponse {
   user: User;
   workspaces: ClickUpWorkspace[];
 }
+
+/**
+ * ClickUp custom field dropdown option
+ */
+export interface DropdownOption {
+  id: string;
+  name?: string;
+  label?: string;
+  color?: string | null;
+}
+
+/**
+ * ClickUp custom field structure
+ */
+export interface CustomField {
+  id: string;
+  name: string;
+  type: string;
+  value: string | number | boolean | null | undefined;
+  type_config?: {
+    options?: DropdownOption[];
+  };
+  date_created?: string;
+  hide_from_guests?: boolean;
+  required?: boolean;
+  value_richtext?: string;
+}
+
+/**
+ * Task status information
+ */
+export interface TaskStatus {
+  status: string;
+  color?: string;
+}
+
+/**
+ * ClickUp task with custom fields for creator management
+ */
+export interface Task {
+  id: string;
+  name: string;
+  status: TaskStatus;
+  custom_fields?: CustomField[];
+}

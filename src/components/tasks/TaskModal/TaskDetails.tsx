@@ -9,7 +9,7 @@ import { SocialPreview } from "@/components/social/SocialPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types/tasks";
+import type { Task } from "@/types";
 
 interface TaskDetailsProps {
   task: Task;

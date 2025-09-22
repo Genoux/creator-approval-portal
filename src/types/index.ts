@@ -13,6 +13,10 @@ export type {
   ClickUpTokenResponse,
   ClickUpWorkspace,
   ClickUpWorkspaceWithSpaces,
+  CustomField,
+  DropdownOption,
+  Task,
+  TaskStatus,
 } from "./clickup";
 // Comment types
 export type {
@@ -23,8 +27,6 @@ export type {
 } from "./comments";
 export type {
   ApiResponse,
-  CustomField,
-  DropdownOption,
   StatusUpdate,
   User,
 } from "./core";
@@ -40,8 +42,3 @@ export { APPROVAL_LABELS } from "./creators";
 
 // Status types
 export type { StatusOptionsResponse } from "./status";
-// Task types
-export type {
-  Task,
-  TaskStatus,
-} from "./tasks";

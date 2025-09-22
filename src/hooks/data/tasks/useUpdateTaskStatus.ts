@@ -20,19 +20,10 @@ export function useUpdateTaskStatus(listId: string | null) {
       });
 
       if (!response.ok) {
-        try {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to update status");
-        } catch {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        throw new Error(`Failed to update status: ${response.status}`);
       }
 
-      try {
-        return await response.json();
-      } catch {
-        throw new Error("Invalid JSON response from server");
-      }
+      return response.json();
     },
 
     onMutate: async ({ taskId, status }) => {

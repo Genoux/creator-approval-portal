@@ -16,33 +16,6 @@ export interface User {
 }
 
 /**
- * ClickUp custom field dropdown option
- */
-export interface DropdownOption {
-  id: string;
-  name?: string;
-  label?: string;
-  color?: string | null;
-}
-
-/**
- * ClickUp custom field structure
- */
-export interface CustomField {
-  id: string;
-  name: string;
-  type: string;
-  value: string | number | boolean | null | undefined;
-  type_config?: {
-    options?: DropdownOption[];
-  };
-  date_created?: string;
-  hide_from_guests?: boolean;
-  required?: boolean;
-  value_richtext?: string;
-}
-
-/**
  * Generic API response wrapper
  */
 export interface ApiResponse<T> {

@@ -22,15 +22,12 @@ export async function GET(request: NextRequest) {
       session.clickupAccessToken
     );
     const selectedTasks = await clickup.getTasks(listId);
-
     const creators = selectedTasks.map((task: Task) => {
-      const creatorData = extractCreatorData(task);
       return {
         id: task.id,
         name: task.name,
         custom_fields: task.custom_fields || [],
         status: task.status,
-        profileImageUrl: creatorData.profileImageUrl,
       };
     });
 

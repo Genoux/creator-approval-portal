@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types/tasks";
+import type { Task } from "@/types";
 import {
   APPROVAL_LABELS,
   type ApprovalLabel,
