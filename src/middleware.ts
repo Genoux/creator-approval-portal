@@ -3,10 +3,31 @@ import { NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  // Only protect dashboard routes
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    const token = request.cookies.get("auth-token")?.value;
+  const token = request.cookies.get("auth-token")?.value;
 
+  // Handle home page - redirect to dashboard if authenticated
+  if (request.nextUrl.pathname === "/") {
+    if (token) {
+      try {
+        const session = await verifyAuthToken(token);
+        if (session) {
+          return NextResponse.redirect(new URL("/dashboard", request.url));
+        }
+        // Token exists but is invalid - clear it
+        const res = NextResponse.next();
+        res.cookies.delete("auth-token");
+        return res;
+      } catch {
+        const res = NextResponse.next();
+        res.cookies.delete("auth-token");
+        return res;
+      }
+    }
+    return NextResponse.next();
+  }
+
+  // Handle dashboard protection
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/", request.url));
     }
@@ -25,5 +46,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/dashboard/:path*",
+  matcher: ["/", "/dashboard/:path*"],
 };

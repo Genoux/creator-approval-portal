@@ -1,93 +1,17 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/auth";
+import { hasDisclaimerBeenAcknowledged } from "@/lib/disclaimer-actions";
+import { DashboardClient } from "./client";
 
-import { useEffect, useState } from "react";
-import { AppSidebar } from "@/components/blocks/app-sidebar";
-import { SiteHeader } from "@/components/blocks/site-header";
-import { TasksGrid } from "@/components/tasks/TasksGrid";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useTasks } from "@/hooks/tasks/useTasks";
+export default async function DashboardPage() {
+  const session = await getServerSession();
 
-export default function DashboardPage() {
-  const { data: tasks = [], isLoading, error } = useTasks();
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    const hasSeenDisclaimer = localStorage.getItem("hasSeenDisclaimer");
-    if (!hasSeenDisclaimer) {
-      setShowDisclaimer(true);
-    }
-  }, []);
-
-  const handleDisclaimerClose = () => {
-    setShowDisclaimer(false);
-    localStorage.setItem("hasSeenDisclaimer", "true");
-  };
-
-  const handleLogout = async () => {
-    await fetch("/api/auth", { method: "DELETE" });
-    window.location.href = "/";
-  };
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600">Error loading tasks</div>
-      </div>
-    );
+  // No session at all - redirect to login
+  if (!session) {
+    redirect("/");
   }
 
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader onLogout={handleLogout} />
-        <div className="flex flex-1 flex-col py-4">
-          <TasksGrid
-            tasks={tasks}
-            isLoading={isLoading}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
-          />
-        </div>
-      </SidebarInset>
+  const showDisclaimer = !(await hasDisclaimerBeenAcknowledged());
 
-      <AlertDialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>⚠️ Proof of Concept</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is a <strong>Proof of Concept</strong> application for
-              demonstration purposes.
-              <br />
-              <br />
-              All features, data, and functionality shown here are subject to
-              change and should not be considered final or production-ready.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleDisclaimerClose}>
-              I Understand
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </SidebarProvider>
-  );
+  return <DashboardClient session={session} showDisclaimer={showDisclaimer} />;
 }

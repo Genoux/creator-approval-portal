@@ -1,16 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createAuthToken, validateClickUpCredentials } from "@/lib/auth";
+import {
+  COOKIE_OPTIONS,
+  createAuthToken,
+  validateClickUpCredentials,
+} from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, AuthCredentials } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
     const body: AuthCredentials = await request.json();
-    const { boardId } = body;
+    const { listId } = body;
 
-    if (!boardId) {
+    if (!listId) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "Board ID is required", data: null },
+        { success: false, message: "List ID is required", data: null },
         { status: 400 }
       );
     }
@@ -18,12 +22,16 @@ export async function POST(request: NextRequest) {
     const apiToken = process.env.CLICKUP_API_TOKEN;
     if (!apiToken) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "ClickUp API token not configured", data: null },
+        {
+          success: false,
+          message: "ClickUp API token not configured",
+          data: null,
+        },
         { status: 500 }
       );
     }
 
-    const isValid = await validateClickUpCredentials(boardId);
+    const isValid = await validateClickUpCredentials(listId);
 
     if (!isValid) {
       return NextResponse.json<ApiResponse<null>>(
@@ -36,29 +44,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get board name for session
-    let boardName: string | undefined;
+    // Get list name for session
+    let listName: string | undefined;
     try {
       const clickup = new ClickUpAPI(apiToken);
-      const list = await clickup.getList(boardId);
-      boardName = list.name;
+      const list = await clickup.getList(listId);
+      listName = list.name;
     } catch (error) {
-      console.warn("Could not fetch board name:", error);
+      console.warn("Could not fetch list name:", error);
     }
 
-    const token = await createAuthToken(boardId, apiToken, boardName);
+    const token = await createAuthToken(listId, apiToken, listName);
 
     const response = NextResponse.json<ApiResponse<{ token: string }>>({
       success: true,
       data: { token },
     });
 
-    response.cookies.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60, // 24 hours
-    });
+    response.cookies.set("auth-token", token, COOKIE_OPTIONS);
 
     return response;
   } catch (error) {
@@ -77,6 +80,11 @@ export async function DELETE() {
     data: null,
   });
 
-  response.cookies.delete("auth-token");
+  // Properly clear the cookie with same settings used when setting it
+  response.cookies.set("auth-token", "", {
+    ...COOKIE_OPTIONS,
+    maxAge: 0, // Expire immediately
+  });
+
   return response;
 }

@@ -1,9 +1,47 @@
-export interface AuthCredentials {
-  boardId: string
-}
+// Core types (shared across the application)
 
-export interface ApiResponse<T> {
-  data: T
-  success: boolean
-  message?: string
-}
+// API types
+export type { AuthCredentials } from "./api";
+// ClickUp API types
+export type {
+  ClickUpAuthResponse,
+  ClickUpFolder,
+  ClickUpList,
+  ClickUpSessionData,
+  ClickUpSpace,
+  ClickUpSpaceWithLists,
+  ClickUpTokenResponse,
+  ClickUpWorkspace,
+  ClickUpWorkspaceWithSpaces,
+} from "./clickup";
+// Comment types
+export type {
+  ClickUpComment,
+  Comment,
+  CreateCommentRequest,
+  UpdateCommentRequest,
+} from "./comments";
+export type {
+  ApiResponse,
+  CustomField,
+  DropdownOption,
+  StatusUpdate,
+  User,
+} from "./core";
+// Creator-related types
+export type {
+  ApprovalLabel,
+  CreatorData,
+  CreatorProfile,
+  SocialPlatform,
+  SocialProfile,
+} from "./creators";
+export { APPROVAL_LABELS } from "./creators";
+
+// Status types
+export type { StatusOptionsResponse } from "./status";
+// Task types
+export type {
+  Task,
+  TaskStatus,
+} from "./tasks";
