@@ -45,16 +45,17 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
       <AnimatePresence mode="wait">
         {isVisible ? (
           <motion.div
+            layout
             key="task-card"
-            initial={{ y: 20, opacity: 0, scale: 1 }}
+            initial={{ y: 50, opacity: 0, scale: 1 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -20, opacity: 0, scale: 1 }}
             transition={{
               delay: 0,
-              duration: 0.4,
+              duration: 0.2,
               type: "spring",
-              damping: 20,
-              stiffness: 300,
+              damping: 50,
+              stiffness: 500,
             }}
           >
             <TaskCard task={task} />

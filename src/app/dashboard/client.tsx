@@ -6,6 +6,7 @@ import { LayoutDebug } from "layout-debug-tool";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Footer } from "@/components/shared/FooterBar";
+import { ModalDisclaimer } from "@/components/shared/ModalDisclaimer";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { TasksGridSkeleton } from "@/components/tasks/TasksGridSkeleton";
@@ -17,9 +18,10 @@ import type { AuthSession } from "@/lib/auth";
 
 interface DashboardClientProps {
   session: AuthSession;
+  showDisclaimer: boolean;
 }
 
-export function DashboardClient({ session }: DashboardClientProps) {
+export function DashboardClient({ session, showDisclaimer }: DashboardClientProps) {
   // Find the Creator Management list
   const {
     data: creatorList,
@@ -74,6 +76,7 @@ export function DashboardClient({ session }: DashboardClientProps) {
           )}
         </main>
         <Footer />
+        <ModalDisclaimer initialShow={showDisclaimer} />
       </div>
     </LayoutDebug>
   );

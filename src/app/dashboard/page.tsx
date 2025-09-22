@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth";
+import { hasDisclaimerBeenAcknowledged } from "@/lib/disclaimer-actions";
 import { DashboardClient } from "./client";
 
 export default async function DashboardPage() {
@@ -10,5 +11,7 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  return <DashboardClient session={session} />;
+  const showDisclaimer = !(await hasDisclaimerBeenAcknowledged());
+
+  return <DashboardClient session={session} showDisclaimer={showDisclaimer} />;
 }

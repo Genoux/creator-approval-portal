@@ -1,11 +1,14 @@
+//TODO: Fix Image not loading consistently
+
 import { Squircle } from "@squircle-js/react";
-import { Users } from "lucide-react";
+import { ImageOffIcon, Users } from "lucide-react";
 import Image from "next/image";
 import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
+import { getProxyImageUrl } from "@/lib/image-proxy";
 import type { Task } from "@/types/tasks";
 
 interface TaskCardProps {
@@ -15,6 +18,8 @@ interface TaskCardProps {
 export function TaskCard({ task }: TaskCardProps) {
   const { avatar, primaryHandle, followerCount, socialProfiles } =
     useCreatorProfile(task);
+
+  const imageUrl = avatar;
 
   return (
     <TaskModal task={task}>
@@ -26,17 +31,19 @@ export function TaskCard({ task }: TaskCardProps) {
         >
           {/* Background Image */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden ">
-            <Image
-              src={avatar || ""}
-              alt={`${task.name} profile`}
-              fill
-              sizes="100%"
-              className="object-cover"
-              priority
-              loading="eager"
-              placeholder="blur"
-              blurDataURL={avatar || ""}
-            />
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={`${task.name} profile`}
+                width={800}
+                height={800}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                <ImageOffIcon className=" text-black/50" />
+              </div>
+            )}
           </div>
           <div
             className="absolute  backdrop-blur-md overflow-hidden w-full h-full bottom-0"

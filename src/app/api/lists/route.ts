@@ -1,15 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
 import { findListByName } from "@/utils/lists/list-finder";
 
 export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession();
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+  return withAuth(request, async session => {
     const { searchParams } = new URL(request.url);
     const listName = searchParams.get("name");
 
@@ -22,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const list = await findListByName(
       listName,
-      process.env.CLICKUP_API_TOKEN || "",
+      session.apiToken || "",
       session.clickupAccessToken || ""
     );
 
@@ -37,11 +31,5 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(list);
-  } catch (error) {
-    console.error(`Error finding list:`, error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+  });
 }

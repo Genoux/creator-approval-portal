@@ -9,11 +9,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "instagram.faep9-3.fna.fbcdn.net",
+        hostname: "*.fna.fbcdn.net",
       },
       {
         protocol: "https",
@@ -21,14 +17,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.instagram.com",
-      },
-      {
-        protocol: "https",
-        hostname: "www.tiktok.com",
+        hostname: "*.imginn.com",
       },
     ],
-  },
+  }
 };
 
 export default nextConfig;

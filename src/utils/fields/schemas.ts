@@ -2,8 +2,6 @@ import { z } from "zod";
 import type { CreatorData, CustomField, Task } from "@/types";
 import { FIELD_PATTERNS, findField, getDropdownValue } from "./field-finder";
 
-const DEFAULT_PROFILE_IMAGE = "https://dummyimage.com/400x500/000/fff";
-
 /**
  * Create a smart field extractor function from ClickUp schema
  */
@@ -94,9 +92,7 @@ export function createFieldExtractor(customFields: Task["custom_fields"]) {
       };
 
       return {
-        profileImageUrl:
-          extractFieldValue(discoveredFields.profileImageUrl) ||
-          DEFAULT_PROFILE_IMAGE,
+        profileImageUrl: extractFieldValue(discoveredFields.profileImageUrl),
         instagramProfile: extractFieldValue(discoveredFields.instagramProfile),
         tiktokProfile: extractFieldValue(discoveredFields.tiktokProfile),
         youtubeProfile: extractFieldValue(discoveredFields.youtubeProfile),

@@ -1,4 +1,5 @@
 import { Squircle } from "@squircle-js/react";
+import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -37,12 +38,12 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
       <Squircle
         cornerRadius={18}
         cornerSmoothing={1}
-        className="transition-colors w-full h-[300px] overflow-hidden will-change-transform flex-shrink-0"
+        className="transition-colors w-full h-[350px] overflow-hidden will-change-transform flex-shrink-0"
       >
         <StatusDropdown
           task={task}
           variant="light"
-          className="absolute bottom-0 right-0 m-4 z-10"
+          className="absolute bottom-0 right-0 m-4 z-10 overflow-hidden"
         />
         <div
           className="absolute backdrop-blur-md overflow-hidden w-full h-1/2 bottom-0"
@@ -55,15 +56,23 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
               "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.01) 10%, rgba(0,0,0,0.04) 20%, rgba(0,0,0,0.09) 30%, rgba(0,0,0,0.16) 40%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.36) 60%, rgba(0,0,0,0.49) 70%, rgba(0,0,0,0.64) 80%, rgba(0,0,0,0.81) 90%, rgba(0,0,0,0.9) 100%)",
           }}
         ></div>
-        {imageLoading && <Skeleton className="absolute w-full h-full z-90" />}
-        <Image
-          src={avatar || ""}
-          alt={`${name} profile`}
-          width={500}
-          height={500}
-          className="object-cover w-full h-full"
-          onLoadingComplete={handleImageLoad}
-        />
+        {avatar && imageLoading && (
+          <Skeleton className="absolute w-full h-full z-90" />
+        )}
+        {avatar ? (
+          <Image
+            src={avatar}
+            alt={`${name} profile`}
+            width={800}
+            height={800}
+            className="object-cover w-full h-full"
+            onLoadingComplete={handleImageLoad}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+            <ImageOffIcon className=" text-white" />
+          </div>
+        )}
       </Squircle>
       <section className="flex flex-col  flex-1 gap-4">
         {/* Task Details */}
@@ -81,7 +90,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
             </Link>
           </div>
           {followerCount && (
-            <div>
+            <div className="flex flex-col justify-end items-end">
               <div className="flex items-center gap-1.5 mb-1">
                 <span className="text-xs text-black/50">Followers</span>
               </div>
