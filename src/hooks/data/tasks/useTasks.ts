@@ -39,12 +39,15 @@ export function useTasks(listId: string | null): UseTasksResult {
       if (!listId?.trim()) {
         throw new Error("No list ID provided");
       }
-      
-      const response = await fetch(`/api/tasks?listId=${encodeURIComponent(listId)}`, {
-        headers: {
-          "Accept": "application/json",
-        },
-      });
+
+      const response = await fetch(
+        `/api/tasks?listId=${encodeURIComponent(listId)}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
 
       if (response.status === 401) {
         window.location.href = "/";
@@ -56,14 +59,20 @@ export function useTasks(listId: string | null): UseTasksResult {
         let message = `Failed to fetch tasks (${response.status})`;
         if (contentType.includes("application/json")) {
           try {
-            const errJson: Partial<ApiResponse<unknown>> & { message?: string } = await response.json();
+            const errJson: Partial<ApiResponse<unknown>> & {
+              message?: string;
+            } = await response.json();
             message = errJson.message || message;
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         } else {
           try {
             const text = await response.text();
             if (text) message = text;
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
         throw new Error(message);
       }

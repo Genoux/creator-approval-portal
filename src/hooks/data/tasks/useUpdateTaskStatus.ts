@@ -45,13 +45,13 @@ export function useUpdateTaskStatus(listId: string | null) {
 
       const previous = queryClient.getQueryData<Task[]>(queryKey);
 
-      queryClient.setQueryData<Task[]>(queryKey, (old) =>
-        old?.map((task) => {
+      queryClient.setQueryData<Task[]>(queryKey, old =>
+        old?.map(task => {
           if (task.id === taskId) {
             const approvalFieldId = getApprovalFieldId(task);
             return {
               ...task,
-              custom_fields: task.custom_fields?.map((field) =>
+              custom_fields: task.custom_fields?.map(field =>
                 field.id === approvalFieldId
                   ? { ...field, value: status }
                   : field

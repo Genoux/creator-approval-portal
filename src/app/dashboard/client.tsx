@@ -1,12 +1,16 @@
+//TODO: Handle edge case where a client have more than one creator management list
+
 "use client";
 
 import { LayoutDebug } from "layout-debug-tool";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Footer } from "@/components/shared/FooterBar";
-import { DashboardNavbar } from "@/components/shared/NavigationBar";
+import { ModalDisclaimer } from "@/components/shared/ModalDisclaimer";
+import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { TasksGridSkeleton } from "@/components/tasks/TasksGridSkeleton";
+import { DropdownProvider } from "@/contexts/DropdownContext";
 import { TaskActionsProvider } from "@/contexts/TaskActionsContext";
 import { useList } from "@/hooks/data/lists/useList";
 import { useTasks } from "@/hooks/data/tasks/useTasks";
@@ -14,9 +18,10 @@ import type { AuthSession } from "@/lib/auth";
 
 interface DashboardClientProps {
   session: AuthSession;
+  showDisclaimer: boolean;
 }
 
-export function DashboardClient({ session }: DashboardClientProps) {
+export function DashboardClient({ session, showDisclaimer }: DashboardClientProps) {
   // Find the Creator Management list
   const {
     data: creatorList,
@@ -39,12 +44,12 @@ export function DashboardClient({ session }: DashboardClientProps) {
   return (
     <LayoutDebug>
       <div className="min-h-screen bg-white flex flex-col">
-        <DashboardNavbar session={session} />
+        <NavigationBar session={session} />
 
         {/* Main Content */}
         <main className="flex-1 max-w-[1440px] mx-auto flex flex-col gap-6 py-12 px-8 w-full relative">
           <div className="flex justify-between items-center">
-            <DashboardHeader />
+            <DashboardHeader taskCount={tasks.length} isLoading={isLoading} />
           </div>
           {isLoading ? (
             <TasksGridSkeleton />
@@ -64,11 +69,14 @@ export function DashboardClient({ session }: DashboardClientProps) {
             />
           ) : (
             <TaskActionsProvider listId={creatorList?.listId || null}>
-              <TasksGrid tasks={tasks} />
+              <DropdownProvider>
+                <TasksGrid tasks={tasks} />
+              </DropdownProvider>
             </TaskActionsProvider>
           )}
         </main>
         <Footer />
+        <ModalDisclaimer initialShow={showDisclaimer} />
       </div>
     </LayoutDebug>
   );

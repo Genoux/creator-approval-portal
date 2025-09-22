@@ -6,7 +6,10 @@ export function TasksGridSkeleton() {
       {/* Skeleton Tabs */}
       <div className="flex gap-2">
         {Array.from({ length: 5 }, () => (
-          <Skeleton key={Math.random()} className="h-12 w-32 rounded-full bg-[#F9F7F7]" />
+          <Skeleton
+            key={Math.random()}
+            className="h-12 w-32 rounded-full bg-[#F9F7F7]"
+          />
         ))}
       </div>
 

@@ -13,7 +13,11 @@ interface CommentSectionProps {
   showHeader?: boolean;
 }
 
-export function CommentSection({ taskId, className, showHeader = true }: CommentSectionProps) {
+export function CommentSection({
+  taskId,
+  className,
+  showHeader = true,
+}: CommentSectionProps) {
   const { data: comments = [], isLoading, error } = useTaskComments(taskId);
   const { scrollRef, scrollToBottom } = useScrollToBottom();
 

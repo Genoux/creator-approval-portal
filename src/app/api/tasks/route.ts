@@ -5,10 +5,10 @@ import type { ApiResponse, Task } from "@/types";
 import { extractCreatorData } from "@/utils/creators";
 
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (session) => {
+  return withAuth(request, async session => {
     const { searchParams } = new URL(request.url);
-    const listId = searchParams.get('listId');
-    
+    const listId = searchParams.get("listId");
+
     if (!listId) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, message: "No listId provided", data: null },

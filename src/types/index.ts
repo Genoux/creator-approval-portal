@@ -1,10 +1,7 @@
 // Core types (shared across the application)
 
-
 // API types
-export type {
-  AuthCredentials,
-} from "./api";
+export type { AuthCredentials } from "./api";
 // ClickUp API types
 export type {
   ClickUpAuthResponse,
@@ -42,9 +39,7 @@ export type {
 export { APPROVAL_LABELS } from "./creators";
 
 // Status types
-export type {
-  StatusOptionsResponse,
-} from "./status";
+export type { StatusOptionsResponse } from "./status";
 // Task types
 export type {
   Task,

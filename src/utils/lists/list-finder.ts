@@ -19,12 +19,12 @@ export async function findListByName(
     const clickup = ClickUpAPI.createFromSession(apiToken, userAccessToken);
     const teamsData = await clickup.getTeams();
     const teams = teamsData.teams || [];
-    
+
     const teamPromises = teams.map(async (team: ClickUpSpace) => {
       try {
         const sharedData = await clickup.getSharedResources(team.id);
         const sharedLists = sharedData.shared?.lists || [];
-        
+
         const targetList = sharedLists.find(
           (list: ClickUpList) => list.name === listName
         );
@@ -41,10 +41,10 @@ export async function findListByName(
         return null;
       }
     });
-    
+
     const results = await Promise.all(teamPromises);
     const foundList = results.find(result => result !== null);
-    
+
     return foundList || null;
   } catch (error) {
     console.error(`Error finding list "${listName}":`, error);

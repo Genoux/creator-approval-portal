@@ -95,8 +95,8 @@ export async function GET(request: NextRequest) {
           <body>
             <script>
               // Set the auth token cookie
-              document.cookie = "auth-token=${token}; path=/; max-age=${COOKIE_OPTIONS.maxAge}; ${COOKIE_OPTIONS.secure ? 'secure;' : ''} samesite=${COOKIE_OPTIONS.sameSite}";
-              
+              document.cookie = "auth-token=${token}; path=/; max-age=${COOKIE_OPTIONS.maxAge}; ${COOKIE_OPTIONS.secure ? "secure;" : ""} samesite=${COOKIE_OPTIONS.sameSite}";
+
               // Close popup and notify parent
               if (window.opener) {
                 window.opener.postMessage({ type: 'auth_success' }, window.location.origin);
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       {
         status: 200,
         headers: {
-          'Content-Type': 'text/html',
+          "Content-Type": "text/html",
         },
       }
     );

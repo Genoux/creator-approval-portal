@@ -18,10 +18,8 @@ interface UseScrollToBottomOptions {
  * Provides both automatic scrolling on dependency changes and manual scroll trigger
  */
 export function useScrollToBottom(options: UseScrollToBottomOptions = {}) {
-  const {
-    delay = 100,
-    scrollSelector = "[data-radix-scroll-area-viewport]",
-  } = options;
+  const { delay = 100, scrollSelector = "[data-radix-scroll-area-viewport]" } =
+    options;
 
   const scrollRef = useRef<HTMLDivElement>(null);
 

@@ -6,12 +6,15 @@ async function fetchList(listName: string): Promise<ListResult> {
     throw new Error("List name is required");
   }
 
-  const response = await fetch(`/api/lists?name=${encodeURIComponent(listName)}`, {
-    headers: {
-      "Accept": "application/json",
-    },
-  });
-  
+  const response = await fetch(
+    `/api/lists?name=${encodeURIComponent(listName)}`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
   const contentType = response.headers.get("content-type") || "";
   if (!response.ok) {
     let message = `Failed to fetch list "${listName}" (${response.status})`;
@@ -19,12 +22,16 @@ async function fetchList(listName: string): Promise<ListResult> {
       try {
         const errJson: { message?: string } = await response.json();
         message = errJson.message || message;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else {
       try {
         const text = await response.text();
         if (text) message = text;
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     throw new Error(message);
   }
@@ -35,7 +42,7 @@ async function fetchList(listName: string): Promise<ListResult> {
   } catch {
     throw new Error("Invalid server response");
   }
-  
+
   return result;
 }
 

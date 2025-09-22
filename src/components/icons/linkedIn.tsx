@@ -4,7 +4,7 @@ interface IconProps {
   height?: number | string;
 }
 
-export function InstagramIcon({ className, width, height }: IconProps) {
+export function LinkedInIcon({ className, width, height }: IconProps) {
   const style: React.CSSProperties = {};
   if (width) style.width = width;
   if (height) style.height = height;

@@ -12,7 +12,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ taskId: string }> }
 ) {
-  return withAuth(request, async (session) => {
+  return withAuth(request, async session => {
     try {
       const { taskId } = await params;
       const { status }: UpdateStatusBody = await request.json();
@@ -25,7 +25,7 @@ export async function PUT(
       // Get the task first to discover field ID dynamically
       const task: Task = await clickup.getTask(taskId);
       const approvalFieldId = getApprovalFieldId(task);
-      
+
       if (!approvalFieldId) {
         return NextResponse.json<ApiResponse<null>>(
           {

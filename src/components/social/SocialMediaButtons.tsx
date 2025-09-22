@@ -1,6 +1,11 @@
 import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
-import { InstagramIcon, TikTokIcon, YouTubeIcon } from "@/components/icons";
+import {
+  InstagramIcon,
+  LinkedInIcon,
+  TikTokIcon,
+  YouTubeIcon,
+} from "@/components/icons";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +25,7 @@ const PLATFORM_ICONS = {
   Instagram: InstagramIcon,
   TikTok: TikTokIcon,
   YouTube: YouTubeIcon,
+  LinkedIn: LinkedInIcon,
   External: ExternalLinkIcon,
 } as const;
 

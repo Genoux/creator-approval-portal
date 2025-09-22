@@ -1,24 +1,24 @@
 /**
  * Essential creator data extracted from ClickUp custom fields
- * This represents the clean, UI-ready data after field discovery and processing
  */
 export interface CreatorData {
   // Profile
   profileImageUrl: string | null;
-  
+
   // Social platforms
   instagramProfile: string | null;
   tiktokProfile: string | null;
   youtubeProfile: string | null;
-  
+  linkedinProfile: string | null;
+  inBeatPortfolio: string | null;
+
   // Metrics
   followerCount: number | null;
-  
+
   // Content
   example: string | null;
   whyGoodFit: string | null;
-  creatorType: string | null;
-  
+
   // Approval status
   clientApproval: string | null;
   clientApprovalId: string | null;
@@ -27,7 +27,12 @@ export interface CreatorData {
 /**
  * Social media platform types
  */
-export type SocialPlatform = "TikTok" | "Instagram" | "YouTube" | "External";
+export type SocialPlatform =
+  | "TikTok"
+  | "Instagram"
+  | "YouTube"
+  | "LinkedIn"
+  | "External";
 
 /**
  * Social profile information for UI display
@@ -46,26 +51,19 @@ export interface CreatorProfile {
   // Basic info
   name: string;
   avatar: string | null;
-  
+
   // Social presence
   primaryHandle: string | null;
+  primaryProfileUrl: string | null;
   followerCount: string | null;
   socialProfiles: SocialProfile[];
-  
-  // Creator details
-  type: string | null;
-  
+
   // Content examples
   portfolio: {
     example: string | null;
     whyGoodFit: string | null;
+    inBeatPortfolio: string | null;
   };
-  
-  // UI helpers
-  hasSocialProfiles: boolean;
-  hasPortfolio: boolean;
-  displayName: string;
-  mainPlatform: SocialPlatform | null;
 }
 
 /**
@@ -74,9 +72,10 @@ export interface CreatorProfile {
 export const APPROVAL_LABELS = {
   FOR_REVIEW: "For Review",
   PERFECT: "Perfect (Approved)",
-  GOOD: "Good (Approved)", 
+  GOOD: "Good (Approved)",
   SUFFICIENT: "Sufficient (Backup)",
   POOR_FIT: "Poor Fit (Rejected)",
 } as const;
 
-export type ApprovalLabel = (typeof APPROVAL_LABELS)[keyof typeof APPROVAL_LABELS];
+export type ApprovalLabel =
+  (typeof APPROVAL_LABELS)[keyof typeof APPROVAL_LABELS];

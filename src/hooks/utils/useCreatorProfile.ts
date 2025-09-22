@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { Task } from "@/types";
+import type { CreatorProfile } from "@/types/creators";
 import { extractCreatorData } from "@/utils/creators";
 import { extractHandle } from "@/utils/social";
 import { formatFollowerCount } from "@/utils/ui";
@@ -12,7 +13,7 @@ export function useCreatorProfile(task: Task) {
   return useMemo(() => {
     const creatorData = extractCreatorData(task);
     // UI-ready profile data
-    const profile = {
+    const profile: CreatorProfile = {
       // Basic info
       name: task.name,
       avatar: creatorData.profileImageUrl,
@@ -22,7 +23,7 @@ export function useCreatorProfile(task: Task) {
         extractHandle(creatorData.tiktokProfile) ||
         extractHandle(creatorData.instagramProfile) ||
         extractHandle(creatorData.youtubeProfile),
-      
+
       primaryProfileUrl:
         creatorData.tiktokProfile ||
         creatorData.instagramProfile ||
@@ -52,31 +53,24 @@ export function useCreatorProfile(task: Task) {
           url: creatorData.youtubeProfile,
           icon: "youtube",
         },
-      ].filter((profile) => profile.handle && profile.url),
+        {
+          platform: "LinkedIn" as const,
+          handle: extractHandle(creatorData.linkedinProfile),
+          url: creatorData.linkedinProfile,
+          icon: "linkedin",
+        },
+      ].filter(profile => profile.handle && profile.url),
 
-      // Creator details
-      type: creatorData.creatorType,
-      
       // Content examples
       portfolio: {
         example: creatorData.example,
         whyGoodFit: creatorData.whyGoodFit,
+        inBeatPortfolio: creatorData.inBeatPortfolio,
       },
-    };
-
-    // UI helpers
-    const helpers = {
-      hasSocialProfiles: profile.socialProfiles.length > 0,
-      hasPortfolio: !!(
-        profile.portfolio.example || profile.portfolio.whyGoodFit
-      ),
-      displayName: profile.name || "Unknown Creator",
-      mainPlatform: profile.socialProfiles[0]?.platform || null,
     };
 
     return {
       ...profile,
-      ...helpers,
     };
   }, [task]);
 }

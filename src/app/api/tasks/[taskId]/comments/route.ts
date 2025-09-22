@@ -7,7 +7,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ taskId: string }> }
 ) {
-  return withAuth(request, async (session) => {
+  return withAuth(request, async session => {
     const { taskId } = await params;
     const clickup = ClickUpAPI.createFromSession(
       session.apiToken,
@@ -41,7 +41,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ taskId: string }> }
 ) {
-  return withAuth(request, async (session) => {
+  return withAuth(request, async session => {
     const { taskId } = await params;
     const body = await request.json();
     const { comment_text, assignee } = body;

@@ -45,16 +45,17 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
       <AnimatePresence mode="wait">
         {isVisible ? (
           <motion.div
+            layout
             key="task-card"
-            initial={{ y: 20, opacity: 0, scale: 1 }}
+            initial={{ y: 50, opacity: 0, scale: 1 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -20, opacity: 0, scale: 1 }}
             transition={{
               delay: 0,
-              duration: 0.4,
+              duration: 0.2,
               type: "spring",
-              damping: 20,
-              stiffness: 300,
+              damping: 50,
+              stiffness: 500,
             }}
           >
             <TaskCard task={task} />
@@ -111,7 +112,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Simple Custom Tabs */}
-      <div className="flex gap-2 w-full">
+      <div className="flex gap-2 w-full flex-wrap">
         {CATEGORIES.map(status => (
           <Button
             key={status}
@@ -137,7 +138,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
             className="h-[580px]"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {tasksByStatus[currentActiveTab]?.map((task, index) => (
               <LazyTaskCard key={task.id} task={task} index={index} />
             ))}

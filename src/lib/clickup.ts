@@ -91,9 +91,9 @@ export class ClickUpAPI {
 
   clearExpiredCache(): void {
     const keysToDelete = Object.keys(this.cache).filter(
-      (key) => !this.isValidCache(this.cache[key])
+      key => !this.isValidCache(this.cache[key])
     );
-    keysToDelete.forEach((key) => delete this.cache[key]);
+    keysToDelete.forEach(key => delete this.cache[key]);
   }
 
   async getTasks(listId: string, cacheTTL = 10 * 60 * 1000) {
@@ -115,13 +115,14 @@ export class ClickUpAPI {
         hasMore = false;
       } else {
         page++;
-        if (page > 20) { // Reduced from 50 since we're getting more per page
+        if (page > 20) {
+          // Reduced from 50 since we're getting more per page
           console.warn(`⚠️  Reached pagination limit for list ${listId}`);
           break;
         }
       }
     }
-    
+
     return allTasks;
   }
 
@@ -153,9 +154,9 @@ export class ClickUpAPI {
 
   private clearTaskCache(taskId: string): void {
     const keysToDelete = Object.keys(this.cache).filter(
-      (key) => key.includes(`/task/${taskId}`) || key.includes(`/list/`)
+      key => key.includes(`/task/${taskId}`) || key.includes(`/list/`)
     );
-    keysToDelete.forEach((key) => delete this.cache[key]);
+    keysToDelete.forEach(key => delete this.cache[key]);
   }
 
   async getList(listId: string, cacheTTL = 10 * 60 * 1000) {
@@ -240,12 +241,11 @@ export class ClickUpAPI {
     });
   }
 
-
   private clearCommentsCache(taskId: string): void {
-    const keysToDelete = Object.keys(this.cache).filter((key) =>
+    const keysToDelete = Object.keys(this.cache).filter(key =>
       key.includes(`/task/${taskId}/comment`)
     );
-    keysToDelete.forEach((key) => delete this.cache[key]);
+    keysToDelete.forEach(key => delete this.cache[key]);
     // Cache cleared successfully
   }
 }

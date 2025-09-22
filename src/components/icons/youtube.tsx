@@ -8,7 +8,12 @@ export function YouTubeIcon({ className, width, height }: IconProps) {
   const style: React.CSSProperties = {};
   if (width) style.width = width;
   if (height) style.height = height;
-  if (!width && !height && !className?.includes('w-') && !className?.includes('h-')) {
+  if (
+    !width &&
+    !height &&
+    !className?.includes("w-") &&
+    !className?.includes("h-")
+  ) {
     style.width = 14;
     style.height = 14;
   }
