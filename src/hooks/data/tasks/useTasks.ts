@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
+import { getApprovalOptionId } from "@/services/ApprovalService";
 import type { ApiResponse, Task } from "@/types";
-import { APPROVAL_LABELS, getApprovalOptionId } from "@/utils";
+import { APPROVAL_LABELS } from "@/types";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 

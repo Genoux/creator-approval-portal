@@ -3,13 +3,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types";
-import {
-  APPROVAL_LABELS,
-  type ApprovalLabel,
-  getApprovalStatus,
-  getDisplayLabel,
-} from "@/utils";
+import { getApprovalStatus } from "@/services/ApprovalService";
+import type { ApprovalLabel, Task } from "@/types";
+import { APPROVAL_LABELS } from "@/types";
+import { getDisplayLabel } from "@/utils/ui";
 import { TaskCard } from "./TaskCard";
 
 // Lazy loading wrapper for TaskCard
@@ -107,7 +104,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
     );
   }
 
-  const currentActiveTab = activeTab || CATEGORIES[0];
+  const currentActiveTab = activeTab || CATEGORIES[4];
 
   return (
     <div className="w-full flex flex-col gap-6">

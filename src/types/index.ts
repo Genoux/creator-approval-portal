@@ -1,7 +1,3 @@
-// Core types (shared across the application)
-
-// API types
-export type { AuthCredentials } from "./api";
 // ClickUp API types
 export type {
   ClickUpAuthResponse,
@@ -33,12 +29,8 @@ export type {
 // Creator-related types
 export type {
   ApprovalLabel,
-  CreatorData,
   CreatorProfile,
   SocialPlatform,
   SocialProfile,
 } from "./creators";
 export { APPROVAL_LABELS } from "./creators";
-
-// Status types
-export type { StatusOptionsResponse } from "./status";

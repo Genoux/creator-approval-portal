@@ -3,23 +3,25 @@
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon, Users } from "lucide-react";
 import Image from "next/image";
+import { useMemo } from "react";
 import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
-import { getProxyImageUrl } from "@/lib/image-proxy";
-import type { Task } from "@/types/tasks";
+import { extractCreator } from "@/services/CreatorService";
+import type { Task } from "@/types";
 
 interface TaskCardProps {
   task: Task;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { avatar, primaryHandle, followerCount, socialProfiles } =
-    useCreatorProfile(task);
+  const { avatar, primaryHandle, followerCount, socialProfiles } = useMemo(
+    () => extractCreator(task),
+    [task]
+  );
 
-  const imageUrl = avatar;
+  console.log(avatar);
 
   return (
     <TaskModal task={task}>
@@ -31,9 +33,9 @@ export function TaskCard({ task }: TaskCardProps) {
         >
           {/* Background Image */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden ">
-            {imageUrl ? (
+            {avatar ? (
               <Image
-                src={imageUrl}
+                src={avatar}
                 alt={`${task.name} profile`}
                 width={800}
                 height={800}

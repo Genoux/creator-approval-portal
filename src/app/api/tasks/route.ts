@@ -2,7 +2,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, Task } from "@/types";
-import { extractCreatorData } from "@/utils/creators";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async session => {

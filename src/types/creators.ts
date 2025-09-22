@@ -1,28 +1,6 @@
 /**
  * Essential creator data extracted from ClickUp custom fields
  */
-export interface CreatorData {
-  // Profile
-  profileImageUrl: string | null;
-
-  // Social platforms
-  instagramProfile: string | null;
-  tiktokProfile: string | null;
-  youtubeProfile: string | null;
-  linkedinProfile: string | null;
-  inBeatPortfolio: string | null;
-
-  // Metrics
-  followerCount: number | null;
-
-  // Content
-  example: string | null;
-  whyGoodFit: string | null;
-
-  // Approval status
-  clientApproval: string | null;
-  clientApprovalId: string | null;
-}
 
 /**
  * Social media platform types

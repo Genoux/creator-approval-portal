@@ -15,6 +15,10 @@ export interface User {
   timezone?: string;
 }
 
+export interface AuthCredentials {
+  listId: string;
+}
+
 /**
  * Generic API response wrapper
  */

@@ -108,3 +108,9 @@ export interface Task {
   status: TaskStatus;
   custom_fields?: CustomField[];
 }
+
+export interface StatusOptionsResponse {
+  field_id: string;
+  field_name: string;
+  options: DropdownOption[];
+}

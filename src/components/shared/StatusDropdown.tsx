@@ -10,8 +10,10 @@ import {
 import { useDropdown } from "@/contexts/DropdownContext";
 import { useTaskActions } from "@/contexts/TaskActionsContext";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types/tasks";
-import { APPROVAL_LABELS, getApprovalStatus, getDisplayLabel } from "@/utils";
+import { getApprovalStatus } from "@/services/ApprovalService";
+import type { Task } from "@/types";
+import { APPROVAL_LABELS } from "@/types";
+import { getDisplayLabel } from "@/utils/ui";
 
 interface StatusDropdownProps {
   task: Task;

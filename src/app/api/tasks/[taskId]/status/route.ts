@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
+import { getApprovalFieldId } from "@/services/ApprovalService";
 import type { ApiResponse, Task } from "@/types";
-import { getApprovalFieldId } from "@/utils";
 
 interface UpdateStatusBody {
   status: string | null;

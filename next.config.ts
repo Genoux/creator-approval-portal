@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
         hostname: "*.imginn.com",
       },
     ],
-  }
+  },
 };
 
 export default nextConfig;
