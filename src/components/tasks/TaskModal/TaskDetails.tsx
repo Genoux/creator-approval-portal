@@ -1,15 +1,15 @@
+import { useMemo, useState } from "react";
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { SocialPreview } from "@/components/social/SocialPreview";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types/tasks";
+import { extractCreator } from "@/services/CreatorService";
+import type { Task } from "@/types";
 
 interface TaskDetailsProps {
   task: Task;
@@ -26,7 +26,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
     followerCount,
     name,
     portfolio,
-  } = useCreatorProfile(task);
+  } = useMemo(() => extractCreator(task), [task]);
 
   function handleImageLoad() {
     setImageLoading(false);

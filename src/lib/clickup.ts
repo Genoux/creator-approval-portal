@@ -1,18 +1,8 @@
-interface CacheEntry {
-  data: unknown;
-  timestamp: number;
-  ttl: number;
-}
-
-interface RequestCache {
-  [key: string]: CacheEntry;
-}
+import type { Task } from "@/types/clickup";
 
 export class ClickUpAPI {
   private apiToken: string;
   private baseUrl: string;
-  private cache: RequestCache = {};
-  private defaultCacheTTL = 5 * 60 * 1000; // 5 minutes
 
   constructor(apiToken: string, baseUrl = "https://api.clickup.com/api/v2") {
     this.apiToken = apiToken;
@@ -27,108 +17,63 @@ export class ClickUpAPI {
     return new ClickUpAPI(tokenToUse);
   }
 
-  private getCacheKey(endpoint: string, options: RequestInit = {}): string {
-    return `${endpoint}:${JSON.stringify(options)}`;
-  }
+  private async request(endpoint: string, options: RequestInit = {}) {
+    const headers: Record<string, string> = {
+      Authorization: this.apiToken.startsWith("pk_")
+        ? this.apiToken
+        : `Bearer ${this.apiToken}`,
+      "Content-Type": "application/json",
+    };
 
-  private isValidCache(cacheEntry: CacheEntry): boolean {
-    return Date.now() - cacheEntry.timestamp < cacheEntry.ttl;
-  }
-
-  private async request(
-    endpoint: string,
-    options: RequestInit = {},
-    cacheTTL?: number
-  ) {
-    const cacheKey = this.getCacheKey(endpoint, options);
-
-    // Check cache for GET requests
-    if ((!options.method || options.method === "GET") && this.cache[cacheKey]) {
-      const cached = this.cache[cacheKey];
-      if (this.isValidCache(cached)) {
-        return cached.data;
-      }
+    if (options.headers) {
+      Object.assign(headers, options.headers);
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
-      headers: {
-        Authorization: this.apiToken.startsWith("pk_")
-          ? this.apiToken
-          : `Bearer ${this.apiToken}`,
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `❌ API Error: ${response.status} ${response.statusText} - ${errorText}`
-      );
       throw new Error(
-        `ClickUp API error: ${response.status} ${response.statusText} - ${errorText}`
+        `ClickUp API error: ${response.status} ${response.statusText}`
       );
     }
 
-    const data = await response.json();
+    return response.json();
+  }
 
-    // Cache GET requests
-    if (!options.method || options.method === "GET") {
-      this.cache[cacheKey] = {
-        data,
-        timestamp: Date.now(),
-        ttl: cacheTTL || this.defaultCacheTTL,
-      };
+  async getTasks(listId: string) {
+    const filter =
+      "archived=false&include_closed=true&order_by=created&reverse=true&limit=100&statuses[]=client%20approval&statuses[]=backup&statuses[]=declined%20(client)&statuses[]=selected";
+    const baseQuery = `/list/${listId}/task`;
+
+    const firstResponse = await this.request(`${baseQuery}?${filter}&page=0`);
+    const allTasks = firstResponse.tasks || [];
+
+    if (allTasks.length < 100) return allTasks;
+
+    const promises: Promise<{ tasks: Task[] }>[] = [];
+    for (let page = 1; page <= 5; page++) {
+      promises.push(
+        this.request(`${baseQuery}&page=${page}`).catch(() => ({ tasks: [] }))
+      );
     }
 
-    return data;
-  }
+    const responses = await Promise.all(promises);
 
-  clearCache(): void {
-    this.cache = {};
-  }
-
-  clearExpiredCache(): void {
-    const keysToDelete = Object.keys(this.cache).filter(
-      key => !this.isValidCache(this.cache[key])
-    );
-    keysToDelete.forEach(key => delete this.cache[key]);
-  }
-
-  async getTasks(listId: string, cacheTTL = 10 * 60 * 1000) {
-    const allTasks = [];
-    let page = 0;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.request(
-        `/list/${listId}/task?archived=false&include_closed=true&page=${page}&order_by=created&reverse=true&limit=100&statuses[]=client%20approval&statuses[]=backup&statuses[]=declined%20(client)&statuses[]=selected`,
-        {},
-        cacheTTL
-      );
-
+    for (const response of responses) {
       const pageTasks = response.tasks || [];
+      if (pageTasks.length === 0) break;
       allTasks.push(...pageTasks);
-
-      if (pageTasks.length === 0 || pageTasks.length < 100) {
-        hasMore = false;
-      } else {
-        page++;
-        if (page > 20) {
-          // Reduced from 50 since we're getting more per page
-          console.warn(`⚠️  Reached pagination limit for list ${listId}`);
-          break;
-        }
-      }
+      if (pageTasks.length < 100) break;
     }
 
     return allTasks;
   }
 
-  async getTask(taskId: string, cacheTTL = 1 * 60 * 1000) {
-    const response = await this.request(`/task/${taskId}`, {}, cacheTTL);
-    return response;
+  async getTask(taskId: string) {
+    return this.request(`/task/${taskId}`);
   }
 
   async updateTaskCustomField(
@@ -136,53 +81,39 @@ export class ClickUpAPI {
     fieldId: string,
     value: string | number | null
   ) {
-    let actualValue = value;
-    if (typeof value === "string" && /^\d+$/.test(value)) {
-      actualValue = parseInt(value, 10);
-    }
+    const actualValue =
+      typeof value === "string" && /^\d+$/.test(value)
+        ? parseInt(value, 10)
+        : value;
 
-    const result = await this.request(`/task/${taskId}/field/${fieldId}`, {
+    return this.request(`/task/${taskId}/field/${fieldId}`, {
       method: "POST",
       body: JSON.stringify({ value: actualValue }),
     });
-
-    // Clear cache for this task since it was updated
-    this.clearTaskCache(taskId);
-
-    return result;
   }
 
-  private clearTaskCache(taskId: string): void {
-    const keysToDelete = Object.keys(this.cache).filter(
-      key => key.includes(`/task/${taskId}`) || key.includes(`/list/`)
-    );
-    keysToDelete.forEach(key => delete this.cache[key]);
+  async getList(listId: string) {
+    return this.request(`/list/${listId}`);
   }
 
-  async getList(listId: string, cacheTTL = 10 * 60 * 1000) {
-    return this.request(`/list/${listId}`, {}, cacheTTL);
+  async getFolder(folderId: string) {
+    return this.request(`/folder/${folderId}`);
   }
 
-  async getFolder(folderId: string, cacheTTL = 15 * 60 * 1000) {
-    return this.request(`/folder/${folderId}`, {}, cacheTTL);
+  async getSpace(spaceId: string) {
+    return this.request(`/space/${spaceId}`);
   }
 
-  async getSpace(spaceId: string, cacheTTL = 15 * 60 * 1000) {
-    return this.request(`/space/${spaceId}`, {}, cacheTTL);
+  async getTeams() {
+    return this.request("/team");
   }
 
-  // Team/Workspace Methods
-  async getTeams(cacheTTL = 15 * 60 * 1000) {
-    return this.request("/team", {}, cacheTTL);
+  async getSharedResources(teamId: string) {
+    return this.request(`/team/${teamId}/shared`);
   }
 
-  async getSharedResources(teamId: string, cacheTTL = 10 * 60 * 1000) {
-    return this.request(`/team/${teamId}/shared`, {}, cacheTTL);
-  }
-
-  // Comment Methods
-  async getTaskComments(taskId: string, cacheTTL = 2 * 60 * 1000) {
-    return this.request(`/task/${taskId}/comment`, {}, cacheTTL);
+  async getTaskComments(taskId: string) {
+    return this.request(`/task/${taskId}/comment`);
   }
 
   async createTaskComment(
@@ -190,27 +121,16 @@ export class ClickUpAPI {
     commentText: string,
     assignee?: number
   ) {
-    const body: {
-      comment_text: string;
-      assignee?: number;
-      notify_all?: boolean;
-    } = {
+    const body = {
       comment_text: commentText,
       notify_all: true,
+      ...(assignee && { assignee }),
     };
 
-    if (assignee) {
-      body.assignee = assignee;
-    }
-
-    const result = await this.request(`/task/${taskId}/comment`, {
+    return this.request(`/task/${taskId}/comment`, {
       method: "POST",
       body: JSON.stringify(body),
     });
-
-    // Clear comments cache for this task
-    this.clearCommentsCache(taskId);
-    return result;
   }
 
   async updateComment(
@@ -218,16 +138,10 @@ export class ClickUpAPI {
     commentText: string,
     resolved?: boolean
   ) {
-    const body: {
-      comment_text: string;
-      resolved?: boolean;
-    } = {
+    const body = {
       comment_text: commentText,
+      ...(resolved !== undefined && { resolved }),
     };
-
-    if (resolved !== undefined) {
-      body.resolved = resolved;
-    }
 
     return this.request(`/comment/${commentId}`, {
       method: "PUT",
@@ -239,13 +153,5 @@ export class ClickUpAPI {
     return this.request(`/comment/${commentId}`, {
       method: "DELETE",
     });
-  }
-
-  private clearCommentsCache(taskId: string): void {
-    const keysToDelete = Object.keys(this.cache).filter(key =>
-      key.includes(`/task/${taskId}/comment`)
-    );
-    keysToDelete.forEach(key => delete this.cache[key]);
-    // Cache cleared successfully
   }
 }

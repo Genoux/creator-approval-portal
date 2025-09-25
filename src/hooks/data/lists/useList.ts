@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ListResult } from "@/utils/lists/list-finder";
+import type { ListResult } from "@/services/ListService";
 
 async function fetchList(listName: string): Promise<ListResult> {
   if (!listName?.trim()) {

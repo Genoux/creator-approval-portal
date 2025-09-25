@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
+import { getApprovalFieldId } from "@/services/ApprovalService";
 import type { StatusUpdate, Task } from "@/types";
-import { getApprovalFieldId } from "@/utils";
 
 interface UpdateStatusParams {
   taskId: string;
@@ -20,19 +20,10 @@ export function useUpdateTaskStatus(listId: string | null) {
       });
 
       if (!response.ok) {
-        try {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to update status");
-        } catch {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        throw new Error(`Failed to update status: ${response.status}`);
       }
 
-      try {
-        return await response.json();
-      } catch {
-        throw new Error("Invalid JSON response from server");
-      }
+      return response.json();
     },
 
     onMutate: async ({ taskId, status }) => {
@@ -72,8 +63,10 @@ export function useUpdateTaskStatus(listId: string | null) {
     },
 
     onSuccess: () => {
-      // Don't invalidate immediately - trust the optimistic update
-      // The background refetch will eventually sync with server
+      // Invalidate tasks cache to ensure fresh data on next fetch
+      if (listId) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tasks(listId) });
+      }
     },
   });
 }

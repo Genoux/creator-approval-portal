@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useTaskComments } from "@/hooks/data/comments/useTaskComments";
-import type { Task } from "@/types/tasks";
+import type { Task } from "@/types";
 import { TaskComments } from "./TaskComments";
 import { TaskDetails } from "./TaskDetails";
 

@@ -1,5 +1,3 @@
-//TODO: Fix Image not loading consistently
-
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon, Users } from "lucide-react";
 import Image from "next/image";
@@ -7,19 +5,15 @@ import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import { useCreatorProfile } from "@/hooks/utils/useCreatorProfile";
-import { getProxyImageUrl } from "@/lib/image-proxy";
-import type { Task } from "@/types/tasks";
+import { extractCreator } from "@/services/CreatorService";
+import type { Task } from "@/types";
 
 interface TaskCardProps {
   task: Task;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { avatar, primaryHandle, followerCount, socialProfiles } =
-    useCreatorProfile(task);
-
-  const imageUrl = avatar;
+  const { title, thumbnail, followerCount, socials } = extractCreator(task);
 
   return (
     <TaskModal task={task}>
@@ -31,13 +25,17 @@ export function TaskCard({ task }: TaskCardProps) {
         >
           {/* Background Image */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden ">
-            {imageUrl ? (
+            {thumbnail ? (
               <Image
-                src={imageUrl}
-                alt={`${task.name} profile`}
+                src={thumbnail}
+                alt={`${title} profile`}
                 width={800}
                 height={800}
-                className="object-cover w-full h-full"
+                placeholder="blur"
+                priority
+                blurDataURL={thumbnail}
+                className="object-cover w-full h-full object-center"
+                loading="eager"
               />
             ) : (
               <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
@@ -65,14 +63,14 @@ export function TaskCard({ task }: TaskCardProps) {
             <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <CardTitle className="text-lg font-semibold flex items-center leading-none">
-                  {task.name}
+                  {title}
                 </CardTitle>
 
                 <CardDescription className="text-white/80 text-base">
-                  {primaryHandle}
+                  {socials[0].handle}
                 </CardDescription>
               </div>
-              <div className="flex sm:flex-col lg:flex-row md:flex-col gap-2 justify-between lg:items-end items-start">
+              <div className="flex sm:flex-col lg:flex-row md:flex-col flex-wrap gap-2 justify-between lg:items-end items-start">
                 <div className="flex items-center gap-3">
                   {followerCount && (
                     <div className="flex items-center gap-1.5 text-sm white/90">
@@ -80,7 +78,7 @@ export function TaskCard({ task }: TaskCardProps) {
                       <span>{followerCount}</span>
                     </div>
                   )}
-                  <SocialMediaButtons socialProfiles={socialProfiles} />
+                  <SocialMediaButtons task={task} />
                 </div>
                 <StatusDropdown
                   task={task}

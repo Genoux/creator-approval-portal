@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
-import { findListByName } from "@/utils/lists/list-finder";
+import { findListByName } from "@/services/ListService";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async session => {

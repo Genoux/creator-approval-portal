@@ -15,31 +15,8 @@ export interface User {
   timezone?: string;
 }
 
-/**
- * ClickUp custom field dropdown option
- */
-export interface DropdownOption {
-  id: string;
-  name?: string;
-  label?: string;
-  color?: string | null;
-}
-
-/**
- * ClickUp custom field structure
- */
-export interface CustomField {
-  id: string;
-  name: string;
-  type: string;
-  value: string | number | boolean | null | undefined;
-  type_config?: {
-    options?: DropdownOption[];
-  };
-  date_created?: string;
-  hide_from_guests?: boolean;
-  required?: boolean;
-  value_richtext?: string;
+export interface AuthCredentials {
+  listId: string;
 }
 
 /**
@@ -54,4 +31,4 @@ export interface ApiResponse<T> {
 /**
  * Status update type for task status changes
  */
-export type StatusUpdate = string | null;
+export type StatusUpdate = number | string;

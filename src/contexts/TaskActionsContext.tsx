@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext } from "react";
 import { useTasks } from "@/hooks/data/tasks/useTasks";
-import type { Task } from "@/types/tasks";
+import type { Task } from "@/types";
 
 interface TaskActionsContextValue {
   handleApprove: (task: Task) => Promise<void>;
