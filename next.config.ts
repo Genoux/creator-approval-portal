@@ -9,15 +9,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.fna.fbcdn.net",
-      },
-      {
-        protocol: "https",
-        hostname: "p16-sign-va.tiktokcdn.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.imginn.com",
+        hostname:
+          "inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com",
       },
     ],
   },

@@ -31,4 +31,4 @@ export interface ApiResponse<T> {
 /**
  * Status update type for task status changes
  */
-export type StatusUpdate = string | null;
+export type StatusUpdate = number | string;
