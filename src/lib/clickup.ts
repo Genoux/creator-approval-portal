@@ -10,7 +10,7 @@ export class ClickUpAPI {
   }
 
   static createFromSession(apiToken?: string, oauthToken?: string): ClickUpAPI {
-    const tokenToUse = oauthToken || apiToken || process.env.CLICKUP_API_TOKEN;
+    const tokenToUse = oauthToken || apiToken;
     if (!tokenToUse) {
       throw new Error("No ClickUp API token available");
     }
@@ -35,8 +35,15 @@ export class ClickUpAPI {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ ClickUp API Error:", {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+        errorBody: errorText,
+      });
       throw new Error(
-        `ClickUp API error: ${response.status} ${response.statusText}`
+        `ClickUp API error: ${response.status} ${response.statusText} - ${errorText}`
       );
     }
 
@@ -61,6 +68,7 @@ export class ClickUpAPI {
     }
 
     const responses = await Promise.all(promises);
+    console.log("🚀 ~ ClickUpAPI ~ getTasks ~ responses:", responses);
 
     for (const response of responses) {
       const pageTasks = response.tasks || [];
@@ -73,7 +81,7 @@ export class ClickUpAPI {
   }
 
   async getTask(taskId: string) {
-    return this.request(`/task/${taskId}`);
+    return this.request(`/task/${taskId}?include_attachments=true`);
   }
 
   async updateTaskCustomField(
@@ -81,14 +89,17 @@ export class ClickUpAPI {
     fieldId: string,
     value: string | number | null
   ) {
-    const actualValue =
-      typeof value === "string" && /^\d+$/.test(value)
-        ? parseInt(value, 10)
-        : value;
+    // Clear field: use DELETE request
+    if (value === "" || value === null || value === undefined) {
+      return this.request(`/task/${taskId}/field/${fieldId}`, {
+        method: "DELETE",
+      });
+    }
 
+    // Set field: use POST request
     return this.request(`/task/${taskId}/field/${fieldId}`, {
       method: "POST",
-      body: JSON.stringify({ value: actualValue }),
+      body: JSON.stringify({ value }),
     });
   }
 
@@ -153,5 +164,9 @@ export class ClickUpAPI {
     return this.request(`/comment/${commentId}`, {
       method: "DELETE",
     });
+  }
+
+  async getAttachment(attachmentId: string) {
+    return this.request(`/attachment/${attachmentId}`);
   }
 }
