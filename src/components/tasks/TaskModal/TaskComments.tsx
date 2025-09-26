@@ -32,7 +32,7 @@ export function TaskComments({
 }: TaskCommentsProps) {
   return (
     <div className="absolute inset-0 bg-white z-40 flex flex-col md:hidden">
-      <div className="flex justify-between items-center p-4 border-b">
+      <div className="flex-shrink-0 flex justify-between items-center p-4 border-b">
         <Button
           variant="ghost"
           size="icon"
@@ -55,10 +55,10 @@ export function TaskComments({
           </div>
         )}
       </div>
-      <div className="flex-1 p-3">
+      <div className="flex-1 min-h-0 p-3">
         <CommentSection
           taskId={taskId}
-          className="flex-1 h-full"
+          className="h-full"
           showHeader={false}
         />
       </div>

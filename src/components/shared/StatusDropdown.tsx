@@ -11,8 +11,7 @@ import { useDropdown } from "@/contexts/DropdownContext";
 import { useTaskActions } from "@/contexts/TaskActionsContext";
 import { cn } from "@/lib/utils";
 import { getApprovalStatus } from "@/services/ApprovalService";
-import type { Task } from "@/types";
-import { APPROVAL_LABELS } from "@/types";
+import type { ApprovalLabel, Task } from "@/types";
 import { getDisplayLabel } from "@/utils/ui";
 
 interface StatusDropdownProps {
@@ -41,21 +40,20 @@ export function StatusDropdown({
   const dropdownId = `status-dropdown-${task.id}-${uniqueId}`;
   const isDropdownOpen = openDropdownId === dropdownId;
 
-  // Create status options array and action mapping
-  const STATUS_OPTIONS = Object.values(APPROVAL_LABELS);
-  const STATUS_ACTIONS = {
-    [APPROVAL_LABELS.PERFECT]: handleApprove,
-    [APPROVAL_LABELS.GOOD]: handleGood,
-    [APPROVAL_LABELS.SUFFICIENT]: handleBackup,
-    [APPROVAL_LABELS.POOR_FIT]: handleDecline,
-    [APPROVAL_LABELS.FOR_REVIEW]: handleMoveToReview,
-  } as const;
+  // Single source of truth for status options and actions
+  const STATUS_CONFIG = [
+    { label: "Perfect (Approved)" as ApprovalLabel, action: handleApprove },
+    { label: "Good (Approved)" as ApprovalLabel, action: handleGood },
+    { label: "Sufficient (Backup)" as ApprovalLabel, action: handleBackup },
+    { label: "Poor Fit (Rejected)" as ApprovalLabel, action: handleDecline },
+    { label: "For Review" as ApprovalLabel, action: handleMoveToReview },
+  ];
 
-  const handleStatusClick = (status: keyof typeof STATUS_ACTIONS) => {
-    if (currentLabel.toString() !== status && !isTaskPending(task.id)) {
-      const actionFn = STATUS_ACTIONS[status];
-      if (actionFn) {
-        actionFn(task);
+  const handleStatusClick = (status: ApprovalLabel) => {
+    if (currentLabel !== status && !isTaskPending(task.id)) {
+      const config = STATUS_CONFIG.find(c => c.label === status);
+      if (config) {
+        config.action(task);
       }
     }
   };
@@ -95,22 +93,22 @@ export function StatusDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent onCloseAutoFocus={e => e.preventDefault()}>
-        {STATUS_OPTIONS.map(status => (
+        {STATUS_CONFIG.map(({ label }) => (
           <DropdownMenuItem
-            key={status}
+            key={label}
             onClick={e => {
               e.preventDefault();
-              handleStatusClick(status);
+              handleStatusClick(label);
             }}
             disabled={isTaskPending(task.id)}
             className={cn(
               "flex items-center gap-2",
-              currentLabel.toString() === status
+              currentLabel === label
                 ? "bg-black/5 cursor-default"
                 : "cursor-pointer"
             )}
           >
-            {getDisplayLabel(status)}
+            {getDisplayLabel(label)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
