@@ -1,42 +1,24 @@
 /**
- * Essential creator data extracted from ClickUp custom fields
+ * Simple social profile
  */
-
-/**
- * Social media platform types
- */
-export type SocialPlatform =
-  | "TikTok"
-  | "Instagram"
-  | "YouTube"
-  | "LinkedIn"
-  | "External";
-
-/**
- * Social profile information for UI display
- */
-export interface SocialProfile {
-  platform: SocialPlatform;
+export interface Social {
+  platform: string;
   handle: string | null;
-  url: string | null;
-  icon: string;
+  url: string;
 }
 
 /**
- * Creator profile data optimized for UI components
+ * Creator profile - clean and simple
  */
-export interface CreatorProfile {
-  // Basic info
-  name: string;
-  avatar: string | null;
-
-  // Social presence
-  primaryHandle: string | null;
-  primaryProfileUrl: string | null;
+export interface Creator {
+  title: string;
+  thumbnail: string | null;
   followerCount: string | null;
-  socialProfiles: SocialProfile[];
-
-  // Content examples
+  er: {
+    text: string | null;
+    formula: string | null;
+  };
+  socials: Social[];
   portfolio: {
     example: string | null;
     whyGoodFit: string | null;
@@ -56,4 +38,8 @@ export const APPROVAL_LABELS = {
 } as const;
 
 export type ApprovalLabel =
-  (typeof APPROVAL_LABELS)[keyof typeof APPROVAL_LABELS];
+  | "For Review"
+  | "Perfect (Approved)"
+  | "Good (Approved)"
+  | "Sufficient (Backup)"
+  | "Poor Fit (Rejected)";

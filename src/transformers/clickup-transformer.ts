@@ -12,6 +12,10 @@ export class ClickUpTransformer {
       followerCount: fields.followercount
         ? formatNumberCompact(Number(fields.followercount))
         : null,
+      er: {
+        text: fields.er,
+        formula: fields.erformula,
+      },
       socials: buildSocials({
         instagram: fields.igprofile,
         tiktok: fields.ttprofile,
@@ -39,7 +43,8 @@ export class ClickUpTransformer {
           map[key] =
             attachment?.thumbnail_large?.trim().replace(/\s+/g, "") || null;
         } else {
-          map[key] = String(field.value);
+          // Use value_richtext if available, fallback to value
+          map[key] = field.value_richtext || String(field.value);
         }
       }
     });

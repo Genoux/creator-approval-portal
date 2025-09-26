@@ -23,14 +23,13 @@ export type {
 } from "./comments";
 export type {
   ApiResponse,
+  AuthCredentials,
   StatusUpdate,
   User,
 } from "./core";
 // Creator-related types
 export type {
   ApprovalLabel,
-  CreatorProfile,
-  SocialPlatform,
-  SocialProfile,
+  Creator,
+  Social,
 } from "./creators";
-export { APPROVAL_LABELS } from "./creators";
