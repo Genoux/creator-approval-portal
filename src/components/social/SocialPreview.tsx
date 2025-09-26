@@ -10,10 +10,12 @@ import {
   YouTubeIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { extractCreator } from "@/services/CreatorService";
 import { cn } from "@/lib/utils";
+import type { Task } from "@/types";
 
 interface SocialPreviewProps {
-  url: string;
+  task: Task;
   className?: string;
   title?: string;
   type?: "inbeat" | "example";
@@ -35,11 +37,18 @@ function getPlatform(url: string) {
 }
 
 export function SocialPreview({
-  url,
+  task,
   title,
   className = "",
   type = "example",
 }: SocialPreviewProps) {
+  const { portfolio } = extractCreator(task);
+
+  // Determine which URL to use based on type
+  const url = type === "inbeat" ? portfolio.inBeatPortfolio : portfolio.example;
+
+  if (!url) return null;
+
   const platform = getPlatform(url);
   const Icon = platform.icon;
 

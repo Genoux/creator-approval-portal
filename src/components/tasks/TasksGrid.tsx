@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getApprovalStatus } from "@/services/ApprovalService";
 import type { ApprovalLabel, Task } from "@/types";
-import { APPROVAL_LABELS } from "@/types";
 import { getDisplayLabel } from "@/utils/ui";
 import { TaskCard } from "./TaskCard";
 
@@ -72,13 +71,13 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
   );
 }
 
-const CATEGORIES = [
-  APPROVAL_LABELS.PERFECT,
-  APPROVAL_LABELS.GOOD,
-  APPROVAL_LABELS.SUFFICIENT,
-  APPROVAL_LABELS.POOR_FIT,
-  APPROVAL_LABELS.FOR_REVIEW,
-] as const;
+const CATEGORIES: ApprovalLabel[] = [
+  "Perfect (Approved)",
+  "Good (Approved)",
+  "Sufficient (Backup)",
+  "Poor Fit (Rejected)",
+  "For Review",
+];
 
 interface TasksGridProps {
   tasks: Task[];
