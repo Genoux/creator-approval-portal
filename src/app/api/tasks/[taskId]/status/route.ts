@@ -5,7 +5,7 @@ import { getApprovalFieldId } from "@/services/ApprovalService";
 import type { ApiResponse, Task } from "@/types";
 
 interface UpdateStatusBody {
-  status: string | null;
+  status: number | string;
 }
 
 export async function PUT(
@@ -38,23 +38,19 @@ export async function PUT(
       }
 
       // Update the task's approval field
-      const response = await clickup.updateTaskCustomField(
-        taskId,
-        approvalFieldId,
-        status
-      );
+      await clickup.updateTaskCustomField(taskId, approvalFieldId, status);
 
-      return NextResponse.json<ApiResponse<unknown>>({
+      return NextResponse.json<ApiResponse<null>>({
         success: true,
-        message: "Task status updated successfully",
-        data: response,
+        message: "Status updated successfully",
+        data: null,
       });
     } catch (error) {
-      console.error("❌ Failed to update task status:", error);
+      console.error("❌ Failed to update status:", error);
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          message: "Failed to update task status",
+          message: "Failed to update status",
           data: null,
         },
         { status: 500 }

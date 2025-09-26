@@ -72,7 +72,6 @@ export async function GET(request: NextRequest) {
 
     const token: string = await createAuthToken(
       null,
-      process.env.CLICKUP_API_TOKEN || "",
       null,
       tokenData.access_token,
       {

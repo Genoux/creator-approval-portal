@@ -21,7 +21,10 @@ interface DashboardClientProps {
   showDisclaimer: boolean;
 }
 
-export function DashboardClient({ session, showDisclaimer }: DashboardClientProps) {
+export function DashboardClient({
+  session,
+  showDisclaimer,
+}: DashboardClientProps) {
   // Find the Creator Management list
   const {
     data: creatorList,
@@ -40,7 +43,6 @@ export function DashboardClient({ session, showDisclaimer }: DashboardClientProp
   const isLoading = listLoading || tasksLoading;
   const hasListError = listError || (!listLoading && !creatorList);
   const hasTasksError = tasksError;
-
   return (
     <LayoutDebug>
       <div className="min-h-screen bg-white flex flex-col">
