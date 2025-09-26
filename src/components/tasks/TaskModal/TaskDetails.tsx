@@ -1,15 +1,11 @@
-import { useMemo, useState } from "react";
-import { Squircle } from "@squircle-js/react";
-import { ImageOffIcon } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { StatusDropdown } from "@/components/shared/StatusDropdown";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
 import { SocialPreview } from "@/components/social/SocialPreview";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { extractCreator } from "@/services/CreatorService";
 import type { Task } from "@/types";
+import { RichText } from "@/utils/text";
+import { TaskSquircle } from "../TaskSquircle";
 
 interface TaskDetailsProps {
   task: Task;
@@ -17,64 +13,12 @@ interface TaskDetailsProps {
 }
 
 export function TaskDetails({ task, className }: TaskDetailsProps) {
-  const [imageLoading, setImageLoading] = useState(true);
-  const {
-    avatar,
-    primaryHandle,
-    primaryProfileUrl,
-    socialProfiles,
-    followerCount,
-    name,
-    portfolio,
-  } = useMemo(() => extractCreator(task), [task]);
-
-  function handleImageLoad() {
-    setImageLoading(false);
-  }
+  const { followerCount, socials, portfolio, er } = extractCreator(task);
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      {/* Avatar */}
-      <Squircle
-        cornerRadius={18}
-        cornerSmoothing={1}
-        className="transition-colors w-full h-[350px] overflow-hidden will-change-transform flex-shrink-0"
-      >
-        <StatusDropdown
-          task={task}
-          variant="light"
-          className="absolute bottom-0 right-0 m-4 z-10 overflow-hidden"
-        />
-        <div
-          className="absolute backdrop-blur-md overflow-hidden w-full h-1/2 bottom-0"
-          style={{
-            maskImage:
-              "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 10%, rgba(0,0,0,0.08) 20%, rgba(0,0,0,0.18) 30%, rgba(0,0,0,0.32) 40%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.98) 90%, black 100%)",
-            background:
-              "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.01) 10%, rgba(0,0,0,0.04) 20%, rgba(0,0,0,0.09) 30%, rgba(0,0,0,0.16) 40%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.36) 60%, rgba(0,0,0,0.49) 70%, rgba(0,0,0,0.64) 80%, rgba(0,0,0,0.81) 90%, rgba(0,0,0,0.9) 100%)",
-          }}
-        ></div>
-        {avatar && imageLoading && (
-          <Skeleton className="absolute w-full h-full z-90" />
-        )}
-        {avatar ? (
-          <Image
-            src={avatar}
-            alt={`${name} profile`}
-            width={800}
-            height={800}
-            className="object-cover w-full h-full"
-            onLoadingComplete={handleImageLoad}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <ImageOffIcon className=" text-white" />
-          </div>
-        )}
-      </Squircle>
-      <section className="flex flex-col  flex-1 gap-4">
+      <TaskSquircle task={task} data={false} />
+      <section className="flex flex-col flex-1 gap-6">
         {/* Task Details */}
         <div className="flex justify-between items-center">
           <div className="flex flex-col gap-1 ">
@@ -82,60 +26,66 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
               {task.name}
             </h1>
             <Link
-              href={primaryProfileUrl || ""}
+              href={socials[0].url || ""}
               className="text-xs text-black/50 hover:underline w-fit"
               target="_blank"
             >
-              {primaryHandle}
+              {socials[0].handle}
             </Link>
           </div>
-          {followerCount && (
-            <div className="flex flex-col justify-end items-end">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs text-black/50">Followers</span>
+          <div className="flex gap-4">
+            {(er.text ?? er.formula) && (
+              <div className="flex flex-col justify-end items-start">
+                <span className="text-xs text-black/50">ER</span>
+                <p className="text-sm font-semibold">{er.text ?? er.formula}</p>
               </div>
-              <p className="text-sm font-semibold">{followerCount}</p>
-            </div>
-          )}
+            )}
+            {followerCount && (
+              <div className="flex flex-col justify-end items-start">
+                <span className="text-xs text-black/50">Followers</span>
+                <p className="text-sm font-semibold">{followerCount}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Why Good Fit */}
         {portfolio.whyGoodFit && (
           <div>
             <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-xs text-black/50">About</span>
+              <span className="text-xs text-black/50">
+                {"Why they're a good fit"}
+              </span>
             </div>
-            <p className="text-sm text-black/80">{portfolio.whyGoodFit}</p>
+            <RichText
+              deltaText={portfolio.whyGoodFit}
+              className="text-sm text-black/80 leading-0 pr-16"
+            />
           </div>
         )}
 
         <div className="flex flex-col rounded-xl overflow-hidden flex-1 gap-2">
-          <div className="flex gap-1 w-full items-center justify-between">
+          <div className="flex items-center justify-between pr-1">
             <h3 className="text-base font-semibold">Content</h3>
-            {socialProfiles.length > 0 && (
-              <div className="flex gap-2">
-                <SocialMediaButtons
-                  variant="dark"
-                  socialProfiles={socialProfiles}
-                />
-              </div>
+            {socials.length > 0 && (
+              <SocialMediaButtons variant="dark" task={task} />
             )}
           </div>
           <div className="flex flex-col gap-1 overflow-auto">
             {portfolio.example && (
               <div className="flex flex-col gap-3">
                 <div className="w-full">
-                  <SocialPreview url={portfolio.example} />
+                  <SocialPreview task={task} type="example" />
                 </div>
               </div>
             )}
-            {portfolio.example && (
+            {portfolio.inBeatPortfolio && (
               <div className="flex flex-col gap-3">
                 <div className="w-full">
                   <SocialPreview
+                    task={task}
                     type="inbeat"
                     title="InBeat Portfolio"
-                    url={portfolio.example}
                   />
                 </div>
               </div>
