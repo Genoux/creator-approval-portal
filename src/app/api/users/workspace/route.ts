@@ -21,12 +21,9 @@ export async function GET(request: NextRequest) {
         session.clickupAccessToken
       );
 
-      console.log(`Getting members for list ${listId}`);
       const membersData = await clickup.getListMembers(listId);
-      console.log("List members data:", membersData);
 
       const members = membersData.members || [];
-      console.log("Final list members:", members);
 
       return NextResponse.json<ApiResponse<User[]>>({
         success: true,
