@@ -70,7 +70,6 @@ export class ClickUpAPI {
     }
 
     const responses = await Promise.all(promises);
-    console.log("🚀 ~ ClickUpAPI ~ getTasks ~ responses:", responses);
 
     for (const response of responses) {
       const pageTasks = response.tasks || [];
@@ -167,12 +166,23 @@ export class ClickUpAPI {
 
   async updateComment(
     commentId: string,
-    commentText: string,
+    commentData:
+      | string
+      | {
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     resolved?: boolean
   ) {
     const body = {
-      comment_text: commentText,
       ...(resolved !== undefined && { resolved }),
+      ...(typeof commentData === "string"
+        ? { comment_text: commentData }
+        : commentData),
     };
 
     return this.request(`/comment/${commentId}`, {

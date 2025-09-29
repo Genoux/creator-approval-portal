@@ -32,6 +32,7 @@ export interface Comment {
     id: number;
     name: string;
     initials: string;
+    profilePicture: string;
   };
   createdAt: string;
   resolved: boolean;
@@ -51,6 +52,11 @@ export interface CreateCommentRequest {
 
 // Update Comment Request
 export interface UpdateCommentRequest {
-  comment_text: string;
+  comment_text?: string;
+  comment?: Array<{
+    type?: "tag";
+    text?: string;
+    user?: { id: number };
+  }>;
   resolved?: boolean;
 }
