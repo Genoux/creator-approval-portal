@@ -53,11 +53,12 @@ export function CommentSection({
             isLoading={isLoading}
             scrollRef={scrollRef}
             onCommentsChange={scrollToBottom}
+            taskId={taskId}
           />
         )}
       </div>
 
-      <div className="flex-shrink-0 pb-4">
+      <div className="flex-shrink-0 p-4">
         <CommentForm taskId={taskId} onCommentSent={scrollToBottom} />
       </div>
     </div>
