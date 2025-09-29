@@ -1,4 +1,4 @@
-import type { User } from "@/types";
+import type { Comment, User } from "@/types";
 
 export interface MentionData {
   id: string;
@@ -18,48 +18,59 @@ export interface ClickUpCommentRequest {
 }
 
 /**
- * Parse mentions into comment format
+ * Serialize mentions from user input to ClickUp API format
  */
-export function parseMentions(
+export function serializeMentions(
   text: string,
-  mentions: MentionData[],
+  _mentions: MentionData[],
   users: User[]
 ): ClickUpCommentRequest {
-  // If no mentions, return simple text format
-  if (!mentions || mentions.length === 0) {
+  const mentionRegex = /@\[([^\]]+)\]\((\d+)\)/g;
+  const textMentions: Array<{ display: string; id: string; start: number; end: number }> = [];
+  let match: RegExpExecArray | null = null;
+
+  mentionRegex.lastIndex = 0;
+
+  match = mentionRegex.exec(text);
+  while (match !== null) {
+    textMentions.push({
+      display: match[1],
+      id: match[2],
+      start: match.index,
+      end: match.index + match[0].length
+    });
+    match = mentionRegex.exec(text);
+  }
+
+  if (textMentions.length === 0) {
     return { comment_text: text };
   }
 
   const userMap = new Map(users.map(user => [user.id.toString(), user]));
   const segments: ClickUpCommentSegment[] = [];
-
   let lastIndex = 0;
 
-  // Sort mentions by position
-  const sortedMentions = mentions.sort((a, b) => a.index - b.index);
-
-  for (const mention of sortedMentions) {
-    // Add text before mention
-    if (mention.index > lastIndex) {
-      const textBefore = text.slice(lastIndex, mention.index);
+  for (const mention of textMentions) {
+    if (mention.start > lastIndex) {
+      const textBefore = text.slice(lastIndex, mention.start);
       if (textBefore) {
         segments.push({ text: textBefore });
       }
     }
 
-    // Add mention tag
     const user = userMap.get(mention.id);
     if (user) {
       segments.push({
         type: "tag",
         user: { id: user.id },
       });
+    } else {
+      segments.push({ text: text.slice(mention.start, mention.end) });
     }
 
-    lastIndex = mention.index + mention.display.length + 1; // +1 for @ symbol
+    lastIndex = mention.end;
   }
 
-  // Add remaining text
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
     if (remainingText) {
@@ -67,17 +78,30 @@ export function parseMentions(
     }
   }
 
-  // Return structured format for ClickUp API
   return { comment: segments };
 }
 
 /**
- * Validate mention data structure
+ * Deserialize mentions from ClickUp API format to user-editable text
  */
-export function validateMentionData(mentions: MentionData[]): boolean {
-  return mentions.every(mention =>
-    mention.id &&
-    mention.display &&
-    typeof mention.index === 'number'
-  );
+export function deserializeMentions(comment: Comment): string {
+  // If no structured comment, just return the plain text
+  if (!comment.structuredComment || comment.structuredComment.length === 0) {
+    return comment.text;
+  }
+
+  let text = "";
+
+  for (const segment of comment.structuredComment) {
+    if (segment.type === "tag" && segment.user) {
+      // This is a mention - convert to react-mentions format
+      const displayName = segment.user.username || `User ${segment.user.id}`;
+      text += `@[${displayName}](${segment.user.id})`;
+    } else if (segment.text) {
+      // This is regular text
+      text += segment.text;
+    }
+  }
+
+  return text;
 }

@@ -27,7 +27,7 @@ export function RichText({
 
     return (
       <span className={className}>
-        {delta.ops.map((op) => {
+        {delta.ops.map(op => {
           const text = op.insert.replace(/\\n/g, "\n");
 
           if (op.attributes?.link) {
@@ -37,7 +37,7 @@ export function RichText({
                 href={op.attributes.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
+                className="text-[#2A0006] hover:text-[#2A0006]/90 underline"
               >
                 {text}
               </a>

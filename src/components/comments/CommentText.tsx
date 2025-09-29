@@ -14,9 +14,9 @@ export function CommentText({ comment, className }: CommentTextProps) {
             return (
               <span
                 key={segment.user?.id}
-                className="inline-block px-1.5 py-0.5 mx-0.5 text-xs font-medium text-[#007AFF] bg-blue-100 rounded-md"
+                className="inline-block px-0.5 text-[13px] font-medium text-[#2A0006] bg-[#2A0006]/10 rounded-sm"
               >
-                @{segment.user.username || `User ${segment.user.id}`}
+                @{segment.user.username}
               </span>
             );
           }
