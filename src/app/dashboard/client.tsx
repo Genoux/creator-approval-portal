@@ -10,6 +10,7 @@ import { ModalDisclaimer } from "@/components/shared/ModalDisclaimer";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { TasksGridSkeleton } from "@/components/tasks/TasksGridSkeleton";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { DropdownProvider } from "@/contexts/DropdownContext";
 import { TaskActionsProvider } from "@/contexts/TaskActionsContext";
 import { useList } from "@/hooks/data/lists/useList";
@@ -44,42 +45,44 @@ export function DashboardClient({
   const hasListError = listError || (!listLoading && !creatorList);
   const hasTasksError = tasksError;
   return (
-    <LayoutDebug>
-      <div className="min-h-screen bg-white flex flex-col">
-        <NavigationBar session={session} />
+    <AuthProvider session={session}>
+      <LayoutDebug>
+        <div className="min-h-screen bg-white flex flex-col">
+          <NavigationBar />
 
-        {/* Main Content */}
-        <main className="flex-1 max-w-[1440px] mx-auto flex flex-col gap-6 py-12 px-8 w-full relative">
-          <div className="flex justify-between items-center">
-            <DashboardHeader taskCount={tasks.length} isLoading={isLoading} />
-          </div>
-          {isLoading ? (
-            <TasksGridSkeleton />
-          ) : hasListError ? (
-            <ErrorBlock
-              title="List Not Found"
-              description="Make sure you have access to the list and try again."
-              actionText="Retry"
-              onAction={refetchList}
-            />
-          ) : hasTasksError ? (
-            <ErrorBlock
-              title="Error loading creators"
-              description="Please try again later or contact support."
-              actionText="Retry"
-              onAction={refetchList}
-            />
-          ) : (
-            <TaskActionsProvider listId={creatorList?.listId || null}>
-              <DropdownProvider>
-                <TasksGrid tasks={tasks} />
-              </DropdownProvider>
-            </TaskActionsProvider>
-          )}
-        </main>
-        <Footer />
-        <ModalDisclaimer initialShow={showDisclaimer} />
-      </div>
-    </LayoutDebug>
+          {/* Main Content */}
+          <main className="flex-1 max-w-[1440px] mx-auto flex flex-col gap-6 py-12 px-8 w-full relative">
+            <div className="flex justify-between items-center">
+              <DashboardHeader taskCount={tasks.length} isLoading={isLoading} />
+            </div>
+            {isLoading ? (
+              <TasksGridSkeleton />
+            ) : hasListError ? (
+              <ErrorBlock
+                title="List Not Found"
+                description="Make sure you have access to the list and try again."
+                actionText="Retry"
+                onAction={refetchList}
+              />
+            ) : hasTasksError ? (
+              <ErrorBlock
+                title="Error loading creators"
+                description="Please try again later or contact support."
+                actionText="Retry"
+                onAction={refetchList}
+              />
+            ) : (
+              <TaskActionsProvider listId={creatorList?.listId || null}>
+                <DropdownProvider>
+                  <TasksGrid tasks={tasks} />
+                </DropdownProvider>
+              </TaskActionsProvider>
+            )}
+          </main>
+          <Footer />
+          <ModalDisclaimer initialShow={showDisclaimer} />
+        </div>
+      </LayoutDebug>
+    </AuthProvider>
   );
 }
