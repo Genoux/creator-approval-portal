@@ -4,6 +4,7 @@ import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Comment } from "@/types";
+import { CommentText } from "./CommentText";
 
 function parseCommentDate(dateInput: string): Date {
   return new Date(Number(dateInput));
@@ -98,9 +99,7 @@ function CommentItem({ comment }: { comment: Comment }) {
           </Badge>
         )}
       </div>
-      <div className="text-sm leading-relaxed whitespace-pre-wrap">
-        {comment.text}
-      </div>
+      <CommentText comment={comment} />
     </div>
   );
 }
