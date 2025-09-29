@@ -21,6 +21,7 @@ export async function GET(
         id: comment.id,
         taskId: taskId,
         text: comment.comment_text,
+        structuredComment: Array.isArray(comment.comment) ? comment.comment : undefined,
         author: {
           id: comment.user.id,
           name: comment.user.username,
@@ -44,11 +45,12 @@ export async function POST(
   return withAuth(request, async session => {
     const { taskId } = await params;
     const body = await request.json();
-    const { comment_text, assignee } = body;
+    const { comment_text, comment, assignee } = body;
 
-    if (!comment_text || comment_text.trim() === "") {
+    // Validate that either comment_text or comment is provided
+    if ((!comment_text || comment_text.trim() === "") && (!comment || comment.length === 0)) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "Comment text is required", data: null },
+        { success: false, message: "Comment content is required", data: null },
         { status: 400 }
       );
     }
@@ -57,9 +59,18 @@ export async function POST(
       session.apiToken,
       session.clickupAccessToken
     );
+
+    // Prepare comment data - prioritize structured comment over plain text
+    const commentData = comment && comment.length > 0
+      ? { comment }
+      : comment_text.trim();
+
+    console.log("Comment API - Received body:", { comment_text, comment, assignee });
+    console.log("Comment API - Sending to ClickUp:", commentData);
+
     const result = await clickup.createTaskComment(
       taskId,
-      comment_text.trim(),
+      commentData,
       assignee
     );
 

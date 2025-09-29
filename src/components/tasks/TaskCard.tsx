@@ -1,5 +1,4 @@
 import { TaskModal } from "@/components/tasks/TaskModal";
-import { extractCreator } from "@/services/CreatorService";
 import type { Task } from "@/types";
 import { TaskSquircle } from "./TaskSquircle";
 

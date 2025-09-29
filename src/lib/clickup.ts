@@ -1,3 +1,5 @@
+// TODO:CHORE: Extract functions to a separate file
+
 import type { Task } from "@/types/clickup";
 
 export class ClickUpAPI {
@@ -84,6 +86,14 @@ export class ClickUpAPI {
     return this.request(`/task/${taskId}?include_attachments=true`);
   }
 
+  async getTaskMembers(taskId: string) {
+    return this.request(`/task/${taskId}/member`);
+  }
+
+  async getListMembers(listId: string) {
+    return this.request(`/list/${listId}/member`);
+  }
+
   async updateTaskCustomField(
     taskId: string,
     fieldId: string,
@@ -129,13 +139,24 @@ export class ClickUpAPI {
 
   async createTaskComment(
     taskId: string,
-    commentText: string,
+    commentData:
+      | string
+      | {
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     assignee?: number
   ) {
     const body = {
-      comment_text: commentText,
       notify_all: true,
       ...(assignee && { assignee }),
+      ...(typeof commentData === "string"
+        ? { comment_text: commentData }
+        : commentData),
     };
 
     return this.request(`/task/${taskId}/comment`, {
