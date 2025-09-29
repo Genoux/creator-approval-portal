@@ -27,7 +27,7 @@ export function RichText({
 
     return (
       <span className={className}>
-        {delta.ops.map((op, index) => {
+        {delta.ops.map((op) => {
           const text = op.insert.replace(/\\n/g, "\n");
 
           if (op.attributes?.link) {

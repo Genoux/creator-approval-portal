@@ -23,6 +23,11 @@ export interface Comment {
   id: string;
   taskId: string;
   text: string;
+  structuredComment?: Array<{
+    type?: "tag";
+    text?: string;
+    user?: { id: number; username?: string };
+  }>;
   author: {
     id: number;
     name: string;
@@ -34,7 +39,12 @@ export interface Comment {
 
 // Create Comment Request
 export interface CreateCommentRequest {
-  comment_text: string;
+  comment_text?: string;
+  comment?: Array<{
+    type?: "tag";
+    text?: string;
+    user?: { id: number };
+  }>;
   assignee?: number;
   notify_all?: boolean;
 }
