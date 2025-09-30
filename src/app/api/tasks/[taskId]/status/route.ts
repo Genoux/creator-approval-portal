@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
-import { getApprovalFieldId } from "@/services/ApprovalService";
-import type { ApiResponse, Task } from "@/types";
+import type { ApiResponse } from "@/types";
 
 interface UpdateStatusBody {
-  status: number | string;
+  status: number | string | null;
+  fieldId: string;
 }
 
 export async function PUT(
@@ -15,30 +15,30 @@ export async function PUT(
   return withAuth(request, async session => {
     try {
       const { taskId } = await params;
-      const { status }: UpdateStatusBody = await request.json();
+      const { status, fieldId }: UpdateStatusBody = await request.json();
 
-      const clickup = ClickUpAPI.createFromSession(
-        session.apiToken,
-        session.clickupAccessToken
-      );
-
-      // Get the task first to discover field ID dynamically
-      const task: Task = await clickup.getTask(taskId);
-      const approvalFieldId = getApprovalFieldId(task);
-
-      if (!approvalFieldId) {
+      if (!fieldId) {
         return NextResponse.json<ApiResponse<null>>(
           {
             success: false,
-            message: "Approval field not found",
+            message: "Field ID is required",
             data: null,
           },
           { status: 400 }
         );
       }
 
+      const clickup = ClickUpAPI.createFromSession(
+        session.apiToken,
+        session.clickupAccessToken
+      );
+
+      console.log(`🔄 Updating task ${taskId} field ${fieldId} to:`, status);
+
       // Update the task's approval field
-      await clickup.updateTaskCustomField(taskId, approvalFieldId, status);
+      await clickup.updateTaskCustomField(taskId, fieldId, status);
+
+      console.log(`✅ Successfully updated task ${taskId} status`);
 
       return NextResponse.json<ApiResponse<null>>({
         success: true,
