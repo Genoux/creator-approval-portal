@@ -10,7 +10,6 @@ import {
 import { useDropdown } from "@/contexts/DropdownContext";
 import { useTaskActions } from "@/contexts/TaskActionsContext";
 import { cn } from "@/lib/utils";
-import { getApprovalStatus } from "@/services/ApprovalService";
 import type { ApprovalLabel, Task } from "@/types";
 import { getDisplayLabel } from "@/utils/ui";
 
@@ -35,7 +34,7 @@ export function StatusDropdown({
   } = useTaskActions();
 
   const { openDropdownId, setOpenDropdownId } = useDropdown();
-  const currentLabel = getApprovalStatus(task);
+  const currentLabel = task.status.label;
   const uniqueId = useId();
   const dropdownId = `status-dropdown-${task.id}-${uniqueId}`;
   const isDropdownOpen = openDropdownId === dropdownId;

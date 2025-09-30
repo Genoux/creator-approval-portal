@@ -10,7 +10,12 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <TaskModal task={task}>
       <div className="cursor-pointer rounded-3xl">
-        <TaskSquircle task={task} />
+        <TaskSquircle
+          task={task}
+          title={task.title}
+          thumbnail={task.thumbnail}
+          socials={task.socials}
+        />
       </div>
     </TaskModal>
   );

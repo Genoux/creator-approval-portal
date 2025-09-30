@@ -21,7 +21,9 @@ interface TaskModalProps {
 export function TaskModal({ task, children }: TaskModalProps) {
   const [open, setOpen] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const { data: comments = [], isLoading } = useTaskComments(task.id);
+
+  // Only fetch comments when modal is open
+  const { data: comments = [], isLoading } = useTaskComments(task.id, open);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -48,7 +50,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
         >
           <XIcon className="w-6 h-6 text-black" />
         </Button>
-        <DialogTitle className="sr-only">{task.name}</DialogTitle>
+        <DialogTitle className="sr-only">{task.title}</DialogTitle>
 
         <section className="flex flex-col md:flex-row justify-between gap-4 min-h-0 flex-1">
           <TaskDetails

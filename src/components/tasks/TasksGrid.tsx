@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getApprovalStatus } from "@/services/ApprovalService";
 import type { ApprovalLabel, Task } from "@/types";
 import { getDisplayLabel } from "@/utils/ui";
 import { TaskCard } from "./TaskCard";
@@ -89,7 +88,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
   const tasksByStatus = useMemo(() => {
     const result: Record<string, Task[]> = {};
     CATEGORIES.forEach(status => {
-      result[status] = tasks.filter(task => getApprovalStatus(task) === status);
+      result[status] = tasks.filter(task => task.status.label === status);
     });
     return result;
   }, [tasks]);

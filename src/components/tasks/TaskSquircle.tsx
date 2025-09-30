@@ -2,18 +2,19 @@ import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { extractCreator } from "@/services/CreatorService";
-import type { Task } from "@/types";
+import type { Social, Task } from "@/types";
 import { StatusDropdown } from "../shared/StatusDropdown";
 import { CardDescription, CardTitle } from "../ui/card";
 
 interface TaskSquircleProps {
   task: Task;
   data?: boolean;
+  title: string;
+  thumbnail: string | null;
+  socials: Social[];
 }
 
-export function TaskSquircle({ task, data = true }: TaskSquircleProps) {
-  const { title, thumbnail, socials } = extractCreator(task);
+export function TaskSquircle({ task, data = true, title, thumbnail, socials }: TaskSquircleProps) {
 
   return (
     <div>

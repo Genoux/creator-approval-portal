@@ -1,10 +1,9 @@
 import Link from "next/link";
+import { RenderDelta } from "quill-delta-to-react";
+import { PortfolioPreview } from "@/components/social/portfolioPreview";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
-import { SocialPreview } from "@/components/social/SocialPreview";
 import { cn } from "@/lib/utils";
-import { extractCreator } from "@/services/CreatorService";
 import type { Task } from "@/types";
-import { RichText } from "@/utils/text";
 import { TaskSquircle } from "../TaskSquircle";
 
 interface TaskDetailsProps {
@@ -13,17 +12,25 @@ interface TaskDetailsProps {
 }
 
 export function TaskDetails({ task, className }: TaskDetailsProps) {
-  const { followerCount, socials, portfolio, er } = extractCreator(task);
+  const { title, thumbnail, followerCount, socials, portfolio, er } = task;
+  const delta = JSON.parse(portfolio.whyGoodFit || "{}");
+  const ops = Array.isArray(delta.ops) ? delta.ops : [];
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      <TaskSquircle task={task} data={false} />
+      <TaskSquircle
+        task={task}
+        data={false}
+        title={title}
+        thumbnail={thumbnail}
+        socials={socials}
+      />
       <section className="flex flex-col flex-1 gap-6">
         {/* Task Details */}
         <div className="flex justify-between items-center">
           <div className="flex flex-col gap-1 ">
             <h1 className="text-lg font-semibold flex items-center leading-none">
-              {task.name}
+              {title}
             </h1>
             <Link
               href={socials[0].url || ""}
@@ -57,10 +64,14 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
                 {"Why they're a good fit"}
               </span>
             </div>
-            <RichText
-              deltaText={portfolio.whyGoodFit}
-              className="text-sm text-black/80 leading-0 pr-16"
-            />
+            <div className="text-sm text-black/80 leading-relaxed [&_a]:text-[#2A0006] [&_a]:underline [&_a:hover]:text-[#2A0006]/90">
+              <RenderDelta
+                ops={ops}
+                options={{
+                  linkTarget: "_blank",
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -68,22 +79,22 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
           <div className="flex items-center justify-between pr-1">
             <h3 className="text-base font-semibold">Content</h3>
             {socials.length > 0 && (
-              <SocialMediaButtons variant="dark" task={task} />
+              <SocialMediaButtons socials={socials} variant="dark" />
             )}
           </div>
           <div className="flex flex-col gap-1 overflow-auto">
             {portfolio.example && (
               <div className="flex flex-col gap-3">
                 <div className="w-full">
-                  <SocialPreview task={task} type="example" />
+                  <PortfolioPreview portfolio={portfolio} type="example" />
                 </div>
               </div>
             )}
             {portfolio.inBeatPortfolio && (
               <div className="flex flex-col gap-3">
                 <div className="w-full">
-                  <SocialPreview
-                    task={task}
+                  <PortfolioPreview
+                    portfolio={portfolio}
                     type="inbeat"
                     title="InBeat Portfolio"
                   />

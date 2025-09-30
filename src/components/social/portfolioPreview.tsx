@@ -10,12 +10,11 @@ import {
   YouTubeIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { extractCreator } from "@/services/CreatorService";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
 
-interface SocialPreviewProps {
-  task: Task;
+interface PortfolioPreviewProps {
+  portfolio: Task["portfolio"];
   className?: string;
   title?: string;
   type?: "inbeat" | "example";
@@ -36,14 +35,12 @@ function getPlatform(url: string) {
   return { name: "External Link", icon: ExternalLink };
 }
 
-export function SocialPreview({
-  task,
+export function PortfolioPreview({
+  portfolio,
   title,
   className = "",
   type = "example",
-}: SocialPreviewProps) {
-  const { portfolio } = extractCreator(task);
-
+}: PortfolioPreviewProps) {
   // Determine which URL to use based on type
   const url = type === "inbeat" ? portfolio.inBeatPortfolio : portfolio.example;
 
