@@ -2,11 +2,10 @@
 
 import type React from "react";
 import { Mention, MentionsInput } from "react-mentions";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { User } from "@/types";
-import type { MentionData } from "@/utils/mentions/mention-parser";
-import type { MentionUser } from "../mentions/MentionSuggestion";
-import { MentionSuggestion } from "../mentions/MentionSuggestion";
+import type { MentionData } from "@/utils";
+import type { MentionUser } from "./MentionSuggestion";
+import { MentionSuggestion } from "./MentionSuggestion";
 
 interface CommentInputProps {
   value: string;

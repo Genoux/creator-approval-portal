@@ -9,7 +9,7 @@ import {
   deserializeMentions,
   type MentionData,
   serializeMentions,
-} from "@/utils/mentions/mention-parser";
+} from "@/utils";
 import { CommentInput } from "./CommentInput";
 
 interface CommentFormProps {
