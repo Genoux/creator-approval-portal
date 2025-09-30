@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         hostname:
           "inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "attachments.clickup.com",
+      },
     ],
   },
 };

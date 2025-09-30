@@ -1,5 +1,5 @@
 import { Squircle } from "@squircle-js/react";
-import { ImageOffIcon, Users } from "lucide-react";
+import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { extractCreator } from "@/services/CreatorService";

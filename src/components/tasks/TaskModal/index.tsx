@@ -28,7 +28,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="rounded-3xl w-full md:!max-w-4xl px-4 pb-4 pt-3 h-[864px] transition-none md:h-[768px] md:min-h-[720px] max-h-full overflow-hidden flex flex-col"
+        className="rounded-3xl w-full md:!max-w-4xl px-4 pb-4 pt-3 h-[864px] transition-none md:h-[768px] md:min-h-[720px] max-h-full flex flex-col"
         onPointerDownOutside={e => {
           const target = e.target as Element;
           if (
@@ -50,7 +50,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
         </Button>
         <DialogTitle className="sr-only">{task.name}</DialogTitle>
 
-        <section className="flex flex-col md:flex-row justify-between gap-4 min-h-0 flex-1 overflow-hidden">
+        <section className="flex flex-col md:flex-row justify-between gap-4 min-h-0 flex-1">
           <TaskDetails
             task={task}
             className="flex-1 overflow-y-auto sm:p-4 p-0"

@@ -14,19 +14,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AuthSession } from "@/lib/auth";
+import { useCurrentUser } from "@/contexts/AuthContext";
 
 const handleLogout = async () => {
   await fetch("/api/auth", { method: "DELETE" });
   window.location.href = "/";
 };
 
-interface DashboardNavbarProps {
-  session: AuthSession | null;
-}
-
-export function NavigationBar({ session }: DashboardNavbarProps) {
-  const user = session?.clickupUser;
+export function NavigationBar() {
+  const user = useCurrentUser();
 
   return (
     <nav>

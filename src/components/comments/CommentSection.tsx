@@ -23,10 +23,7 @@ export function CommentSection({
 
   return (
     <div
-      className={cn(
-        "flex flex-col h-full rounded-2xl bg-[#F9F7F7]",
-        className
-      )}
+      className={cn("flex flex-col h-full rounded-2xl bg-[#F9F7F7]", className)}
     >
       {/* Header */}
       {showHeader && comments.length > 0 && (
@@ -56,12 +53,12 @@ export function CommentSection({
             isLoading={isLoading}
             scrollRef={scrollRef}
             onCommentsChange={scrollToBottom}
+            taskId={taskId}
           />
         )}
       </div>
 
-      {/* Comment Form - Always visible */}
-      <div className="flex-shrink-0 pb-4">
+      <div className="flex-shrink-0 p-4">
         <CommentForm taskId={taskId} onCommentSent={scrollToBottom} />
       </div>
     </div>
