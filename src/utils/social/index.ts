@@ -1,0 +1,1 @@
+export { buildSocials } from "./social";

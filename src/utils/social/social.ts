@@ -1,4 +1,4 @@
-import type { Social } from "@/types/creators";
+import type { Social } from "@/types/tasks";
 
 interface UrlData {
   instagram: string | null;

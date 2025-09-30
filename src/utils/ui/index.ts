@@ -1,5 +1,6 @@
 export {
   formatFollowerCount,
+  formatTimeAgo,
   getDisplayLabel,
 } from "./formatting";
 
