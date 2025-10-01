@@ -195,7 +195,7 @@ function CommentItem({
 
 function CommentListSkeleton() {
   return (
-    <div className="pt-4 pr-2">
+    <div className="p-3">
       <div className="space-y-2">
         {Array.from({ length: 2 }).map(() => (
           <div

@@ -8,23 +8,37 @@ import { CardDescription, CardTitle } from "../ui/card";
 
 interface TaskSquircleProps {
   task: Task;
-  data?: boolean;
+  size?: "default" | "modal";
   title: string;
   thumbnail: string | null;
   socials: Social[];
 }
 
-export function TaskSquircle({ task, data = true, title, thumbnail, socials }: TaskSquircleProps) {
-
+export function TaskSquircle({
+  task,
+  title,
+  size = "default",
+  thumbnail,
+  socials,
+}: TaskSquircleProps) {
   return (
     <div>
       <Squircle
-        cornerRadius={24}
+        cornerRadius={16}
         cornerSmoothing={1}
-        className="transition-colors w-full h-[350px] overflow-hidden will-change-transform flex-shrink-0"
+        className={cn(
+          "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0",
+          size === "default" && "h-[450px]",
+          size === "modal" && "h-[300px]"
+        )}
       >
         {/* Background Image */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden ">
+        <div
+          className={cn(
+            "absolute inset-0 rounded-2xl overflow-hidden",
+            size === "default" ? "h-full" : "h-[300px]"
+          )}
+        >
           {thumbnail ? (
             <Image
               src={thumbnail}
@@ -47,26 +61,21 @@ export function TaskSquircle({ task, data = true, title, thumbnail, socials }: T
 
         {/* Content Overlay */}
         <div className="absolute inset-2 flex self-end flex-wrap justify-between gap-2 p-3 text-white items-end">
-          {data && (
-            <div className="flex flex-col">
-              <div className="flex flex-col gap-1">
-                <CardTitle className="text-lg font-semibold flex items-center leading-none">
-                  {title}
-                </CardTitle>
+          <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
+              <CardTitle className="text-lg font-semibold flex items-center leading-none">
+                {title}
+              </CardTitle>
 
-                <CardDescription className="text-white/80 text-base">
-                  {socials[0].handle}
-                </CardDescription>
-              </div>
+              <CardDescription className="text-white/80 text-base">
+                {socials[0].handle}
+              </CardDescription>
             </div>
-          )}
+          </div>
           <StatusDropdown
             task={task}
             variant="light"
-            className={cn(
-              "sm:w-full md:w-full w-auto",
-              data ? "lg:w-auto" : "w-full"
-            )}
+            className="h-10 self-end"
           />
         </div>
       </Squircle>

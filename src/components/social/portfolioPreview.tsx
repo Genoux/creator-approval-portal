@@ -50,17 +50,17 @@ export function PortfolioPreview({
   const Icon = platform.icon;
 
   return (
-    <div className={`border rounded-lg p-3 bg-white ${className}`}>
+    <div className={`border rounded-lg p-2 bg-white ${className}`}>
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-row gap-2 items-center">
           <Squircle
-            cornerRadius={10}
-            cornerSmoothing={2}
-            className="w-8 h-8 rounded-md  flex items-center justify-center flex-shrink-0"
+            cornerRadius={8}
+            cornerSmoothing={1}
+            className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
           >
             <div
               className={cn(
-                "w-8 h-8 rounded-md  flex items-center justify-center flex-shrink-0",
+                "w-6 h-6 rounded-md  flex items-center justify-center flex-shrink-0",
                 {
                   "bg-[#2A0006]": type === "inbeat",
                   "bg-[#010101]": type === "example",
@@ -68,9 +68,9 @@ export function PortfolioPreview({
               )}
             >
               {type === "inbeat" ? (
-                <InBeatIcon className="w-4 h-4 text-white" />
+                <InBeatIcon className="w-3 h-3 text-white" />
               ) : (
-                <Icon className="w-4 h-4 text-white" />
+                <Icon className="w-3 h-3 text-white" />
               )}
             </div>
           </Squircle>

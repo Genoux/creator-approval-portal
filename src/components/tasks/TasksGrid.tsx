@@ -88,7 +88,8 @@ export function TasksGrid({ tasks }: TasksGridProps) {
   const tasksByStatus = useMemo(() => {
     const result: Record<string, Task[]> = {};
     CATEGORIES.forEach(status => {
-      result[status] = tasks.filter(task => task.status.label === status);
+      const filteredTasks = tasks.filter(task => task.status.label === status);
+      result[status] = filteredTasks.sort((a, b) => b.id.localeCompare(a.id));
     });
     return result;
   }, [tasks]);
@@ -106,7 +107,7 @@ export function TasksGrid({ tasks }: TasksGridProps) {
 
   return (
     <div className="w-full flex flex-col gap-6">
-      {/* Simple Custom Tabs */}
+      {/* Category Tabs */}
       <div className="flex gap-2 w-full flex-wrap">
         {CATEGORIES.map(status => (
           <Button

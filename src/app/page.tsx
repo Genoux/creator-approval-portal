@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export default function Page() {
   return (
-    <div className="w-full lg:max-w-[1440px] mx-auto h-svh overflow-hidden">
+    <div className="w-full lg:max-w-[1440px] mx-auto h-svh">
       <div className=" flex flex-col h-full w-full">
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
