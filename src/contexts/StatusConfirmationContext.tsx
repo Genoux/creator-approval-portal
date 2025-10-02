@@ -94,7 +94,7 @@ export function StatusConfirmationProvider({
   const handleApprove = async (task: Task) => {
     showConfirmation(
       "You're about to approve this creator. Are you sure?",
-      `${task.title} will be approved to your selections.`,
+      `${task.title} will be added to your selections.`,
       "Yes, approve",
       () => _handleApprove(task)
     );
@@ -103,7 +103,7 @@ export function StatusConfirmationProvider({
   const handleGood = async (task: Task) => {
     showConfirmation(
       "You're about to approve this creator. Are you sure?",
-      `${task.title} will be approved to your selections.`,
+      `${task.title} will be added to your selections.`,
       "Yes, approve",
       () => _handleGood(task)
     );
@@ -138,7 +138,7 @@ export function StatusConfirmationProvider({
     } else {
       showConfirmation(
         "You're about to reject this creator. Are you sure?",
-        `${task.title} will be removed from your selections.`,
+        `${task.title} will be set as rejected.`,
         "Yes, reject",
         () => _handleDecline(task)
       );

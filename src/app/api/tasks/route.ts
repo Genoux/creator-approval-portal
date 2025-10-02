@@ -21,8 +21,6 @@ export async function GET(request: NextRequest) {
       session.clickupAccessToken
     );
     const clickUpTasks = await clickup.getTasks(listId);
-    console.log(clickUpTasks);
-    // Transform ClickUp tasks to app Task model at API boundary
     const tasks: Task[] = clickUpTasks.map(extractTask);
 
     return NextResponse.json<ApiResponse<Task[]>>({

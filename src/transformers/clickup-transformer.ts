@@ -14,7 +14,6 @@ export class ClickUpTransformer {
         `⚠️  Task "${clickUpTask.name}" (${clickUpTask.id}) is missing "Client Approval" field`
       );
     }
-
     const task = {
       id: clickUpTask.id,
       date_created: clickUpTask.date_created,
@@ -40,7 +39,7 @@ export class ClickUpTransformer {
       portfolio: {
         example: fields.example,
         whyGoodFit: fields["whythey'reagoodfit"],
-        inBeatPortfolio: fields.inBeatPortfolio,
+        inBeatPortfolio: fields.inbeatportfolio,
       },
     };
     return task;

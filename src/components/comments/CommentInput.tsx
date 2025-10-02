@@ -43,7 +43,7 @@ export function CommentInput({
   };
 
   return (
-    <div className="p-3 max-w-xs min-w-full min-h-[90px] bg-white rounded-2xl border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <div className="p-3 max-w-xs min-w-full bg-white rounded-2xl border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
       <MentionsInput
         value={value}
         onChange={handleChange}
