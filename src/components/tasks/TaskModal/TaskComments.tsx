@@ -25,16 +25,18 @@ export function TaskComments({ task }: TaskCommentsProps) {
   // Mobile: Show button + overlay
   return (
     <>
-      <div className="flex justify-end items-end flex-1 z-50">
-        <Button
-          onClick={() => setShowMobileOverlay(true)}
-          className="rounded-full bg-[#2A0006] hover:bg-[#2A0006]/90 cursor-pointer text-white"
-          size="lg"
-        >
-          <MessageSquareIcon className="w-4 h-4" />
-          Comments
-        </Button>
-      </div>
+      {!showMobileOverlay && (
+        <div className="flex justify-end items-end flex-1 z-50">
+          <Button
+            onClick={() => setShowMobileOverlay(true)}
+            className="rounded-full bg-[#2A0006] hover:bg-[#2A0006]/90 cursor-pointer text-white"
+            size="lg"
+          >
+            <MessageSquareIcon className="w-4 h-4" />
+            Comments
+          </Button>
+        </div>
+      )}
       {showMobileOverlay && (
         <div className="absolute inset-0 bg-white z-40 flex flex-col">
           <div className="flex-shrink-0 flex justify-start items-center p-4 border-b">

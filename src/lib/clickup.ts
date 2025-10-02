@@ -1,6 +1,6 @@
 // TODO:CHORE: Extract functions to a separate file
 
-import type { Task } from "@/types/clickup";
+import type { Task } from "@/types";
 
 export class ClickUpAPI {
   private apiToken: string;
@@ -141,13 +141,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-          comment_text?: string;
-          comment?: Array<{
-            type?: "tag";
-            text?: string;
-            user?: { id: number };
-          }>;
-        },
+        comment_text?: string;
+        comment?: Array<{
+          type?: "tag";
+          text?: string;
+          user?: { id: number };
+        }>;
+      },
     assignee?: number
   ) {
     const body = {
@@ -169,13 +169,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-          comment_text?: string;
-          comment?: Array<{
-            type?: "tag";
-            text?: string;
-            user?: { id: number };
-          }>;
-        },
+        comment_text?: string;
+        comment?: Array<{
+          type?: "tag";
+          text?: string;
+          user?: { id: number };
+        }>;
+      },
     resolved?: boolean
   ) {
     const body = {

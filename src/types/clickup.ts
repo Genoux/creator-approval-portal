@@ -106,6 +106,7 @@ export interface ClickUpTask {
   id: string;
   name: string;
   status: TaskStatus;
+  date_created: string;
   custom_fields?: CustomField[];
 }
 

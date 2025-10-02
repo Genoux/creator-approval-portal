@@ -15,6 +15,7 @@ export interface Task {
   title: string;
   thumbnail: string | null;
   followerCount: string | null;
+  date_created: string;
   status: {
     label: ApprovalLabel;
     fieldId: string;

@@ -17,6 +17,7 @@ export class ClickUpTransformer {
 
     const task = {
       id: clickUpTask.id,
+      date_created: clickUpTask.date_created,
       title: clickUpTask.name,
       thumbnail: getS3ImageUrl(clickUpTask.name),
       followerCount: fields.followercount
