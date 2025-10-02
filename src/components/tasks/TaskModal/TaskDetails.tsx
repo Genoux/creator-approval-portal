@@ -21,14 +21,14 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
       <TaskSquircle task={task} size="modal" />
       <section className="flex flex-col flex-1 gap-4 min-h-0">
         {/* Task Details */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col  justify-between items-start gap-4">
           {/* Why Good Fit */}
           {portfolio.whyGoodFit && (
             <div className="flex flex-col gap-1 w-full">
               <span className="text-xs text-black/50">
                 {"Why they're a good fit"}
               </span>
-              <div className="text-xs leading-4 text-black/80 [&_a]:text-[#2A0006] [&_a]:underline [&_a:hover]:text-[#2A0006]/90">
+              <div className="text-sm text-black/80 [&_a]:text-[#2A0006] [&_a]:underline [&_a:hover]:text-[#2A0006]/90">
                 <RenderDelta
                   ops={ops}
                   options={{
@@ -38,14 +38,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
               </div>
             </div>
           )}
-          <div
-            className={cn(
-              "flex items-start gap-10 w-full",
-              portfolio.whyGoodFit
-                ? "justify-start sm:justify-end"
-                : "justify-start"
-            )}
-          >
+          <div className="flex items-start gap-10 w-full">
             {(er.text ?? er.formula) && (
               <div className="flex flex-col justify-end items-start">
                 <span className="text-xs text-black/50">ER</span>
@@ -68,7 +61,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
               <SocialMediaButtons socials={socials} variant="dark" />
             )}
           </div>
-          <div className="flex-1 min-h-0 relative">
+          <ScrollArea className="flex-1 min-h-0 relative">
             <div className="flex flex-col gap-1 pb-4">
               {portfolio.example && (
                 <PortfolioPreview
@@ -85,7 +78,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
                 />
               )}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </section>
     </div>

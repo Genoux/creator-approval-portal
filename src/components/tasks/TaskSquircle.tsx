@@ -4,7 +4,9 @@ import Image from "next/image";
 import { getStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
+import { isRecentlyAdded } from "@/utils/ui";
 import { StatusDropdown } from "../shared/StatusDropdown";
+import { Badge } from "../ui/badge";
 import { CardDescription, CardTitle } from "../ui/card";
 
 interface TaskSquircleProps {
@@ -13,18 +15,19 @@ interface TaskSquircleProps {
 }
 
 export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
-  const { title, thumbnail, socials, date_created } = task;
+  const { title, thumbnail, socials, date_created, status } = task;
   const isReadOnly = getStatusConfirmation() === null;
-  console.log(date_created);
+  const showRecentBadge =
+    status.label === "For Review" && isRecentlyAdded(date_created);
+
   return (
     <div>
       <Squircle
         cornerRadius={16}
         cornerSmoothing={1}
         className={cn(
-          "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0",
-          size === "default" && "h-[450px]",
-          size === "modal" && "h-[250px] sm:h-[300px]"
+          "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0 h-[400px]",
+          size === "modal" && "h-[350px]"
         )}
       >
         {/* Background Image */}
@@ -53,6 +56,18 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
           )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-[150px] pointer-events-none bg-gradient-to-b from-transparent via-black/70 to-black"></div>
+
+        {/* Recently Added Badge */}
+        {showRecentBadge && (
+          <div className="absolute top-3 left-3 pointer-events-none z-10">
+            <Badge
+              variant="outline"
+              className="bg-green-500/50 rounded-full border-white/10 backdrop-blur-sm text-white font-semibold"
+            >
+              New
+            </Badge>
+          </div>
+        )}
 
         {/* Content Overlay */}
         <div className="absolute inset-2 flex self-end flex-wrap justify-between gap-2 p-3 text-white items-end">

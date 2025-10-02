@@ -24,7 +24,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="overflow-hidden p-4 rounded-3xl w-full md:!max-w-4xl max-h-[90vh] min-h-[660px]"
+        className="overflow-hidden p-4 rounded-3xl w-full md:!max-w-4xl min-h-[90vh] max-h-[660px]"
         onPointerDownOutside={e => {
           const target = e.target as Element;
           if (
