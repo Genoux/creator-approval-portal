@@ -1,17 +1,31 @@
 import { formatNumberCompact } from "@automattic/number-formatters";
-import type { Creator, Task } from "@/types";
-import { getS3ImageUrl } from "@/utils/s3";
-import { buildSocials } from "@/utils/social";
+import type { ApprovalLabel, ClickUpTask, Task } from "@/types";
+import { buildSocials, getS3ImageUrl } from "@/utils";
 
 export class ClickUpTransformer {
-  transform(task: Task): Creator {
-    const fields = this.createFieldMap(task);
-    const creator = {
-      title: task.name,
-      thumbnail: getS3ImageUrl(task.name),
+  transform(clickUpTask: ClickUpTask): Task {
+    const fields = this.createFieldMap(clickUpTask);
+    const approvalField = clickUpTask.custom_fields?.find(f =>
+      f.name?.toLowerCase().includes("client approval")
+    );
+
+    if (!approvalField) {
+      console.warn(
+        `⚠️  Task "${clickUpTask.name}" (${clickUpTask.id}) is missing "Client Approval" field`
+      );
+    }
+    const task = {
+      id: clickUpTask.id,
+      date_created: clickUpTask.date_created,
+      title: clickUpTask.name,
+      thumbnail: getS3ImageUrl(clickUpTask.name),
       followerCount: fields.followercount
         ? formatNumberCompact(Number(fields.followercount))
         : null,
+      status: {
+        label: this.getApprovalLabel(approvalField),
+        fieldId: approvalField?.id || "",
+      },
       er: {
         text: fields.er,
         formula: fields.erformula,
@@ -25,27 +39,43 @@ export class ClickUpTransformer {
       portfolio: {
         example: fields.example,
         whyGoodFit: fields["whythey'reagoodfit"],
-        inBeatPortfolio: fields.inBeatPortfolio,
+        inBeatPortfolio: fields.inbeatportfolio,
       },
     };
-    return creator;
+    return task;
   }
 
-  private createFieldMap(task: Task): Record<string, string | null> {
+  private getApprovalLabel(field: any): ApprovalLabel {
+    if (!field?.value) {
+      return "For Review";
+    }
+
+    const options = field.type_config?.options;
+    if (!options) {
+      return "For Review";
+    }
+
+    const index =
+      typeof field.value === "number"
+        ? field.value
+        : parseInt(String(field.value), 10);
+
+    if (!Number.isNaN(index) && options[index]?.name) {
+      return options[index].name as ApprovalLabel;
+    }
+
+    return "For Review";
+  }
+
+  private createFieldMap(
+    clickUpTask: ClickUpTask
+  ): Record<string, string | null> {
     const map: Record<string, string | null> = {};
 
-    task.custom_fields?.forEach(field => {
+    clickUpTask.custom_fields?.forEach(field => {
       if (field.name && field.value) {
         const key = field.name.toLowerCase().replace(/\s+/g, "");
-
-        if (field.type === "attachment" && Array.isArray(field.value)) {
-          const attachment = field.value[0];
-          map[key] =
-            attachment?.thumbnail_large?.trim().replace(/\s+/g, "") || null;
-        } else {
-          // Use value_richtext if available, fallback to value
-          map[key] = field.value_richtext || String(field.value);
-        }
+        map[key] = field.value_richtext || String(field.value);
       }
     });
 

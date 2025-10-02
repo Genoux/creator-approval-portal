@@ -16,7 +16,7 @@ export function LoginForm() {
 
       if (event.data.type === "auth_success") {
         cleanup();
-        window.location.href = "/dashboard";
+        window.location.href = "/dashboard/management";
       }
     };
 

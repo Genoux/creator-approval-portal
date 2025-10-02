@@ -8,9 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDropdown } from "@/contexts/DropdownContext";
-import { useTaskActions } from "@/contexts/TaskActionsContext";
+import { useStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
-import { getApprovalStatus } from "@/services/ApprovalService";
 import type { ApprovalLabel, Task } from "@/types";
 import { getDisplayLabel } from "@/utils/ui";
 
@@ -32,25 +31,39 @@ export function StatusDropdown({
     handleDecline,
     handleMoveToReview,
     isTaskPending,
-  } = useTaskActions();
+  } = useStatusConfirmation();
 
   const { openDropdownId, setOpenDropdownId } = useDropdown();
-  const currentLabel = getApprovalStatus(task);
+  const currentLabel = task.status.label;
   const uniqueId = useId();
   const dropdownId = `status-dropdown-${task.id}-${uniqueId}`;
   const isDropdownOpen = openDropdownId === dropdownId;
 
   // Single source of truth for status options and actions
-  const STATUS_CONFIG = [
-    { label: "Perfect (Approved)" as ApprovalLabel, action: handleApprove },
-    { label: "Good (Approved)" as ApprovalLabel, action: handleGood },
-    { label: "Sufficient (Backup)" as ApprovalLabel, action: handleBackup },
-    { label: "Poor Fit (Rejected)" as ApprovalLabel, action: handleDecline },
-    { label: "For Review" as ApprovalLabel, action: handleMoveToReview },
+  const STATUS_CONFIG: {
+    label: ApprovalLabel;
+    action: (task: Task) => void;
+  }[] = [
+    { label: "Perfect (Approved)", action: handleApprove },
+    { label: "Good (Approved)", action: handleGood },
+    { label: "Sufficient (Backup)", action: handleBackup },
+    { label: "Poor Fit (Rejected)", action: handleDecline },
   ];
+
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev) {
+    STATUS_CONFIG.push({
+      label: "For Review",
+      action: handleMoveToReview,
+    });
+  }
+
+  const availableStatuses = STATUS_CONFIG;
 
   const handleStatusClick = (status: ApprovalLabel) => {
     if (currentLabel !== status && !isTaskPending(task.id)) {
+      setOpenDropdownId(null);
+
       const config = STATUS_CONFIG.find(c => c.label === status);
       if (config) {
         config.action(task);
@@ -74,7 +87,7 @@ export function StatusDropdown({
         <Button
           disabled={isTaskPending(task.id)}
           className={cn(
-            "rounded-full cursor-pointer w-fit flex gap-0.5 border transition-colors disabled:opacity-50",
+            "rounded-full h-10 w-full cursor-pointer flex gap-0.5 border transition-colors disabled:opacity-50",
             variantStyles,
             className
           )}
@@ -93,7 +106,7 @@ export function StatusDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent onCloseAutoFocus={e => e.preventDefault()}>
-        {STATUS_CONFIG.map(({ label }) => (
+        {availableStatuses.map(({ label }) => (
           <DropdownMenuItem
             key={label}
             onClick={e => {

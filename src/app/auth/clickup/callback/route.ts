@@ -100,9 +100,6 @@ export async function GET(request: NextRequest) {
               if (window.opener) {
                 window.opener.postMessage({ type: 'auth_success' }, window.location.origin);
                 window.close();
-              } else {
-                // Fallback for direct navigation
-                window.location.href = '/dashboard';
               }
             </script>
           </body>

@@ -1,11 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardHeader({
+  loading,
   taskCount,
-  isLoading,
 }: {
+  loading: boolean;
   taskCount: number;
-  isLoading: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-4 w-full border-b border-black/10 pb-4">
@@ -14,7 +14,7 @@ export function DashboardHeader({
         <h1 className="text-2xl font-bold text-black/90">Creator Management</h1>
       </div>
       <div className="flex flex-col items-end justify-center">
-        {isLoading ? (
+        {loading ? (
           <div className="flex flex-col gap-2 items-end justify-center">
             <Skeleton className="w-10 h-4" />
             <Skeleton className="w-24 h-4" />

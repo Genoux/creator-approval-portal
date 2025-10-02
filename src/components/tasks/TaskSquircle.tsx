@@ -1,29 +1,42 @@
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
+import { getStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
-import { extractCreator } from "@/services/CreatorService";
 import type { Task } from "@/types";
+import { isRecentlyAdded } from "@/utils/ui";
 import { StatusDropdown } from "../shared/StatusDropdown";
+import { Badge } from "../ui/badge";
 import { CardDescription, CardTitle } from "../ui/card";
 
 interface TaskSquircleProps {
   task: Task;
-  data?: boolean;
+  size?: "default" | "modal";
 }
 
-export function TaskSquircle({ task, data = true }: TaskSquircleProps) {
-  const { title, thumbnail, socials } = extractCreator(task);
+export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
+  const { title, thumbnail, socials, date_created, status } = task;
+  const isReadOnly = getStatusConfirmation() === null;
+  const showRecentBadge =
+    status.label === "For Review" && isRecentlyAdded(date_created);
 
   return (
     <div>
       <Squircle
-        cornerRadius={24}
+        cornerRadius={16}
         cornerSmoothing={1}
-        className="transition-colors w-full h-[350px] overflow-hidden will-change-transform flex-shrink-0"
+        className={cn(
+          "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0 h-[400px]",
+          size === "modal" && "h-[350px]"
+        )}
       >
         {/* Background Image */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden ">
+        <div
+          className={cn(
+            "absolute inset-0 rounded-2xl overflow-hidden",
+            size === "default" ? "h-full" : "h-[300px]"
+          )}
+        >
           {thumbnail ? (
             <Image
               src={thumbnail}
@@ -44,29 +57,32 @@ export function TaskSquircle({ task, data = true }: TaskSquircleProps) {
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-[150px] pointer-events-none bg-gradient-to-b from-transparent via-black/70 to-black"></div>
 
+        {/* Recently Added Badge */}
+        {showRecentBadge && (
+          <div className="absolute top-3 left-3 pointer-events-none z-10">
+            <Badge
+              variant="outline"
+              className="bg-green-500/50 rounded-full border-white/10 backdrop-blur-sm text-white font-semibold"
+            >
+              New
+            </Badge>
+          </div>
+        )}
+
         {/* Content Overlay */}
         <div className="absolute inset-2 flex self-end flex-wrap justify-between gap-2 p-3 text-white items-end">
-          {data && (
-            <div className="flex flex-col">
-              <div className="flex flex-col gap-1">
-                <CardTitle className="text-lg font-semibold flex items-center leading-none">
-                  {title}
-                </CardTitle>
+          <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
+              <CardTitle className="text-lg font-semibold flex items-center leading-none">
+                {title}
+              </CardTitle>
 
-                <CardDescription className="text-white/80 text-base">
-                  {socials[0].handle}
-                </CardDescription>
-              </div>
+              <CardDescription className="text-white/80 text-sm">
+                <p>{socials[0]?.handle}</p>
+              </CardDescription>
             </div>
-          )}
-          <StatusDropdown
-            task={task}
-            variant="light"
-            className={cn(
-              "sm:w-full md:w-full w-auto",
-              data ? "lg:w-auto" : "w-full"
-            )}
-          />
+          </div>
+          {!isReadOnly && <StatusDropdown task={task} variant="light" />}
         </div>
       </Squircle>
     </div>

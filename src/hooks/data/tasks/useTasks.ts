@@ -1,10 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { getApprovalOptionId } from "@/services/ApprovalService";
-import type { ApiResponse, Task } from "@/types";
+import type { ApiResponse, ApprovalLabel, Task } from "@/types";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
+
+const STATUS_MAP: ApprovalLabel[] = [
+  "Perfect (Approved)",
+  "Good (Approved)",
+  "Sufficient (Backup)",
+  "Poor Fit (Rejected)",
+  "For Review",
+];
+
+function getApprovalOptionId(label: ApprovalLabel): number {
+  const index = STATUS_MAP.indexOf(label);
+  return index >= 0 ? index : 4;
+}
 
 interface UseTasksResult {
   // Data
@@ -49,8 +61,8 @@ export function useTasks(listId: string | null): UseTasksResult {
       return result.data;
     },
     enabled: !!listId,
-    staleTime: 600000,
-    gcTime: 3600000,
+    staleTime: 60000, // 1 minute
+    gcTime: 600000, // 10 minutes
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
@@ -60,16 +72,25 @@ export function useTasks(listId: string | null): UseTasksResult {
 
   const handleStatusUpdate = async (
     task: Task,
-    status: number | string,
+    label: ApprovalLabel,
     successMessage: string
   ) => {
     if (pendingTasks.has(task.id)) return;
 
-    const loadingId = showToast.loading(`Updating ${task.name}...`);
+    const loadingId = showToast.loading(`Updating ${task.title}...`);
     setPendingTasks(prev => new Set(prev).add(task.id));
 
     try {
-      await updateTaskStatus.mutateAsync({ taskId: task.id, status });
+      // "For Review" clears the field (null), others use index
+      const statusValue =
+        label === "For Review" ? null : getApprovalOptionId(label);
+
+      await updateTaskStatus.mutateAsync({
+        taskId: task.id,
+        fieldId: task.status.fieldId,
+        status: statusValue,
+        label,
+      });
       showToast.update(loadingId, "success", successMessage);
     } catch (error) {
       console.error("❌ Error updating task status:", error);
@@ -77,7 +98,7 @@ export function useTasks(listId: string | null): UseTasksResult {
         loadingId,
         "error",
         "Update failed",
-        `Could not update ${task.name}. Please try again.`
+        `Could not update ${task.title}. Please try again.`
       );
     } finally {
       setPendingTasks(prev => {
@@ -89,35 +110,19 @@ export function useTasks(listId: string | null): UseTasksResult {
   };
 
   const handleApprove = (task: Task) =>
-    handleStatusUpdate(
-      task,
-      getApprovalOptionId(task, "Perfect (Approved)"),
-      "Creator approved!"
-    );
+    handleStatusUpdate(task, "Perfect (Approved)", "Creator approved!");
 
   const handleGood = (task: Task) =>
-    handleStatusUpdate(
-      task,
-      getApprovalOptionId(task, "Good (Approved)"),
-      "Creator approved as Good!"
-    );
+    handleStatusUpdate(task, "Good (Approved)", "Creator approved as Good!");
 
   const handleBackup = (task: Task) =>
-    handleStatusUpdate(
-      task,
-      getApprovalOptionId(task, "Sufficient (Backup)"),
-      "Marked as backup!"
-    );
+    handleStatusUpdate(task, "Sufficient (Backup)", "Marked as backup!");
 
   const handleDecline = (task: Task) =>
-    handleStatusUpdate(
-      task,
-      getApprovalOptionId(task, "Poor Fit (Rejected)"),
-      "Creator declined"
-    );
+    handleStatusUpdate(task, "Poor Fit (Rejected)", "Creator declined");
 
   const handleMoveToReview = (task: Task) =>
-    handleStatusUpdate(task, "", "Moved to review");
+    handleStatusUpdate(task, "For Review", "Moved to review");
 
   return {
     data: data || [],

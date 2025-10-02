@@ -1,11 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { getApprovalStatus } from "@/services/ApprovalService";
-import type { ApprovalLabel, Task } from "@/types";
-import { getDisplayLabel } from "@/utils/ui";
+import type { Task } from "@/types";
+import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
 
 // Lazy loading wrapper for TaskCard
@@ -71,76 +68,45 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
   );
 }
 
-const CATEGORIES: ApprovalLabel[] = [
-  "Perfect (Approved)",
-  "Good (Approved)",
-  "Sufficient (Backup)",
-  "Poor Fit (Rejected)",
-  "For Review",
-];
-
 interface TasksGridProps {
   tasks: Task[];
+  empty?: {
+    title: string;
+    description: string;
+  };
+  loading: boolean;
 }
 
-export function TasksGrid({ tasks }: TasksGridProps) {
-  const [activeTab, setActiveTab] = useState<ApprovalLabel | "">("");
-
-  const tasksByStatus = useMemo(() => {
-    const result: Record<string, Task[]> = {};
-    CATEGORIES.forEach(status => {
-      result[status] = tasks.filter(task => getApprovalStatus(task) === status);
-    });
-    return result;
-  }, [tasks]);
-
-  if (tasks.length === 0) {
+export function TasksGrid({
+  tasks,
+  empty = {
+    title: "No creators found",
+    description: "Creators will appear here when they're assigned this status.",
+  },
+  loading,
+}: TasksGridProps) {
+  if (tasks.length === 0 && !loading) {
     return (
       <ErrorBlock
-        title="No creators found"
-        description="Creators will appear here when they're assigned this status."
+        title={empty.title}
+        description={empty.description}
+        className="h-[580px]"
       />
     );
   }
 
-  const currentActiveTab = activeTab || CATEGORIES[4];
-
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Simple Custom Tabs */}
-      <div className="flex gap-2 w-full flex-wrap">
-        {CATEGORIES.map(status => (
-          <Button
-            key={status}
-            variant="secondary"
-            onClick={() => setActiveTab(status)}
-            className={cn(
-              "py-6 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75",
-              currentActiveTab === status &&
-                "bg-[#2A0006] text-white hover:bg-[#2A0006]"
-            )}
-          >
-            {getDisplayLabel(status)} ({tasksByStatus[status]?.length || 0})
-          </Button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div>
-        {tasksByStatus[currentActiveTab]?.length === 0 ? (
-          <ErrorBlock
-            title={`No creators in "${getDisplayLabel(currentActiveTab)}"`}
-            description={`Creators will appear here when they're assigned this status.`}
-            className="h-[580px]"
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {tasksByStatus[currentActiveTab]?.map((task, index) => (
-              <LazyTaskCard key={task.id} task={task} index={index} />
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {loading
+        ? Array.from({ length: 9 }, () => (
+            <Skeleton
+              key={Math.random()}
+              className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
+            />
+          ))
+        : tasks.map((task, index) => (
+            <LazyTaskCard key={task.id} task={task} index={index} />
+          ))}
     </div>
   );
 }

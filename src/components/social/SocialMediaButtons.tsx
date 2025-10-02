@@ -12,12 +12,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useSocials } from "@/hooks/data/socials/useSocials";
 import { cn } from "@/lib/utils";
-import type { Task } from "@/types";
+import type { Social } from "@/types";
 
 interface SocialMediaButtonsProps {
-  task: Task;
+  socials: Social[];
   variant?: "light" | "dark";
   className?: string;
 }
@@ -33,14 +32,10 @@ const PLATFORM_ICONS = {
 const ICON_STYLES = "w-4 h-4 text-white transition-colors";
 
 export function SocialMediaButtons({
-  task,
+  socials,
   variant = "light",
   className,
 }: SocialMediaButtonsProps) {
-  const socials = useSocials(task);
-
-  if (socials.length === 0) return null;
-
   return (
     <section className="flex gap-1">
       {socials.map(({ url, platform }) => {

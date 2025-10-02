@@ -8,12 +8,18 @@ export interface Social {
 }
 
 /**
- * Creator profile - clean and simple
+ * Task - transformed from ClickUp with only the fields we need
  */
-export interface Creator {
+export interface Task {
+  id: string;
   title: string;
   thumbnail: string | null;
   followerCount: string | null;
+  date_created: string;
+  status: {
+    label: ApprovalLabel;
+    fieldId: string;
+  };
   er: {
     text: string | null;
     formula: string | null;

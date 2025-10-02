@@ -16,25 +16,9 @@ import { useCurrentUser } from "@/contexts/AuthContext";
 import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
 import { cn } from "@/lib/utils";
 import type { Comment } from "@/types";
+import { formatTimeAgo } from "@/utils";
 import { CommentForm } from "./CommentForm";
-import { CommentText } from "./CommentText";
-
-function parseCommentDate(dateInput: string): Date {
-  return new Date(Number(dateInput));
-}
-
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) return "just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-
-  return date.toLocaleDateString();
-}
+import { CommentText } from "./CommentSingle";
 
 interface CommentListProps {
   comments: Comment[];
@@ -65,10 +49,7 @@ export function CommentList({
     <div className="relative h-full">
       <div className="h-4 absolute top-0 left-0 right-0 w-full bg-gradient-to-b from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
       <div className="h-6 absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
-      <div
-        ref={scrollRef}
-        className="h-full overflow-y-auto relative pt-2 pr-4 pl-1.5"
-      >
+      <div ref={scrollRef} className="h-full overflow-y-auto relative">
         {comments.length === 0 ? (
           <ErrorBlock
             title="No comments yet"
@@ -77,7 +58,7 @@ export function CommentList({
             className="h-full border-none shadow-none absolute top-0 left-0 right-0 bottom-0"
           />
         ) : (
-          <div className="space-y-2 pt-1 pb-4">
+          <div className="space-y-2 pt-2 pb-4 px-4">
             <div className="w-full flex flex-col gap-2">
               {comments.map(comment => (
                 <CommentItem
@@ -101,8 +82,7 @@ function CommentItem({
   comment: Comment;
   taskId: string;
 }) {
-  const createdAt = parseCommentDate(comment.createdAt);
-  const timeAgo = formatTimeAgo(createdAt);
+  const timeAgo = formatTimeAgo(comment.createdAt);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const { deleteComment, isUpdating } = useCommentActions(taskId);
@@ -215,7 +195,7 @@ function CommentItem({
 
 function CommentListSkeleton() {
   return (
-    <div className="pt-2 pr-4 pl-1.5">
+    <div className="p-3">
       <div className="space-y-2">
         {Array.from({ length: 2 }).map(() => (
           <div

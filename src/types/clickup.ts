@@ -100,12 +100,13 @@ export interface TaskStatus {
 }
 
 /**
- * ClickUp task with custom fields for creator management
+ * Raw ClickUp task with custom fields
  */
-export interface Task {
+export interface ClickUpTask {
   id: string;
   name: string;
   status: TaskStatus;
+  date_created: string;
   custom_fields?: CustomField[];
 }
 

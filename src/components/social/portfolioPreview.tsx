@@ -2,6 +2,7 @@
 
 import { Squircle } from "@squircle-js/react";
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import {
   InBeatIcon,
   InstagramIcon,
@@ -10,12 +11,11 @@ import {
   YouTubeIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { extractCreator } from "@/services/CreatorService";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
 
-interface SocialPreviewProps {
-  task: Task;
+interface PortfolioPreviewProps {
+  portfolio: Task["portfolio"];
   className?: string;
   title?: string;
   type?: "inbeat" | "example";
@@ -36,30 +36,33 @@ function getPlatform(url: string) {
   return { name: "External Link", icon: ExternalLink };
 }
 
-export function SocialPreview({
-  task,
+export function PortfolioPreview({
+  portfolio,
   title,
   className = "",
   type = "example",
-}: SocialPreviewProps) {
-  const { portfolio } = extractCreator(task);
-
+}: PortfolioPreviewProps) {
   // Determine which URL to use based on type
+  console.log(portfolio);
   const url = type === "inbeat" ? portfolio.inBeatPortfolio : portfolio.example;
 
   if (!url) return null;
-
   const platform = getPlatform(url);
   const Icon = platform.icon;
 
   return (
-    <div className={`border rounded-lg p-3 bg-white ${className}`}>
+    <Link
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`border rounded-lg p-3 bg-white hover:bg-black/5 transition-colors overflow-hidden ${className}`}
+    >
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-row gap-2 items-center">
           <Squircle
-            cornerRadius={10}
-            cornerSmoothing={2}
-            className="w-8 h-8 rounded-md  flex items-center justify-center flex-shrink-0"
+            cornerRadius={8}
+            cornerSmoothing={1}
+            className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
           >
             <div
               className={cn(
@@ -82,7 +85,7 @@ export function SocialPreview({
               {title || `${platform.name} Content`}
             </div>
             <div className="text-xs text-gray-500 truncate">
-              {url.slice(0, 30)}...
+              {url.length > 30 ? `${url.slice(0, 30)}...` : url}
             </div>
           </div>
         </div>
@@ -90,12 +93,15 @@ export function SocialPreview({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open(url, "_blank")}
-          className="flex-shrink-0 cursor-pointer w-full sm:w-fit"
+          onClick={e => {
+            e.stopPropagation();
+            window.open(url, "_blank");
+          }}
+          className="flex-shrink-0 cursor-pointer w-full sm:w-fit h-9"
         >
           View
         </Button>
       </div>
-    </div>
+    </Link>
   );
 }

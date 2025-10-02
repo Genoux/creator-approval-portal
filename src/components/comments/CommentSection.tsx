@@ -23,11 +23,11 @@ export function CommentSection({
 
   return (
     <div
-      className={cn("flex flex-col h-full rounded-2xl bg-[#F9F7F7]", className)}
+      className={cn("flex flex-col h-full overflow-y-hidden rounded-2xl bg-[#F9F7F7]", className)}
     >
       {/* Header */}
       {showHeader && comments.length > 0 && (
-        <div className="flex-shrink-0 px-4 pt-3 pb-3">
+        <div className="flex-shrink-0 px-4 pt-3 pb-1">
           <div className="flex items-center gap-1">
             <h3 className="text-base font-semibold">Comments</h3>
             {!isLoading && (
@@ -40,7 +40,7 @@ export function CommentSection({
       )}
 
       {/* Comments List */}
-      <div className="flex-1 min-h-0 pl-4 pr-2">
+      <div className="flex-1 min-h-0">
         {error ? (
           <ErrorBlock
             title="Error loading comments"
