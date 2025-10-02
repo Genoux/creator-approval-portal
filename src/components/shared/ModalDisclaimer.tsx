@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { setDisclaimerAcknowledged } from "@/lib/disclaimer-actions";
+import { setAcknowledged } from "@/lib/disclaimer-actions";
 
 interface ModalDisclaimerProps {
   initialShow: boolean;
@@ -20,7 +20,7 @@ export function ModalDisclaimer({ initialShow }: ModalDisclaimerProps) {
   const [isOpen, setIsOpen] = useState(initialShow);
 
   const handleUnderstand = async () => {
-    await setDisclaimerAcknowledged();
+    await setAcknowledged();
     setIsOpen(false);
   };
 
