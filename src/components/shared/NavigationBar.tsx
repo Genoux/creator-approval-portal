@@ -1,8 +1,15 @@
 "use client";
 
-import { InfoIcon, LogOutIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  InfoIcon,
+  LogOutIcon,
+  UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,21 +23,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/ui/use-mobile";
 import { cn } from "@/lib/utils";
 
 const handleLogout = async () => {
-  await fetch("/api/auth", { method: "DELETE" });
+  await fetch("/auth", { method: "DELETE" });
   window.location.href = "/";
 };
 
 const NAV_TABS = [
-  { label: "Management", href: "/dashboard/management" },
-  { label: "My Selections", href: "/dashboard/selections" },
+  { label: "Management", href: "/dashboard/management", icon: <UsersIcon /> },
+  {
+    label: "My Selections",
+    href: "/dashboard/selections",
+    icon: <CheckIcon />,
+  },
 ];
 
 export function NavigationBar() {
   const user = useCurrentUser();
   const pathname = usePathname();
+
+  const [activeTab, setActiveTab] = useState<string>(NAV_TABS[0].label);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setActiveTab(
+      NAV_TABS.find(tab => tab.href === pathname)?.label || NAV_TABS[0].label
+    );
+  }, [pathname]);
 
   return (
     <nav>
@@ -45,16 +66,16 @@ export function NavigationBar() {
 
         {/* Navigation Tabs */}
         {user && (
-          <div className="flex gap-2">
+          <div className="gap-2 hidden sm:flex">
             {NAV_TABS.map(tab => {
-              const isActive = pathname === tab.href;
+              const isActive = activeTab === tab.label;
               return (
                 <Link key={tab.href} href={tab.href} prefetch={true}>
                   <Button
                     variant="secondary"
                     className={cn(
                       "bg-transparent transition-colors duration-75",
-                      isActive && "bg-black/10 hover:bg-black/10"
+                      isActive && "bg-black/5 hover:bg-black/5"
                     )}
                   >
                     {tab.label}
@@ -76,6 +97,40 @@ export function NavigationBar() {
               Help
             </Button>
           )}
+          <div className="flex gap-2 sm:hidden">
+            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary">
+                  {activeTab}
+                  <ChevronDownIcon
+                    className={cn(
+                      "w-4 h-4 transition-transform duration-125",
+                      isOpen && "rotate-180"
+                    )}
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {NAV_TABS.map(tab => (
+                  <DropdownMenuItem
+                    key={tab.href}
+                    className={cn(
+                      "cursor-pointer",
+                      activeTab === tab.label && "bg-black/5"
+                    )}
+                    onClick={() => {
+                      setActiveTab(tab.label);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Link key={tab.href} href={tab.href} prefetch={true}>
+                      {tab.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
