@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import type { Task } from "@/types";
+import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
 
 // Lazy loading wrapper for TaskCard
@@ -73,6 +74,7 @@ interface TasksGridProps {
     title: string;
     description: string;
   };
+  loading: boolean;
 }
 
 export function TasksGrid({
@@ -81,8 +83,9 @@ export function TasksGrid({
     title: "No creators found",
     description: "Creators will appear here when they're assigned this status.",
   },
+  loading,
 }: TasksGridProps) {
-  if (tasks.length === 0) {
+  if (tasks.length === 0 && !loading) {
     return (
       <ErrorBlock
         title={empty.title}
@@ -94,9 +97,16 @@ export function TasksGrid({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {tasks.map((task, index) => (
-        <LazyTaskCard key={task.id} task={task} index={index} />
-      ))}
+      {loading
+        ? Array.from({ length: 9 }, () => (
+            <Skeleton
+              key={Math.random()}
+              className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
+            />
+          ))
+        : tasks.map((task, index) => (
+            <LazyTaskCard key={task.id} task={task} index={index} />
+          ))}
     </div>
   );
 }
