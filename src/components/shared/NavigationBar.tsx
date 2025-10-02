@@ -2,6 +2,7 @@
 
 import { InfoIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -15,14 +16,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 const handleLogout = async () => {
   await fetch("/api/auth", { method: "DELETE" });
   window.location.href = "/";
 };
 
+const NAV_TABS = [
+  { label: "Management", href: "/dashboard/management" },
+  { label: "My Selections", href: "/dashboard/selections" },
+];
+
 export function NavigationBar() {
   const user = useCurrentUser();
+  const pathname = usePathname();
 
   return (
     <nav>
@@ -34,15 +42,36 @@ export function NavigationBar() {
         >
           <InBeatIcon width={48} className="cursor-pointer" />
         </Link>
+
+        {/* Navigation Tabs */}
+        {user && (
+          <div className="flex gap-2">
+            {NAV_TABS.map(tab => {
+              const isActive = pathname === tab.href;
+              return (
+                <Link key={tab.href} href={tab.href} prefetch={true}>
+                  <Button
+                    variant="secondary"
+                    className={cn(
+                      "bg-transparent transition-colors duration-75",
+                      isActive && "bg-black/10 hover:bg-black/10"
+                    )}
+                  >
+                    {tab.label}
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
           {!user && (
             <Button
               variant="default"
               className="w-fit cursor-pointer rounded-full"
               size="sm"
-              onClick={() =>
-                window.open("mailto:dev@inbeat.agency", "_blank")
-              }
+              onClick={() => window.open("mailto:dev@inbeat.agency", "_blank")}
             >
               Help
             </Button>
@@ -57,18 +86,12 @@ export function NavigationBar() {
                   </Avatar>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-56"
-                align="end"
-                sideOffset={4}
-              >
+              <DropdownMenuContent className="w-56" align="end" sideOffset={4}>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user.profilePicture} />
-                      <AvatarFallback>
-                        {user.username.charAt(0)}
-                      </AvatarFallback>
+                      <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">
