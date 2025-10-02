@@ -12,23 +12,16 @@ interface TaskDetailsProps {
 }
 
 export function TaskDetails({ task, className }: TaskDetailsProps) {
-  const { title, thumbnail, followerCount, socials, portfolio, er } = task;
+  const { followerCount, socials, portfolio, er } = task;
   const delta = JSON.parse(portfolio.whyGoodFit || "{}");
   const ops = Array.isArray(delta.ops) ? delta.ops : [];
 
   return (
     <div className={cn("flex flex-col gap-4 min-h-0", className)}>
-      <TaskSquircle
-        task={task}
-        size="modal"
-        title={title}
-        thumbnail={thumbnail}
-        socials={socials}
-      />
-      {/* TODO: Is why a good fit MANDATORY? */}
+      <TaskSquircle task={task} size="modal" />
       <section className="flex flex-col flex-1 gap-4 min-h-0">
         {/* Task Details */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Why Good Fit */}
           {portfolio.whyGoodFit && (
             <div className="flex flex-col gap-1 w-full">
@@ -48,7 +41,9 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
           <div
             className={cn(
               "flex items-start gap-10 w-full",
-              portfolio.whyGoodFit ? "justify-end" : "justify-start"
+              portfolio.whyGoodFit
+                ? "justify-start sm:justify-end"
+                : "justify-start"
             )}
           >
             {(er.text ?? er.formula) && (
@@ -65,16 +60,16 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
             )}
           </div>
         </div>
-
-        <div className="flex flex-col gap-1 flex-1 min-h-0">
+        {/* TODO ONLY ONE LINK FOR NOW */}
+        <div className="flex flex-col gap-3 flex-1 min-h-0">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold">Content</h3>
             {socials.length > 0 && (
               <SocialMediaButtons socials={socials} variant="dark" />
             )}
           </div>
-          <ScrollArea className="flex-1 min-h-0 relative bg-[#F9F7F7] rounded-2xl">
-            <div className="flex flex-col gap-1 p-2">
+          <div className="flex-1 min-h-0 relative">
+            <div className="flex flex-col gap-1 pb-4">
               {portfolio.example && (
                 <PortfolioPreview
                   portfolio={portfolio}
@@ -90,7 +85,7 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
                 />
               )}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </section>
     </div>

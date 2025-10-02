@@ -1,26 +1,21 @@
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
+import { getStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
-import type { Social, Task } from "@/types";
+import type { Task } from "@/types";
 import { StatusDropdown } from "../shared/StatusDropdown";
 import { CardDescription, CardTitle } from "../ui/card";
 
 interface TaskSquircleProps {
   task: Task;
   size?: "default" | "modal";
-  title: string;
-  thumbnail: string | null;
-  socials: Social[];
 }
 
-export function TaskSquircle({
-  task,
-  title,
-  size = "default",
-  thumbnail,
-  socials,
-}: TaskSquircleProps) {
+export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
+  const { title, thumbnail, socials, date_created } = task;
+  const isReadOnly = getStatusConfirmation() === null;
+  console.log(date_created);
   return (
     <div>
       <Squircle
@@ -29,7 +24,7 @@ export function TaskSquircle({
         className={cn(
           "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0",
           size === "default" && "h-[450px]",
-          size === "modal" && "h-[300px]"
+          size === "modal" && "h-[250px] sm:h-[300px]"
         )}
       >
         {/* Background Image */}
@@ -67,16 +62,12 @@ export function TaskSquircle({
                 {title}
               </CardTitle>
 
-              <CardDescription className="text-white/80 text-base">
-                {socials[0].handle}
+              <CardDescription className="text-white/80 text-sm">
+                <p>{socials[0]?.handle}</p>
               </CardDescription>
             </div>
           </div>
-          <StatusDropdown
-            task={task}
-            variant="light"
-            className="h-10 self-end"
-          />
+          {!isReadOnly && <StatusDropdown task={task} variant="light" />}
         </div>
       </Squircle>
     </div>
