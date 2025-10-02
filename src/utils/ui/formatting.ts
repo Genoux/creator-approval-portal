@@ -7,7 +7,16 @@
  * Example: "Perfect (Approved)" → "Perfect"
  */
 export function getDisplayLabel(label: string): string {
-  return label.replace(/\s*\([^)]*\)/g, "");
+  // Custom mappings
+  const customLabels: Record<string, string> = {
+    "Perfect (Approved)": "Perfect",
+    "Good (Approved)": "Good",
+    "Sufficient (Backup)": "Backup",
+    "Poor Fit (Rejected)": "Rejected",
+    "For Review": "For Review",
+  };
+
+  return customLabels[label] || label.replace(/\s*\([^)]*\)/g, "");
 }
 
 /**
