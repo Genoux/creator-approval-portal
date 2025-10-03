@@ -93,8 +93,8 @@ export function StatusConfirmationProvider({
   // Wrapped handlers with confirmation
   const handleApprove = async (task: Task) => {
     showConfirmation(
-      "You're about to approve this creator. Are you sure?",
-      `${task.title} will be added to your selections.`,
+      "You're about to select this creator.",
+      `${task.title} will be added to your selections. Are you sure?`,
       "Yes, approve",
       () => _handleApprove(task)
     );
@@ -102,8 +102,8 @@ export function StatusConfirmationProvider({
 
   const handleGood = async (task: Task) => {
     showConfirmation(
-      "You're about to approve this creator. Are you sure?",
-      `${task.title} will be added to your selections.`,
+      "You're about to select this creator.",
+      `${task.title} will be added to your selections. Are you sure?`,
       "Yes, approve",
       () => _handleGood(task)
     );
@@ -112,8 +112,8 @@ export function StatusConfirmationProvider({
   const handleBackup = async (task: Task) => {
     if (isRemovingFromSelections(task.status.label, "Sufficient (Backup)")) {
       showConfirmation(
-        "You're about to set this creator as backup. Are you sure?",
-        `${task.title} will be removed from your selections.`,
+        "You're about to set this creator as backup.",
+        `${task.title} will be removed from your selections. Are you sure?`,
         "Yes, set as backup",
         () => _handleBackup(task)
       );
@@ -130,15 +130,15 @@ export function StatusConfirmationProvider({
   const handleDecline = async (task: Task) => {
     if (isRemovingFromSelections(task.status.label, "Poor Fit (Rejected)")) {
       showConfirmation(
-        "You're about to reject this creator. Are you sure?",
-        `${task.title} will be removed from your selections.`,
+        "You're about to reject this creator.",
+        `${task.title} will be removed from your selections. Are you sure?`,
         "Yes, reject",
         () => _handleDecline(task)
       );
     } else {
       showConfirmation(
-        "You're about to reject this creator. Are you sure?",
-        `${task.title} will be set as rejected.`,
+        "You're about to reject this creator.",
+        `${task.title} will be set as rejected. Are you sure?`,
         "Yes, reject",
         () => _handleDecline(task)
       );
@@ -187,6 +187,6 @@ export function useStatusConfirmation() {
  * Hook to check if we're in a context where status confirmations are enabled.
  * Returns null if not in StatusConfirmationProvider (read-only mode).
  */
-export function getStatusConfirmation() {
+export function useGetStatusConfirmation() {
   return useContext(StatusConfirmationContext);
 }
