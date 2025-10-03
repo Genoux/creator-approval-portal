@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRightLeftIcon,
   CheckIcon,
   ChevronDownIcon,
   InfoIcon,
@@ -12,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/contexts/AuthContext";
-import { useIsMobile } from "@/hooks/ui/use-mobile";
+import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { cn } from "@/lib/utils";
 
 const handleLogout = async () => {
@@ -40,9 +42,29 @@ const NAV_TABS = [
   },
 ];
 
-export function NavigationBar() {
+export function NavigationBar({
+  className,
+  selectedListId,
+}: {
+  className?: string;
+  selectedListId?: string | null;
+}) {
   const user = useCurrentUser();
   const pathname = usePathname();
+
+  const { setSelectedListId, sharedLists, tasks } = useCreatorManagement();
+  const showChangeList = sharedLists.length > 1;
+
+  const getSelectionCount = (tabLabel: string) => {
+    if (tabLabel === "My Selections") {
+      return tasks.filter(
+        task =>
+          task.status.label === "Perfect (Approved)" ||
+          task.status.label === "Good (Approved)"
+      ).length;
+    }
+    return 0;
+  };
 
   const [activeTab, setActiveTab] = useState<string>(NAV_TABS[0].label);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -54,21 +76,24 @@ export function NavigationBar() {
   }, [pathname]);
 
   return (
-    <nav>
+    <nav className={cn(className)}>
       <div className="flex justify-between items-center h-20">
-        <Link
-          href="https://inbeat.agency/"
-          target="_blank"
-          className="flex items-center gap-2"
-        >
-          <InBeatIcon width={48} className="cursor-pointer" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="https://inbeat.agency/"
+            target="_blank"
+            className="flex items-center gap-2"
+          >
+            <InBeatIcon width={48} className="cursor-pointer" />
+          </Link>
+        </div>
 
         {/* Navigation Tabs */}
-        {user && (
+        {user && selectedListId && (
           <div className="gap-2 hidden sm:flex">
             {NAV_TABS.map(tab => {
               const isActive = activeTab === tab.label;
+              const count = getSelectionCount(tab.label);
               return (
                 <Link key={tab.href} href={tab.href} prefetch={true}>
                   <Button
@@ -79,6 +104,11 @@ export function NavigationBar() {
                     )}
                   >
                     {tab.label}
+                    {count > 0 && (
+                      <span className="inline-flex items-center justify-center rounded-full min-w-5 h-5 px-1.5 text-xs font-medium bg-black/90 text-white leading-none">
+                        {count}
+                      </span>
+                    )}
                   </Button>
                 </Link>
               );
@@ -87,16 +117,14 @@ export function NavigationBar() {
         )}
 
         <div className="flex items-center gap-2">
-          {!user && (
-            <Button
-              variant="default"
-              className="w-fit cursor-pointer rounded-full"
-              size="sm"
-              onClick={() => window.open("mailto:dev@inbeat.agency", "_blank")}
-            >
-              Help
-            </Button>
-          )}
+          <Button
+            variant="secondary"
+            className="w-fit cursor-pointer rounded-full"
+            size="sm"
+            onClick={() => window.open("mailto:dev@inbeat.agency", "_blank")}
+          >
+            Help
+          </Button>
           <div className="flex gap-2 sm:hidden">
             <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
               <DropdownMenuTrigger asChild>
@@ -131,7 +159,7 @@ export function NavigationBar() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          {user && (
+          {user && selectedListId && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="transition-all duration-125 cursor-pointer hover:border-black/50 hover:border p-0.5 rounded-full border border-transparent data-[state=open]:border-black/50">
@@ -167,8 +195,17 @@ export function NavigationBar() {
                     className="cursor-pointer"
                   >
                     <ClickupIcon width={14} height={14} />
-                    Go to ClickUp
+                    ClickUp
                   </DropdownMenuItem>
+                  {showChangeList && (
+                    <DropdownMenuItem
+                      onClick={() => setSelectedListId(null)}
+                      className="cursor-pointer"
+                    >
+                      <ArrowRightLeftIcon className="w-3 h-3" />
+                      Change List
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={() =>
                       window.open("mailto:dev@inbeat.agency", "_blank")
