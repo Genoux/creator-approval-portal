@@ -1,3 +1,5 @@
+"use client";
+
 import { ManagementClient } from "./client";
 
 export default function ManagementPage() {
