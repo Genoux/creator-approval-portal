@@ -9,14 +9,6 @@ interface UpdateStatusParams {
   label: ApprovalLabel;
 }
 
-const STATUS_MAP: ApprovalLabel[] = [
-  "Perfect (Approved)",
-  "Good (Approved)",
-  "Sufficient (Backup)",
-  "Poor Fit (Rejected)",
-  "For Review",
-];
-
 export function useUpdateTaskStatus(listId: string | null) {
   const queryClient = useQueryClient();
 
