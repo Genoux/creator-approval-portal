@@ -45,6 +45,7 @@ export class ClickUpTransformer {
     return task;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getApprovalLabel(field: any): ApprovalLabel {
     if (!field?.value) {
       return "For Review";
