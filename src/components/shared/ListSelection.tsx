@@ -2,6 +2,7 @@
 
 import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,13 @@ import { Button } from "../ui/button";
 export function ListSelection() {
   const { sharedLists, setSelectedListId, previousListId, isLoading } =
     useCreatorManagement();
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const handleCancel = () => {
     const listToRestore = previousListId || sharedLists[0]?.listId;
@@ -41,8 +49,8 @@ export function ListSelection() {
             No Creator Management Lists Found
           </h2>
           <p className="text-muted-foreground">
-            Make sure you have a list named &ldquo;Creator Management&rdquo; shared with
-            your account
+            Make sure you have a list named &ldquo;Creator Management&rdquo;
+            shared with your account
           </p>
         </div>
       </div>
@@ -60,17 +68,17 @@ export function ListSelection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="w-full max-w-md space-y-6 text-center"
+          className="w-full max-w-md space-y-4 text-start"
         >
           <div>
-            <h1 className="text-2xl font-semibold mb-2">Select Workspace</h1>
+            <h1 className="text-2xl font-semibold mb-2">Select a list</h1>
             <p className="text-muted-foreground">
-              Multiple Creator Management lists found. Please select one:
+              Multiple Creator Management lists found.
             </p>
           </div>
 
           <Select onValueChange={setSelectedListId}>
-            <SelectTrigger className="w-full bg-white">
+            <SelectTrigger className="w-1/2 bg-white">
               <SelectValue placeholder="Choose a workspace..." />
             </SelectTrigger>
             <SelectContent>
