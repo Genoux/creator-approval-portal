@@ -13,7 +13,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -76,7 +75,7 @@ export function NavigationBar({
   }, [pathname]);
 
   return (
-    <nav className={cn(className)}>
+    <nav className={cn(className, "z-50")}>
       <div className="flex justify-between items-center h-20">
         <div className="flex items-center gap-2">
           <Link
@@ -117,49 +116,43 @@ export function NavigationBar({
         )}
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            className="w-fit cursor-pointer rounded-full"
-            size="sm"
-            onClick={() => window.open("mailto:dev@inbeat.agency", "_blank")}
-          >
-            Help
-          </Button>
-          <div className="flex gap-2 sm:hidden">
-            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary">
-                  {activeTab}
-                  <ChevronDownIcon
-                    className={cn(
-                      "w-4 h-4 transition-transform duration-125",
-                      isOpen && "rotate-180"
-                    )}
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {NAV_TABS.map(tab => (
-                  <DropdownMenuItem
-                    key={tab.href}
-                    className={cn(
-                      "cursor-pointer",
-                      activeTab === tab.label && "bg-black/5"
-                    )}
-                    onClick={() => {
-                      setActiveTab(tab.label);
-                      setIsOpen(false);
-                    }}
-                  >
-                    <Link key={tab.href} href={tab.href} prefetch={true}>
-                      {tab.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
           {user && selectedListId && (
+            <div className="flex gap-2 sm:hidden">
+              <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary">
+                    {activeTab}
+                    <ChevronDownIcon
+                      className={cn(
+                        "w-4 h-4 transition-transform duration-125",
+                        isOpen && "rotate-180"
+                      )}
+                    />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {NAV_TABS.map(tab => (
+                    <DropdownMenuItem
+                      key={tab.href}
+                      className={cn(
+                        "cursor-pointer",
+                        activeTab === tab.label && "bg-black/5"
+                      )}
+                      onClick={() => {
+                        setActiveTab(tab.label);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <Link key={tab.href} href={tab.href} prefetch={true}>
+                        {tab.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+          {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="transition-all duration-125 cursor-pointer hover:border-black/50 hover:border p-0.5 rounded-full border border-transparent data-[state=open]:border-black/50">
