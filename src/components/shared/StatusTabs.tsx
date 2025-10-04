@@ -61,7 +61,7 @@ export function StatusTabs({
         </div>
       ) : (
         <>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant="secondary"
               onClick={() => onStatusChange("Perfect (Approved)")}
@@ -101,7 +101,7 @@ export function StatusTabs({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="secondary"
-                      className="py-5 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75"
+                      className="py-5 gap-1 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75"
                     >
                       {`${getDisplayLabel(activeStatus)} (${tasksByStatus[activeStatus] || 0})`}
                       <ChevronDownIcon className="w-4 h-4" />

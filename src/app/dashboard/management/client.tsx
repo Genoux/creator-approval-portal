@@ -36,7 +36,7 @@ function ManagementContent({
   return (
     <>
       {showListSelection && (
-        <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm pointer-events-auto">
+        <div className="fixed inset-0 z-40 bg-white/50 backdrop-blur-sm pointer-events-auto">
           <ListSelection />
         </div>
       )}

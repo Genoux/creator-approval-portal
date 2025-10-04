@@ -19,7 +19,6 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
   const isReadOnly = useGetStatusConfirmation() === null;
   const showRecentBadge =
     status.label === "For Review" && isRecentlyAdded(date_created);
-
   return (
     <div>
       <Squircle
@@ -46,7 +45,7 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
               placeholder="blur"
               priority
               blurDataURL={thumbnail}
-              className="object-cover w-full h-full object-center"
+              className="flex items-center justify-center object-cover w-full h-full object-center bg-black/10"
               loading="eager"
             />
           ) : (
