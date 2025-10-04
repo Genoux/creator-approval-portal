@@ -28,12 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black overflow-x-hidden`}
       >
         <ErrorBoundary>
           <QueryProvider>{children}</QueryProvider>
         </ErrorBoundary>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

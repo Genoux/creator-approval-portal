@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
-import { useWorkspaceUsers } from "@/hooks/data/users/useWorkspaceUsers";
+import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import type { Comment } from "@/types";
 import {
   deserializeMentions,
@@ -32,7 +32,7 @@ export function CommentForm({
   const [mentions, setMentions] = useState<MentionData[]>([]);
   const { createComment, updateComment, isCreating, isUpdating, createError } =
     useCommentActions(taskId);
-  const { data: users = [] } = useWorkspaceUsers();
+  const { workspaceUsers: users } = useCreatorManagement();
 
   const isEditMode = !!editingComment;
   const isLoading = isCreating || isUpdating;

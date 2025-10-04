@@ -98,7 +98,7 @@ export function TasksGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {loading
-        ? Array.from({ length: 9 }, () => (
+        ? Array.from({ length: 4 }, () => (
             <Skeleton
               key={Math.random()}
               className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"

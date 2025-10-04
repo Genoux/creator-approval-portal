@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { useList } from "@/hooks/data/lists/useList";
 import type { ApiResponse, User } from "@/types";
 
 interface UseWorkspaceUsersResult {
@@ -9,10 +8,7 @@ interface UseWorkspaceUsersResult {
   error: Error | null;
 }
 
-export function useWorkspaceUsers(): UseWorkspaceUsersResult {
-  // Get the listId from the Creator Management list
-  const { data: creatorList } = useList("Creator Management");
-  const listId = creatorList?.listId;
+export function useWorkspaceUsers(listId: string | null): UseWorkspaceUsersResult {
 
   const { data, isLoading, error } = useQuery({
     queryKey: QUERY_KEYS.workspaceUsers(listId),
@@ -21,7 +17,9 @@ export function useWorkspaceUsers(): UseWorkspaceUsersResult {
         return [];
       }
 
-      const response = await fetch(`/api/users/workspace?listId=${encodeURIComponent(listId)}`);
+      const response = await fetch(
+        `/api/users/workspace?listId=${encodeURIComponent(listId)}`
+      );
 
       if (response.status === 401) {
         window.location.href = "/";

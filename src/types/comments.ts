@@ -27,6 +27,9 @@ export interface Comment {
     type?: "tag";
     text?: string;
     user?: { id: number; username?: string };
+    attributes?: {
+      link?: string;
+    };
   }>;
   author: {
     id: number;

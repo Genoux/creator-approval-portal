@@ -24,6 +24,7 @@ export default async function DashboardLayout({
     <AuthProvider session={session}>
       <CreatorManagementProvider>
         <LayoutClient showDisclaimer={showDisclaimer}>{children}</LayoutClient>
+        <div className="fixed bottom-0 left-0 w-full h-24 pointer-events-none [mask-image:linear-gradient(to_top,black,transparent)] backdrop-blur-sm"></div>
       </CreatorManagementProvider>
     </AuthProvider>
   );

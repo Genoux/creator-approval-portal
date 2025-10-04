@@ -1,10 +1,10 @@
 import { Squircle } from "@squircle-js/react";
 import { ImageOffIcon } from "lucide-react";
 import Image from "next/image";
-import { getStatusConfirmation } from "@/contexts/StatusConfirmationContext";
+import { useGetStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
-import { isRecentlyAdded } from "@/utils/ui";
+import { getDisplayLabel, isRecentlyAdded } from "@/utils/ui";
 import { StatusDropdown } from "../shared/StatusDropdown";
 import { Badge } from "../ui/badge";
 import { CardDescription, CardTitle } from "../ui/card";
@@ -16,10 +16,9 @@ interface TaskSquircleProps {
 
 export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
   const { title, thumbnail, socials, date_created, status } = task;
-  const isReadOnly = getStatusConfirmation() === null;
+  const isReadOnly = useGetStatusConfirmation() === null;
   const showRecentBadge =
     status.label === "For Review" && isRecentlyAdded(date_created);
-
   return (
     <div>
       <Squircle
@@ -34,7 +33,7 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
         <div
           className={cn(
             "absolute inset-0 rounded-2xl overflow-hidden",
-            size === "default" ? "h-full" : "h-[300px]"
+            size === "default" ? "h-full" : "h-[350px]"
           )}
         >
           {thumbnail ? (
@@ -46,7 +45,7 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
               placeholder="blur"
               priority
               blurDataURL={thumbnail}
-              className="object-cover w-full h-full object-center"
+              className="flex items-center justify-center object-cover w-full h-full object-center bg-black/10"
               loading="eager"
             />
           ) : (
@@ -82,7 +81,15 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
               </CardDescription>
             </div>
           </div>
-          {!isReadOnly && <StatusDropdown task={task} variant="light" />}
+          {isReadOnly ? (
+            <div className="flex items-center gap-2">
+              <Badge className="border-white/10 bg-white/10 backdrop-blur-md rounded-3xl text-white px-2 py-1">
+                {getDisplayLabel(status.label)}
+              </Badge>
+            </div>
+          ) : (
+            <StatusDropdown task={task} variant="light" />
+          )}
         </div>
       </Squircle>
     </div>

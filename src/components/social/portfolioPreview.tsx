@@ -42,8 +42,6 @@ export function PortfolioPreview({
   className = "",
   type = "example",
 }: PortfolioPreviewProps) {
-  // Determine which URL to use based on type
-  console.log(portfolio);
   const url = type === "inbeat" ? portfolio.inBeatPortfolio : portfolio.example;
 
   if (!url) return null;

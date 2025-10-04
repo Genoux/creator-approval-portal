@@ -7,7 +7,6 @@ export async function DELETE() {
     { success: true, message: "Logged out successfully", data: null },
     { status: 200 }
   );
-  console.log("deleting cookie");
   response.cookies.set("auth-token", "", {
     ...COOKIE_OPTIONS,
     maxAge: 0,

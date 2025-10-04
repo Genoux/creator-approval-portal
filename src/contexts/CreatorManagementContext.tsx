@@ -1,17 +1,31 @@
 "use client";
 
-import { createContext, type ReactNode, useContext } from "react";
-import { useList } from "@/hooks/data/lists/useList";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useSharedLists } from "@/hooks/data/lists/useList";
 import { useTasks } from "@/hooks/data/tasks/useTasks";
-import type { Task } from "@/types";
+import { useWorkspaceUsers } from "@/hooks/data/users/useWorkspaceUsers";
+import type { ListResult } from "@/services/ListService";
+import type { Task, User } from "@/types";
+
+const SELECTED_LIST_KEY = "creator-management-list-id";
 
 interface CreatorManagementContextValue {
   listId: string | null;
+  selectedListId: string | null;
+  previousListId: string | null;
+  setSelectedListId: (listId: string | null) => void;
+  sharedLists: ListResult[];
   tasks: Task[];
+  workspaceUsers: User[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
-  // Handlers (raw, without confirmations)
   handleApprove: (task: Task) => Promise<void>;
   handleGood: (task: Task) => Promise<void>;
   handleBackup: (task: Task) => Promise<void>;
@@ -27,22 +41,52 @@ interface CreatorManagementProviderProps {
   children: ReactNode;
 }
 
-/**
- * Single source of truth for Creator Management list + tasks.
- * Provides data and raw mutation handlers (without confirmations).
- */
 export function CreatorManagementProvider({
   children,
 }: CreatorManagementProviderProps) {
-  // Find the Creator Management list (single source of truth)
+  const [selectedListId, setSelectedListId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(SELECTED_LIST_KEY);
+    }
+    return null;
+  });
+  const [previousListId, setPreviousListId] = useState<string | null>(null);
+
   const {
-    data: creatorList,
+    data: sharedLists = [],
     isLoading: listLoading,
     error: listError,
     refetch: refetchList,
-  } = useList("Creator Management");
+  } = useSharedLists();
 
-  // Get tasks + handlers from that list
+  useEffect(() => {
+    const savedListId = localStorage.getItem(SELECTED_LIST_KEY);
+    if (savedListId && sharedLists.some(l => l.listId === savedListId)) {
+      setSelectedListId(savedListId);
+    } else if (sharedLists.length >= 1) {
+      const listId = sharedLists[0].listId;
+      localStorage.setItem(SELECTED_LIST_KEY, listId);
+      setSelectedListId(listId);
+    }
+  }, [sharedLists]);
+
+  useEffect(() => {
+    if (selectedListId) {
+      setPreviousListId(selectedListId);
+    }
+  }, [selectedListId]);
+
+  const handleSetSelectedListId = (listId: string | null) => {
+    if (listId) {
+      localStorage.setItem(SELECTED_LIST_KEY, listId);
+    } else {
+      localStorage.removeItem(SELECTED_LIST_KEY);
+    }
+    setSelectedListId(listId);
+  };
+
+  const effectiveListId = selectedListId;
+
   const {
     data: tasks = [],
     isLoading: tasksLoading,
@@ -54,10 +98,16 @@ export function CreatorManagementProvider({
     handleDecline,
     handleMoveToReview,
     isTaskPending,
-  } = useTasks(creatorList?.listId || null);
+  } = useTasks(effectiveListId);
 
-  const isLoading = listLoading || tasksLoading;
-  const error = listError || tasksError;
+  const {
+    data: workspaceUsers = [],
+    isLoading: usersLoading,
+    error: usersError,
+  } = useWorkspaceUsers(effectiveListId);
+
+  const isLoading = listLoading || tasksLoading || usersLoading;
+  const error = listError || tasksError || usersError;
 
   const refetch = () => {
     refetchList();
@@ -67,8 +117,13 @@ export function CreatorManagementProvider({
   return (
     <CreatorManagementContext.Provider
       value={{
-        listId: creatorList?.listId || null,
+        listId: effectiveListId,
+        selectedListId,
+        previousListId,
+        setSelectedListId: handleSetSelectedListId,
+        sharedLists,
         tasks,
+        workspaceUsers,
         isLoading,
         error,
         refetch,

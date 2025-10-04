@@ -23,7 +23,7 @@ export function ErrorBlock({
   return (
     <div
       className={cn(
-        "bg-[#F9F7F7] w-full shadow-none flex items-center justify-center rounded-3xl",
+        "bg-[#F9F7F7] h-[calc(100vh-300px)] w-full shadow-none flex items-center justify-center rounded-3xl",
         className
       )}
     >
