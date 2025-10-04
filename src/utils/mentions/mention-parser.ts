@@ -10,11 +10,50 @@ export interface ClickUpCommentSegment {
   type?: "tag";
   text?: string;
   user?: { id: number };
+  attributes?: {
+    link?: string;
+  };
 }
 
 export interface ClickUpCommentRequest {
   comment_text?: string;
   comment?: ClickUpCommentSegment[];
+}
+
+/**
+ * Parse text segment for URLs and split into text/link segments
+ */
+function parseLinks(text: string): ClickUpCommentSegment[] {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const segments: ClickUpCommentSegment[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  urlRegex.lastIndex = 0;
+  match = urlRegex.exec(text);
+
+  while (match !== null) {
+    // Add text before the URL
+    if (match.index > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, match.index) });
+    }
+
+    // Add the URL as a link segment
+    segments.push({
+      text: match[0],
+      attributes: { link: match[0] }
+    });
+
+    lastIndex = match.index + match[0].length;
+    match = urlRegex.exec(text);
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex) });
+  }
+
+  return segments.length > 0 ? segments : [{ text }];
 }
 
 /**
@@ -43,6 +82,11 @@ export function serializeMentions(
   }
 
   if (textMentions.length === 0) {
+    // No mentions, but check for links
+    const linkSegments = parseLinks(text);
+    if (linkSegments.length > 1 || linkSegments[0].attributes?.link) {
+      return { comment: linkSegments };
+    }
     return { comment_text: text };
   }
 
@@ -54,7 +98,8 @@ export function serializeMentions(
     if (mention.start > lastIndex) {
       const textBefore = text.slice(lastIndex, mention.start);
       if (textBefore) {
-        segments.push({ text: textBefore });
+        // Parse links in text before mention
+        segments.push(...parseLinks(textBefore));
       }
     }
 
@@ -74,7 +119,8 @@ export function serializeMentions(
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
     if (remainingText) {
-      segments.push({ text: remainingText });
+      // Parse links in remaining text
+      segments.push(...parseLinks(remainingText));
     }
   }
 
@@ -97,6 +143,9 @@ export function deserializeMentions(comment: Comment): string {
       // This is a mention - convert to react-mentions format
       const displayName = segment.user.username || `User ${segment.user.id}`;
       text += `@[${displayName}](${segment.user.id})`;
+    } else if (segment.attributes?.link) {
+      // This is a link - just use the URL text
+      text += segment.text || segment.attributes.link;
     } else if (segment.text) {
       // This is regular text
       text += segment.text;
