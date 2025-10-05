@@ -1,8 +1,9 @@
+import * as Sentry from "@sentry/nextjs";
+
 /**
  * Centralized error logging utility
  *
  * Use this instead of console.error for consistent error handling
- * When Sentry is added, update this file only
  */
 
 interface ErrorContext {
@@ -30,15 +31,15 @@ export function logError(error: unknown, context?: ErrorContext): void {
     timestamp: new Date().toISOString(),
   });
 
-  // TODO: Add Sentry integration
-  // Sentry.captureException(error, {
-  //   tags: {
-  //     component: context?.component,
-  //     action: context?.action,
-  //   },
-  //   user: context?.userId ? { id: context.userId } : undefined,
-  //   extra: context?.metadata,
-  // });
+  // Sentry error tracking
+  Sentry.captureException(error, {
+    tags: {
+      component: context?.component,
+      action: context?.action,
+    },
+    user: context?.userId ? { id: context.userId } : undefined,
+    extra: context?.metadata,
+  });
 }
 
 /**
@@ -51,12 +52,12 @@ export function logWarning(message: string, context?: ErrorContext): void {
     timestamp: new Date().toISOString(),
   });
 
-  // TODO: Add Sentry integration
-  // Sentry.captureMessage(message, {
-  //   level: 'warning',
-  //   tags: { component: context?.component },
-  //   extra: context?.metadata,
-  // });
+  // Sentry warning
+  Sentry.captureMessage(message, {
+    level: "warning",
+    tags: { component: context?.component },
+    extra: context?.metadata,
+  });
 }
 
 /**
@@ -69,9 +70,9 @@ export function logInfo(message: string, context?: Record<string, unknown>): voi
     timestamp: new Date().toISOString(),
   });
 
-  // TODO: Add Sentry breadcrumb
-  // Sentry.addBreadcrumb({
-  //   message,
-  //   data: context,
-  // });
+  // Sentry breadcrumb for debugging
+  Sentry.addBreadcrumb({
+    message,
+    data: context,
+  });
 }
