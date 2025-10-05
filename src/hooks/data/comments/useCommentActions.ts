@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type {
   ApiResponse,
@@ -6,6 +7,7 @@ import type {
   CreateCommentRequest,
   UpdateCommentRequest,
 } from "@/types";
+import { logError } from "@/utils/errors";
 
 async function createComment(taskId: string, request: CreateCommentRequest) {
   if (!taskId?.trim()) {
@@ -145,6 +147,14 @@ export function useCommentActions(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.taskComments(taskId),
       });
+      toast.success("Comment deleted");
+    },
+    onError: (error) => {
+      logError(error, {
+        component: "useCommentActions",
+        action: "delete_comment",
+      });
+      toast.error("Failed to delete comment");
     },
   });
 

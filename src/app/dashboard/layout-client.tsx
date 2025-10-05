@@ -26,7 +26,9 @@ function Loading() {
  * Handles the global disclaimer modal and list selection overlay.
  */
 export function LayoutClient({ children, showDisclaimer }: LayoutClientProps) {
-  const { sharedLists, isLoading } = useCreatorManagement();
+  const { sharedLists, isLoading, error } = useCreatorManagement();
+
+  if (error) throw error;
 
   if (isLoading) {
     return <Loading />;

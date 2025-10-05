@@ -1,8 +1,6 @@
 "use client";
 
 import { LayoutDebug } from "layout-debug-tool";
-import { useMemo } from "react";
-import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
@@ -10,16 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 
 export function SelectionsClient() {
-  const { tasks, isLoading, error, refetch } = useCreatorManagement();
-  const selectedCreators = useMemo(
-    () =>
-      tasks.filter(
-        task =>
-          task.status.label === "Perfect (Approved)" ||
-          task.status.label === "Good (Approved)"
-      ),
-    [tasks]
-  );
+  const { isLoading, getApprovedTasks } = useCreatorManagement();
 
   return (
     <LayoutDebug>
@@ -34,32 +23,23 @@ export function SelectionsClient() {
                 </h1>
                 {!isLoading ? (
                   <p className="text-gray-600 mt-1">
-                    You have {selectedCreators.length} creator
-                    {selectedCreators.length !== 1 ? "s" : ""} selected
+                    You have {getApprovedTasks.length} creator
+                    {getApprovedTasks.length !== 1 ? "s" : ""} selected
                   </p>
                 ) : (
                   <Skeleton className="w-54 h-4 mt-3" />
                 )}
               </div>
             </div>
-            {error ? (
-              <ErrorBlock
-                title="Error Loading Dashboard"
-                description="Make sure you have access to the list and try again."
-                actionText="Retry"
-                onAction={refetch}
-              />
-            ) : (
-              <TasksGrid
-                tasks={selectedCreators}
-                empty={{
-                  title: "No Selections Yet",
-                  description:
-                    "Creators you approve as Perfect or Good will appear here.",
-                }}
-                loading={isLoading}
-              />
-            )}
+            <TasksGrid
+              tasks={getApprovedTasks}
+              empty={{
+                title: "No Selections Yet",
+                description:
+                  "Creators you approve as Perfect or Good will appear here.",
+              }}
+              loading={isLoading}
+            />
           </div>
         </main>
         <Footer />

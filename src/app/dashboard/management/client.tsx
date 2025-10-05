@@ -3,7 +3,6 @@
 import { LayoutDebug } from "layout-debug-tool";
 import { useMemo, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { StatusTabs } from "@/components/shared/StatusTabs";
@@ -54,7 +53,6 @@ function ManagementContent({
 
 export function ManagementClient() {
   const [activeStatus, setActiveStatus] = useState<ApprovalLabel>("For Review");
-  const { error, refetch } = useCreatorManagement();
 
   return (
     <LayoutDebug>
@@ -62,23 +60,14 @@ export function ManagementClient() {
         <main className="flex-1 max-w-7xl px-4 mx-auto flex flex-col gap-10 w-full relative">
           <NavigationBar className="z-10" />
           <div className="flex flex-col gap-6">
-            {error ? (
-              <ErrorBlock
-                title="Error Loading Dashboard"
-                description="Make sure you have access to the list and try again."
-                actionText="Retry"
-                onAction={refetch}
-              />
-            ) : (
-              <StatusConfirmationProvider>
-                <DropdownProvider>
-                  <ManagementContent
-                    activeStatus={activeStatus}
-                    setActiveStatus={setActiveStatus}
-                  />
-                </DropdownProvider>
-              </StatusConfirmationProvider>
-            )}
+            <StatusConfirmationProvider>
+              <DropdownProvider>
+                <ManagementContent
+                  activeStatus={activeStatus}
+                  setActiveStatus={setActiveStatus}
+                />
+              </DropdownProvider>
+            </StatusConfirmationProvider>
           </div>
         </main>
         <Footer />

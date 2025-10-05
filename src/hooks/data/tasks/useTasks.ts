@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type { ApiResponse, ApprovalLabel, Task } from "@/types";
+import { logError } from "@/utils/errors";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 
@@ -11,10 +12,10 @@ const STATUS_MAP: ApprovalLabel[] = [
   "Sufficient (Backup)",
   "Poor Fit (Rejected)",
   "For Review",
-];
+] as const;
 
 function getApprovalOptionId(label: ApprovalLabel): number {
-  const index = STATUS_MAP.indexOf(label);
+  const index = STATUS_MAP.indexOf(label as typeof STATUS_MAP[number]);
   return index >= 0 ? index : 4;
 }
 
@@ -93,7 +94,11 @@ export function useTasks(listId: string | null): UseTasksResult {
       });
       showToast.update(loadingId, "success", successMessage);
     } catch (error) {
-      console.error("❌ Error updating task status:", error);
+      logError(error, {
+        component: "useTasks",
+        action: "update_status",
+        metadata: { taskId: task.id, label },
+      });
       showToast.update(
         loadingId,
         "error",

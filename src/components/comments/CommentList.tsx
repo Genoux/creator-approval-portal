@@ -93,13 +93,10 @@ function CommentItem({
     if (isDeleting) return;
 
     setIsDeleting(true);
-    try {
-      await deleteComment(comment.id);
-    } catch (error) {
-      console.error("Failed to delete comment:", error);
-      toast.error("Failed to delete comment");
+    // Let the mutation handle errors via onError callback
+    deleteComment(comment.id).catch(() => {
       setIsDeleting(false);
-    }
+    });
   };
 
   const handleEdit = () => {
