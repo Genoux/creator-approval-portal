@@ -5,9 +5,12 @@ import type { Task } from "@/types";
 import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
 
+const INITIAL_VISIBLE_CARDS = 8;
+const SKELETON_COUNT = 4;
+
 // Lazy loading wrapper for TaskCard
 function LazyTaskCard({ task, index }: { task: Task; index: number }) {
-  const [isVisible, setIsVisible] = useState(index < 8);
+  const [isVisible, setIsVisible] = useState(index < INITIAL_VISIBLE_CARDS);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,7 +99,7 @@ export function TasksGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {loading
-        ? Array.from({ length: 4 }, _ => (
+        ? Array.from({ length: SKELETON_COUNT }, (_, i) => (
             <Skeleton
               key={`skeleton-${Math.random()}`}
               className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
