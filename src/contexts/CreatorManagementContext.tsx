@@ -5,6 +5,7 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useSharedLists } from "@/hooks/data/lists/useList";
@@ -31,6 +32,7 @@ interface CreatorManagementContextValue {
   handleDecline: (task: Task) => Promise<void>;
   handleMoveToReview: (task: Task) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
+  getApprovedTasks: Task[];
 }
 
 const CreatorManagementContext =
@@ -49,7 +51,6 @@ export function CreatorManagementProvider({
     }
     return null;
   });
-  const [showListSelection, setShowListSelection] = useState(false);
 
   const {
     data: sharedLists = [],
@@ -107,6 +108,14 @@ export function CreatorManagementProvider({
     refetchTasks();
   };
 
+  const getApprovedTasks = useMemo(() => {
+    return tasks.filter(
+      task =>
+        task.status.label === "Perfect (Approved)" ||
+        task.status.label === "Good (Approved)"
+    );
+  }, [tasks]);
+
   return (
     <CreatorManagementContext.Provider
       value={{
@@ -124,9 +133,8 @@ export function CreatorManagementProvider({
         handleBackup,
         handleDecline,
         handleMoveToReview,
+        getApprovedTasks,
         isTaskPending,
-        showListSelection,
-        setShowListSelection,
       }}
     >
       {children}

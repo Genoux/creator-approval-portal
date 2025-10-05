@@ -2,16 +2,15 @@
 
 import {
   ArrowRightLeftIcon,
-  CheckIcon,
   ChevronDownIcon,
   InfoIcon,
   LogOutIcon,
-  UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
+import { ListSelection } from "@/components/shared/ListSelection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,40 +31,17 @@ const handleLogout = async () => {
   window.location.href = "/";
 };
 
-const NAV_TABS = [
-  { label: "Management", href: "/dashboard/management", icon: <UsersIcon /> },
-  {
-    label: "My Selections",
-    href: "/dashboard/selections",
-    icon: <CheckIcon />,
-  },
-];
-
 export function NavigationBar({ className }: { className?: string }) {
   const user = useCurrentUser();
   const pathname = usePathname();
 
-  const { sharedLists, tasks, setShowListSelection } = useCreatorManagement();
+  const { sharedLists, tasks, getApprovedTasks } = useCreatorManagement();
+  const [showListSelection, setShowListSelection] = useState(false);
 
-  const getSelectionCount = (tabLabel: string) => {
-    if (tabLabel === "My Selections") {
-      return tasks.filter(
-        task =>
-          task.status.label === "Perfect (Approved)" ||
-          task.status.label === "Good (Approved)"
-      ).length;
-    }
-    return 0;
-  };
+  const isManagementActive = pathname === "/dashboard/management";
+  const isSelectionsActive = pathname === "/dashboard/selections";
 
-  const [activeTab, setActiveTab] = useState<string>(NAV_TABS[0].label);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    setActiveTab(
-      NAV_TABS.find(tab => tab.href === pathname)?.label || NAV_TABS[0].label
-    );
-  }, [pathname]);
 
   return (
     <nav className={className}>
@@ -83,28 +59,34 @@ export function NavigationBar({ className }: { className?: string }) {
         {/* Navigation Tabs */}
         {user && (
           <div className="gap-2 hidden sm:flex">
-            {NAV_TABS.map(tab => {
-              const isActive = activeTab === tab.label;
-              const count = getSelectionCount(tab.label);
-              return (
-                <Link key={tab.href} href={tab.href} prefetch={true}>
-                  <Button
-                    variant="secondary"
-                    className={cn(
-                      "bg-transparent transition-colors duration-75",
-                      isActive && "bg-black/5 hover:bg-black/5"
-                    )}
-                  >
-                    {tab.label}
-                    {count > 0 && (
-                      <span className="inline-flex items-center justify-center rounded-full min-w-5 h-5 px-1.5 text-xs font-medium bg-black/90 text-white leading-none">
-                        {count}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-              );
-            })}
+            <Link href="/dashboard/management" prefetch={true}>
+              <Button
+                variant="secondary"
+                className={cn(
+                  "bg-transparent transition-colors duration-75",
+                  isManagementActive && "bg-black/5 hover:bg-black/5"
+                )}
+              >
+                Management
+              </Button>
+            </Link>
+
+            <Link href="/dashboard/selections" prefetch={true}>
+              <Button
+                variant="secondary"
+                className={cn(
+                  "bg-transparent transition-colors duration-75",
+                  isSelectionsActive && "bg-black/5 hover:bg-black/5"
+                )}
+              >
+                My Selections
+                {getApprovedTasks.length > 0 && (
+                  <span className="inline-flex items-center justify-center rounded-full min-w-5 h-5 px-1.5 text-xs font-medium bg-black/90 text-white leading-none">
+                    {getApprovedTasks.length}
+                  </span>
+                )}
+              </Button>
+            </Link>
           </div>
         )}
 
@@ -114,7 +96,7 @@ export function NavigationBar({ className }: { className?: string }) {
               <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary">
-                    {activeTab}
+                    {isSelectionsActive ? "My Selections" : "Management"}
                     <ChevronDownIcon
                       className={cn(
                         "w-4 h-4 transition-transform duration-125",
@@ -124,23 +106,37 @@ export function NavigationBar({ className }: { className?: string }) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  {NAV_TABS.map(tab => (
-                    <DropdownMenuItem
-                      key={tab.href}
-                      className={cn(
-                        "cursor-pointer",
-                        activeTab === tab.label && "bg-black/5"
-                      )}
-                      onClick={() => {
-                        setActiveTab(tab.label);
-                        setIsOpen(false);
-                      }}
+                  <DropdownMenuItem
+                    className={cn(
+                      "cursor-pointer",
+                      isManagementActive && "bg-black/5"
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Link href="/dashboard/management" prefetch={true}>
+                      Management
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className={cn(
+                      "cursor-pointer",
+                      isSelectionsActive && "bg-black/5"
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Link
+                      className="flex items-center gap-2"
+                      href="/dashboard/selections"
+                      prefetch={true}
                     >
-                      <Link key={tab.href} href={tab.href} prefetch={true}>
-                        {tab.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
+                      My Selections
+                      {getApprovedTasks.length > 0 && (
+                        <span className="inline-flex items-center justify-center rounded-full min-w-4 h-4 px-1 text-[10px] font-medium bg-black/90 text-white leading-none">
+                          {getApprovedTasks.length}
+                        </span>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -215,6 +211,11 @@ export function NavigationBar({ className }: { className?: string }) {
           )}
         </div>
       </div>
+
+      <ListSelection
+        show={showListSelection}
+        onClose={() => setShowListSelection(false)}
+      />
     </nav>
   );
 }

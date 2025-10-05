@@ -13,34 +13,30 @@ import {
 import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { Button } from "../ui/button";
 
-export function ListSelection() {
-  const {
-    sharedLists,
-    setSelectedListId,
-    selectedListId,
-    showListSelection,
-    setShowListSelection,
-  } = useCreatorManagement();
+interface ListSelectionProps {
+  show: boolean;
+  onClose: () => void;
+}
+
+export function ListSelection({ show, onClose }: ListSelectionProps) {
+  const { sharedLists, setSelectedListId, selectedListId } =
+    useCreatorManagement();
 
   useEffect(() => {
-    if (showListSelection) {
+    if (show) {
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = "";
       };
     }
-  }, [showListSelection]);
-
-  const handleCancel = () => {
-    setShowListSelection(false);
-  };
+  }, [show]);
 
   const handleSelectList = (listId: string) => {
     setSelectedListId(listId);
-    setShowListSelection(false);
+    onClose();
   };
 
-  if (!showListSelection) {
+  if (!show) {
     return null;
   }
 
@@ -79,7 +75,7 @@ export function ListSelection() {
             </SelectContent>
           </Select>
           <div className="flex justify-end">
-            <Button variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
           </div>
