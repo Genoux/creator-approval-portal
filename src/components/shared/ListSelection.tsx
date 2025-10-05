@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
 import {
@@ -14,86 +14,77 @@ import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { Button } from "../ui/button";
 
 export function ListSelection() {
-  const { sharedLists, setSelectedListId, previousListId, isLoading } =
-    useCreatorManagement();
+  const {
+    sharedLists,
+    setSelectedListId,
+    selectedListId,
+    showListSelection,
+    setShowListSelection,
+  } = useCreatorManagement();
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+    if (showListSelection) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showListSelection]);
 
   const handleCancel = () => {
-    const listToRestore = previousListId || sharedLists[0]?.listId;
-    if (listToRestore) {
-      setSelectedListId(listToRestore);
-    }
+    setShowListSelection(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <div className="flex items-center gap-2 relative">
-          <LoaderCircle className="w-5 h-5 animate-spin absolute top-0 left-0 opacity-50" />
-        </div>
-      </div>
-    );
-  }
+  const handleSelectList = (listId: string) => {
+    setSelectedListId(listId);
+    setShowListSelection(false);
+  };
 
-  if (sharedLists.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">
-            No Creator Management Lists Found
-          </h2>
-          <p className="text-muted-foreground">
-            Make sure you have a list named &ldquo;Creator Management&rdquo;
-            shared with your account
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (sharedLists.length === 1) {
+  if (!showListSelection) {
     return null;
   }
 
   return (
-    <AnimatePresence>
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+    <div className="fixed inset-0 z-40 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center px-4">
+      <AnimatePresence>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
           className="w-full max-w-md space-y-4 text-start"
         >
           <div>
             <h1 className="text-2xl font-semibold mb-2">Select a list</h1>
             <p className="text-muted-foreground">
-              Multiple Creator Management lists found.
+              Choose a Creator Management list.
             </p>
           </div>
 
-          <Select onValueChange={setSelectedListId}>
-            <SelectTrigger className="w-1/2 bg-white">
+          <Select onValueChange={handleSelectList}>
+            <SelectTrigger className="w-full bg-white">
               <SelectValue placeholder="Choose a workspace..." />
             </SelectTrigger>
             <SelectContent>
               {sharedLists.map(list => (
                 <SelectItem key={list.listId} value={list.listId}>
-                  {list.listName}
+                  <div className="flex items-center justify-between w-full gap-2">
+                    <span>{list.listName}</span>
+                    {selectedListId === list.listId && (
+                      <CheckIcon className="w-4 h-4 flex-shrink-0" />
+                    )}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </div>
         </motion.div>
-      </div>
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }

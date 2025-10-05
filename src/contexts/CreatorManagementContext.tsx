@@ -18,7 +18,6 @@ const SELECTED_LIST_KEY = "creator-management-list-id";
 interface CreatorManagementContextValue {
   listId: string | null;
   selectedListId: string | null;
-  previousListId: string | null;
   setSelectedListId: (listId: string | null) => void;
   sharedLists: ListResult[];
   tasks: Task[];
@@ -50,7 +49,7 @@ export function CreatorManagementProvider({
     }
     return null;
   });
-  const [previousListId, setPreviousListId] = useState<string | null>(null);
+  const [showListSelection, setShowListSelection] = useState(false);
 
   const {
     data: sharedLists = [],
@@ -69,12 +68,6 @@ export function CreatorManagementProvider({
       setSelectedListId(listId);
     }
   }, [sharedLists]);
-
-  useEffect(() => {
-    if (selectedListId) {
-      setPreviousListId(selectedListId);
-    }
-  }, [selectedListId]);
 
   const handleSetSelectedListId = (listId: string | null) => {
     if (listId) {
@@ -119,7 +112,6 @@ export function CreatorManagementProvider({
       value={{
         listId: effectiveListId,
         selectedListId,
-        previousListId,
         setSelectedListId: handleSetSelectedListId,
         sharedLists,
         tasks,
@@ -133,6 +125,8 @@ export function CreatorManagementProvider({
         handleDecline,
         handleMoveToReview,
         isTaskPending,
+        showListSelection,
+        setShowListSelection,
       }}
     >
       {children}

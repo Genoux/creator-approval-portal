@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import type { Task } from "@/types";
@@ -7,7 +7,7 @@ import { TaskCard } from "./TaskCard";
 
 // Lazy loading wrapper for TaskCard
 function LazyTaskCard({ task, index }: { task: Task; index: number }) {
-  const [isVisible, setIsVisible] = useState(index < 8); // Show first 4 immediately
+  const [isVisible, setIsVisible] = useState(index < 8);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,35 +35,33 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
 
   return (
     <div ref={ref} className="relative">
-      <AnimatePresence mode="wait">
-        {isVisible ? (
-          <motion.div
-            layout
-            key="task-card"
-            initial={{ y: 50, opacity: 0, scale: 1 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -20, opacity: 0, scale: 1 }}
-            transition={{
-              delay: 0,
-              duration: 0.2,
-              type: "spring",
-              damping: 50,
-              stiffness: 500,
-            }}
-          >
-            <TaskCard task={task} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="placeholder"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="h-[500px] w-full rounded-3xl bg-gray-100 animate-pulse"
-          />
-        )}
-      </AnimatePresence>
+      {isVisible ? (
+        <motion.div
+          layout
+          key="task-card"
+          initial={{ y: 50, opacity: 0, scale: 1 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: -20, opacity: 0, scale: 1 }}
+          transition={{
+            delay: 0,
+            duration: 0.2,
+            type: "spring",
+            damping: 50,
+            stiffness: 500,
+          }}
+        >
+          <TaskCard task={task} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="placeholder"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="h-[500px] w-full rounded-3xl bg-gray-100 animate-pulse"
+        />
+      )}
     </div>
   );
 }
@@ -98,9 +96,9 @@ export function TasksGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {loading
-        ? Array.from({ length: 4 }, () => (
+        ? Array.from({ length: 4 }, _ => (
             <Skeleton
-              key={Math.random()}
+              key={`skeleton-${Math.random()}`}
               className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
             />
           ))

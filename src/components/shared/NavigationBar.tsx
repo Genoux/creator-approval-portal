@@ -41,18 +41,11 @@ const NAV_TABS = [
   },
 ];
 
-export function NavigationBar({
-  className,
-  selectedListId,
-}: {
-  className?: string;
-  selectedListId?: string | null;
-}) {
+export function NavigationBar({ className }: { className?: string }) {
   const user = useCurrentUser();
   const pathname = usePathname();
 
-  const { setSelectedListId, sharedLists, tasks } = useCreatorManagement();
-  const showChangeList = sharedLists.length > 1;
+  const { sharedLists, tasks, setShowListSelection } = useCreatorManagement();
 
   const getSelectionCount = (tabLabel: string) => {
     if (tabLabel === "My Selections") {
@@ -75,7 +68,7 @@ export function NavigationBar({
   }, [pathname]);
 
   return (
-    <nav className={cn(className, "z-50")}>
+    <nav className={className}>
       <div className="flex justify-between items-center h-20">
         <div className="flex items-center gap-2">
           <Link
@@ -88,7 +81,7 @@ export function NavigationBar({
         </div>
 
         {/* Navigation Tabs */}
-        {user && selectedListId && (
+        {user && (
           <div className="gap-2 hidden sm:flex">
             {NAV_TABS.map(tab => {
               const isActive = activeTab === tab.label;
@@ -116,7 +109,7 @@ export function NavigationBar({
         )}
 
         <div className="flex items-center gap-2">
-          {user && selectedListId && (
+          {user && (
             <div className="flex gap-2 sm:hidden">
               <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger asChild>
@@ -190,9 +183,9 @@ export function NavigationBar({
                     <ClickupIcon width={14} height={14} />
                     ClickUp
                   </DropdownMenuItem>
-                  {showChangeList && (
+                  {sharedLists.length > 1 && (
                     <DropdownMenuItem
-                      onClick={() => setSelectedListId(null)}
+                      onClick={() => setShowListSelection(true)}
                       className="cursor-pointer"
                     >
                       <ArrowRightLeftIcon className="w-3 h-3" />
