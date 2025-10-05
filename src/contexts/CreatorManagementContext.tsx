@@ -5,6 +5,7 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useSharedLists } from "@/hooks/data/lists/useList";
@@ -18,7 +19,6 @@ const SELECTED_LIST_KEY = "creator-management-list-id";
 interface CreatorManagementContextValue {
   listId: string | null;
   selectedListId: string | null;
-  previousListId: string | null;
   setSelectedListId: (listId: string | null) => void;
   sharedLists: ListResult[];
   tasks: Task[];
@@ -32,6 +32,7 @@ interface CreatorManagementContextValue {
   handleDecline: (task: Task) => Promise<void>;
   handleMoveToReview: (task: Task) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
+  getApprovedTasks: Task[];
 }
 
 const CreatorManagementContext =
@@ -50,7 +51,6 @@ export function CreatorManagementProvider({
     }
     return null;
   });
-  const [previousListId, setPreviousListId] = useState<string | null>(null);
 
   const {
     data: sharedLists = [],
@@ -69,12 +69,6 @@ export function CreatorManagementProvider({
       setSelectedListId(listId);
     }
   }, [sharedLists]);
-
-  useEffect(() => {
-    if (selectedListId) {
-      setPreviousListId(selectedListId);
-    }
-  }, [selectedListId]);
 
   const handleSetSelectedListId = (listId: string | null) => {
     if (listId) {
@@ -114,12 +108,19 @@ export function CreatorManagementProvider({
     refetchTasks();
   };
 
+  const getApprovedTasks = useMemo(() => {
+    return tasks.filter(
+      task =>
+        task.status.label === "Perfect (Approved)" ||
+        task.status.label === "Good (Approved)"
+    );
+  }, [tasks]);
+
   return (
     <CreatorManagementContext.Provider
       value={{
         listId: effectiveListId,
         selectedListId,
-        previousListId,
         setSelectedListId: handleSetSelectedListId,
         sharedLists,
         tasks,
@@ -132,6 +133,7 @@ export function CreatorManagementProvider({
         handleBackup,
         handleDecline,
         handleMoveToReview,
+        getApprovedTasks,
         isTaskPending,
       }}
     >

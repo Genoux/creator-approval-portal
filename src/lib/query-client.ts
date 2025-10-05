@@ -1,10 +1,35 @@
-import { QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { logError } from "@/utils/errors";
 
 /**
  * Global React Query client with optimized defaults
  * These defaults apply to all queries/mutations unless overridden
  */
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      // Global error handler for all queries
+      logError(error, {
+        component: "QueryClient",
+        action: "query_failed",
+        metadata: {
+          queryKey: query.queryKey,
+        },
+      });
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      // Global error handler for all mutations
+      logError(error, {
+        component: "QueryClient",
+        action: "mutation_failed",
+        metadata: {
+          mutationKey: mutation.options.mutationKey,
+        },
+      });
+    },
+  }),
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh

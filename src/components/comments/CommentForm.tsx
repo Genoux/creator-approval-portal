@@ -56,28 +56,23 @@ export function CommentForm({
 
     if (!comment.trim()) return;
 
-    try {
-      const serializedMentions = serializeMentions(comment, mentions, users);
+    const serializedMentions = serializeMentions(comment, mentions, users);
 
-      if (isEditMode && editingComment) {
-        const updateRequest = serializedMentions;
+    if (isEditMode && editingComment) {
+      const updateRequest = serializedMentions;
 
-        await updateComment({
-          commentId: editingComment.id,
-          request: updateRequest,
-        });
+      updateComment({
+        commentId: editingComment.id,
+        request: updateRequest,
+      }).then(() => {
         onSave?.();
-      } else {
-        await createComment(serializedMentions);
+      });
+    } else {
+      createComment(serializedMentions).then(() => {
         setComment("");
         setMentions([]);
         onCommentSent?.();
-      }
-    } catch (error) {
-      console.error(
-        `Failed to ${isEditMode ? "update" : "create"} comment:`,
-        error
-      );
+      });
     }
   };
 
