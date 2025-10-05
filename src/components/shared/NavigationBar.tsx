@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ClickupIcon, InBeatIcon } from "@/components/icons";
 import { ListSelection } from "@/components/shared/ListSelection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,7 +35,7 @@ export function NavigationBar({ className }: { className?: string }) {
   const user = useCurrentUser();
   const pathname = usePathname();
 
-  const { sharedLists, tasks, getApprovedTasks } = useCreatorManagement();
+  const { sharedLists, getApprovedTasks } = useCreatorManagement();
   const [showListSelection, setShowListSelection] = useState(false);
 
   const isManagementActive = pathname === "/dashboard/management";
