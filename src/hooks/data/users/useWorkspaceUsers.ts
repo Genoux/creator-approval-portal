@@ -14,12 +14,8 @@ export function useWorkspaceUsers(
   const { data, isLoading, error } = useQuery({
     queryKey: QUERY_KEYS.workspaceUsers(listId),
     queryFn: async (): Promise<User[]> => {
-      if (!listId) {
-        return [];
-      }
-
       const response = await fetch(
-        `/api/users/workspace?listId=${encodeURIComponent(listId)}`
+        `/api/users/workspace?listId=${encodeURIComponent(listId || "")}`
       );
 
       if (response.status === 401) {

@@ -6,10 +6,6 @@ async function fetchTaskComments(
   taskId: string,
   signal?: AbortSignal
 ): Promise<Comment[]> {
-  if (!taskId?.trim()) {
-    throw new Error("taskId is required");
-  }
-
   const response = await fetch(`/api/tasks/${taskId}/comments`, {
     signal,
     headers: {
