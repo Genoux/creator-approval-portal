@@ -46,7 +46,7 @@ export function ModalDisclaimer({ initialShow }: ModalDisclaimerProps) {
               </div>
             </div>
             <p className="text-sm">
-              Hit any issues? Reach out to support. We're here to help.
+              {`Hit any issues? Reach out to support. We're here to help.`}
             </p>
           </DialogDescription>
         </DialogHeader>
