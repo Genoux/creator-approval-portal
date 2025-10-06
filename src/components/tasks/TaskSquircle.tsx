@@ -26,14 +26,14 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
         cornerSmoothing={1}
         className={cn(
           "transition-colors w-full overflow-hidden will-change-transform flex-shrink-0 h-[400px]",
-          size === "modal" && "h-[350px]"
+          size === "modal" && "h-[300px]"
         )}
       >
         {/* Background Image */}
         <div
           className={cn(
             "absolute inset-0 rounded-2xl overflow-hidden",
-            size === "default" ? "h-full" : "h-[350px]"
+            size === "default" ? "h-full" : "h-[300px]"
           )}
         >
           {thumbnail ? (

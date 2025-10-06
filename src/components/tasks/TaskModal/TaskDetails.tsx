@@ -17,11 +17,11 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
   const ops = Array.isArray(delta.ops) ? delta.ops : [];
 
   return (
-    <div className={cn("flex flex-col gap-4 min-h-0", className)}>
-      <TaskSquircle task={task} size="modal" />
-      <section className="flex flex-col flex-1 gap-4 min-h-0">
+    <ScrollArea className={cn("flex-1 min-h-0", className)}>
+      <div className="flex flex-col gap-4 pr-4">
+        <TaskSquircle task={task} size="modal" />
         {/* Task Details */}
-        <div className="flex flex-col  justify-between items-start gap-4">
+        <div className="flex flex-col justify-between items-start gap-4">
           {/* Why Good Fit */}
           {portfolio.whyGoodFit && (
             <div className="flex flex-col gap-1 w-full">
@@ -53,33 +53,31 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-3 flex-1 min-h-0">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold">Content</h3>
             {socials.length > 0 && (
               <SocialMediaButtons socials={socials} variant="dark" />
             )}
           </div>
-          <ScrollArea className="flex-1 min-h-0 relative">
-            <div className="flex flex-col gap-1 pb-4">
-              {portfolio.example && (
-                <PortfolioPreview
-                  portfolio={portfolio}
-                  type="example"
-                  key={Math.random()}
-                />
-              )}
-              {portfolio.inBeatPortfolio && (
-                <PortfolioPreview
-                  portfolio={portfolio}
-                  type="inbeat"
-                  title="InBeat Portfolio"
-                />
-              )}
-            </div>
-          </ScrollArea>
+          <div className="flex flex-col gap-1">
+            {portfolio.example && (
+              <PortfolioPreview
+                portfolio={portfolio}
+                type="example"
+                key={Math.random()}
+              />
+            )}
+            {portfolio.inBeatPortfolio && (
+              <PortfolioPreview
+                portfolio={portfolio}
+                type="inbeat"
+                title="InBeat Portfolio"
+              />
+            )}
+          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </ScrollArea>
   );
 }

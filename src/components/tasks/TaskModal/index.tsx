@@ -38,7 +38,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
       >
         <DialogTitle className="sr-only">{task.title}</DialogTitle>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 justify-between gap-0 sm:gap-4 flex-1 min-h-0 h-full">
+        <section className="grid grid-cols-1 md:grid-cols-2 justify-between flex-1 min-h-0 h-full">
           <TaskDetails task={task} className="flex flex-col min-h-0" />
           <TaskComments task={task} />
         </section>
