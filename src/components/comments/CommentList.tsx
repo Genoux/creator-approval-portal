@@ -153,7 +153,7 @@ function CommentItem({
                   <span className="sr-only">Comment actions</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuContent align="end" className="w-32 z-90">
                 <DropdownMenuItem
                   onClick={handleEdit}
                   disabled={isEditing || isDeleting || isUpdating}
