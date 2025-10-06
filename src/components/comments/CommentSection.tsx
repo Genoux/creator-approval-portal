@@ -23,7 +23,10 @@ export function CommentSection({
 
   return (
     <div
-      className={cn("flex flex-col h-full overflow-y-hidden rounded-2xl bg-[#F9F7F7]", className)}
+      className={cn(
+        "flex flex-col h-full overflow-y-hidden rounded-2xl bg-[#F9F7F7]",
+        className
+      )}
     >
       {/* Header */}
       {showHeader && comments.length > 0 && (

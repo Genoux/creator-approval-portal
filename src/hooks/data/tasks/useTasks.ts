@@ -15,7 +15,7 @@ const STATUS_MAP: ApprovalLabel[] = [
 ] as const;
 
 function getApprovalOptionId(label: ApprovalLabel): number {
-  const index = STATUS_MAP.indexOf(label as typeof STATUS_MAP[number]);
+  const index = STATUS_MAP.indexOf(label as (typeof STATUS_MAP)[number]);
   return index >= 0 ? index : 4;
 }
 

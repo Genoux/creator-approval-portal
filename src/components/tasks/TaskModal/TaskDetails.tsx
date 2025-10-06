@@ -53,7 +53,6 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
             )}
           </div>
         </div>
-        {/* TODO ONLY ONE LINK FOR NOW */}
         <div className="flex flex-col gap-3 flex-1 min-h-0">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold">Content</h3>

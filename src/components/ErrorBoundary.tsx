@@ -23,7 +23,10 @@ export class ErrorBoundary extends React.Component<
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error, errorInfo: React.ErrorInfo): ErrorBoundaryState {
+  static getDerivedStateFromError(
+    error: Error,
+    errorInfo: React.ErrorInfo
+  ): ErrorBoundaryState {
     return { hasError: true, error, errorInfo };
   }
 
@@ -36,7 +39,8 @@ export class ErrorBoundary extends React.Component<
         componentStack: errorInfo.componentStack,
         errorBoundary: true,
         url: typeof window !== "undefined" ? window.location.href : undefined,
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+        userAgent:
+          typeof navigator !== "undefined" ? navigator.userAgent : undefined,
       },
     });
   }
@@ -65,7 +69,11 @@ export class ErrorBoundary extends React.Component<
             <Button
               className="rounded-full cursor-pointer"
               onClick={() => {
-                this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+                this.setState({
+                  hasError: false,
+                  error: undefined,
+                  errorInfo: undefined,
+                });
                 window.location.reload();
               }}
             >

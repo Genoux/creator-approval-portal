@@ -63,7 +63,10 @@ export function logWarning(message: string, context?: ErrorContext): void {
 /**
  * Log info (debugging/tracking)
  */
-export function logInfo(message: string, context?: Record<string, unknown>): void {
+export function logInfo(
+  message: string,
+  context?: Record<string, unknown>
+): void {
   console.log("ℹ️ Info:", {
     message,
     context,

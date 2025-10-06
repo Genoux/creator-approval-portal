@@ -27,7 +27,6 @@ function Loading() {
  */
 export function LayoutClient({ children, showDisclaimer }: LayoutClientProps) {
   const { sharedLists, isLoading, error } = useCreatorManagement();
-
   if (error) throw error;
 
   if (isLoading) {

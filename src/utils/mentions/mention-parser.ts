@@ -41,7 +41,7 @@ function parseLinks(text: string): ClickUpCommentSegment[] {
     // Add the URL as a link segment
     segments.push({
       text: match[0],
-      attributes: { link: match[0] }
+      attributes: { link: match[0] },
     });
 
     lastIndex = match.index + match[0].length;
@@ -65,7 +65,12 @@ export function serializeMentions(
   users: User[]
 ): ClickUpCommentRequest {
   const mentionRegex = /@\[([^\]]+)\]\((\d+)\)/g;
-  const textMentions: Array<{ display: string; id: string; start: number; end: number }> = [];
+  const textMentions: Array<{
+    display: string;
+    id: string;
+    start: number;
+    end: number;
+  }> = [];
   let match: RegExpExecArray | null = null;
 
   mentionRegex.lastIndex = 0;
@@ -76,7 +81,7 @@ export function serializeMentions(
       display: match[1],
       id: match[2],
       start: match.index,
-      end: match.index + match[0].length
+      end: match.index + match[0].length,
     });
     match = mentionRegex.exec(text);
   }
