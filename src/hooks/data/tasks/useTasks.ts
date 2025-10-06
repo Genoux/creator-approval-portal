@@ -41,10 +41,8 @@ export function useTasks(listId: string | null): UseTasksResult {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: QUERY_KEYS.tasks(listId),
     queryFn: async (): Promise<Task[]> => {
-      if (!listId?.trim()) throw new Error("No list ID provided");
-
       const response = await fetch(
-        `/api/tasks?listId=${encodeURIComponent(listId)}`
+        `/api/tasks?listId=${encodeURIComponent(listId || "")}`
       );
 
       if (response.status === 401) {
