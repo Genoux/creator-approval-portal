@@ -5,6 +5,9 @@ import { getServerSession } from "@/lib/auth";
 import { hasAcknowledged } from "@/lib/disclaimer-actions";
 import { LayoutClient } from "./layout-client";
 
+// Force dynamic rendering for authenticated routes
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {
