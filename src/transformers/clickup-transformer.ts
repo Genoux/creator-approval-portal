@@ -1,5 +1,5 @@
 import { formatNumberCompact } from "@automattic/number-formatters";
-import type { ApprovalLabel, ClickUpTask, Task } from "@/types";
+import type { ApprovalLabel, ClickUpTask, CustomField, Task } from "@/types";
 import { buildSocials, getS3ImageUrl } from "@/utils";
 
 export class ClickUpTransformer {
@@ -45,8 +45,7 @@ export class ClickUpTransformer {
     return task;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getApprovalLabel(field: any): ApprovalLabel {
+  private getApprovalLabel(field: CustomField | undefined): ApprovalLabel {
     if (!field?.value) {
       return "For Review";
     }

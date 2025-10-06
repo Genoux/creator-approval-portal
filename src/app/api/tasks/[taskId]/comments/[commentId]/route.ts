@@ -48,8 +48,9 @@ export async function PUT(
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          message: error instanceof Error ? error.message : "Failed to update comment",
-          data: null
+          message:
+            error instanceof Error ? error.message : "Failed to update comment",
+          data: null,
         },
         { status: 500 }
       );
@@ -81,8 +82,9 @@ export async function DELETE(
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          message: error instanceof Error ? error.message : "Failed to delete comment",
-          data: null
+          message:
+            error instanceof Error ? error.message : "Failed to delete comment",
+          data: null,
         },
         { status: 500 }
       );

@@ -141,13 +141,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-        comment_text?: string;
-        comment?: Array<{
-          type?: "tag";
-          text?: string;
-          user?: { id: number };
-        }>;
-      },
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     assignee?: number
   ) {
     const body = {
@@ -169,13 +169,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-        comment_text?: string;
-        comment?: Array<{
-          type?: "tag";
-          text?: string;
-          user?: { id: number };
-        }>;
-      },
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     resolved?: boolean
   ) {
     const body = {

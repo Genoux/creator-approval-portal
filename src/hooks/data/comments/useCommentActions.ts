@@ -92,7 +92,11 @@ async function deleteComment(taskId: string, commentId: string) {
   return true;
 }
 
-async function updateComment(taskId: string, commentId: string, request: UpdateCommentRequest) {
+async function updateComment(
+  taskId: string,
+  commentId: string,
+  request: UpdateCommentRequest
+) {
   if (!taskId?.trim()) {
     throw new Error("taskId is required");
   }
@@ -149,7 +153,7 @@ export function useCommentActions(taskId: string) {
       });
       toast.success("Comment deleted");
     },
-    onError: (error) => {
+    onError: error => {
       logError(error, {
         component: "useCommentActions",
         action: "delete_comment",
@@ -159,8 +163,13 @@ export function useCommentActions(taskId: string) {
   });
 
   const updateCommentMutation = useMutation({
-    mutationFn: ({ commentId, request }: { commentId: string; request: UpdateCommentRequest }) =>
-      updateComment(taskId, commentId, request),
+    mutationFn: ({
+      commentId,
+      request,
+    }: {
+      commentId: string;
+      request: UpdateCommentRequest;
+    }) => updateComment(taskId, commentId, request),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.taskComments(taskId),

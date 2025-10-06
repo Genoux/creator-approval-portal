@@ -117,7 +117,7 @@ describe("ClickUpTransformer", () => {
       const result = transformer.transform(clickUpTask);
 
       expect(console.warn).toHaveBeenCalledWith(
-        '⚠️  Task "No Approval Field" (456) is missing "Client Approval" field',
+        '⚠️  Task "No Approval Field" (456) is missing "Client Approval" field'
       );
       expect(result.status.label).toBe("For Review");
       expect(result.status.fieldId).toBe("");

@@ -8,8 +8,9 @@ interface UseWorkspaceUsersResult {
   error: Error | null;
 }
 
-export function useWorkspaceUsers(listId: string | null): UseWorkspaceUsersResult {
-
+export function useWorkspaceUsers(
+  listId: string | null
+): UseWorkspaceUsersResult {
   const { data, isLoading, error } = useQuery({
     queryKey: QUERY_KEYS.workspaceUsers(listId),
     queryFn: async (): Promise<User[]> => {

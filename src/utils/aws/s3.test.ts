@@ -21,42 +21,42 @@ describe("getS3ImageUrl", () => {
   it("should generate correct S3 URL for simple task name", () => {
     const url = getS3ImageUrl("TestTask");
     expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask",
+      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask"
     );
   });
 
   it("should clean task name by removing special characters", () => {
     const url = getS3ImageUrl("Test-Task_123");
     expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask123",
+      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask123"
     );
   });
 
   it("should convert to lowercase", () => {
     const url = getS3ImageUrl("UPPERCASE");
     expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/uppercase",
+      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/uppercase"
     );
   });
 
   it("should handle task names with spaces", () => {
     const url = getS3ImageUrl("Task With Spaces");
     expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/taskwithspaces",
+      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/taskwithspaces"
     );
   });
 
   it("should throw error if bucket name is missing", () => {
     delete process.env.NEXT_PUBLIC_S3_BUCKET_NAME;
     expect(() => getS3ImageUrl("test")).toThrow(
-      "S3 bucket name or region is not set",
+      "S3 bucket name or region is not set"
     );
   });
 
   it("should throw error if region is missing", () => {
     delete process.env.NEXT_PUBLIC_S3_REGION;
     expect(() => getS3ImageUrl("test")).toThrow(
-      "S3 bucket name or region is not set",
+      "S3 bucket name or region is not set"
     );
   });
 });
