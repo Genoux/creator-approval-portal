@@ -105,7 +105,10 @@ export function StatusDropdown({
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent onCloseAutoFocus={e => e.preventDefault()}>
+      <DropdownMenuContent
+        onCloseAutoFocus={e => e.preventDefault()}
+        className="z-[110]"
+      >
         {availableStatuses.map(({ label }) => (
           <DropdownMenuItem
             key={label}
