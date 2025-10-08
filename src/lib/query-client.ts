@@ -36,7 +36,9 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache for fast page refreshes
       retry: 3, // Automatic retries on failure
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
-      refetchOnWindowFocus: true, // Refresh when user returns to tab
+      refetchOnWindowFocus: false, // Disabled to prevent refetches on navigation
+      refetchOnMount: false, // Disabled to use cached data when navigating
+      refetchOnReconnect: false, // Disabled to prevent refetches on route changes
       refetchIntervalInBackground: false, // Don't poll when tab inactive (rate limit protection)
     },
     mutations: {

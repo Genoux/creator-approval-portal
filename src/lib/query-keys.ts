@@ -4,7 +4,7 @@
  */
 export const QUERY_KEYS = {
   list: (listName: string) => ["list", listName] as const,
-  tasks: (listId: string | null) => ["tasks", listId] as const,
+  tasks: (viewId: string | null) => ["tasks", viewId] as const,
   taskComments: (taskId: string) => ["task-comments", taskId] as const,
   userSession: ["user-session"] as const,
   workspaceUsers: (listId: string | null) =>

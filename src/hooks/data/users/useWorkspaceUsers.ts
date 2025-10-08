@@ -38,6 +38,7 @@ export function useWorkspaceUsers(
     enabled: !!listId, // Only run query when listId is available
     staleTime: 3600000, // 1 hour - users don't change often
     gcTime: 7200000, // 2 hours
+    refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,

@@ -41,12 +41,12 @@ export function useUpdateTaskStatus(listId: string | null) {
         old?.map(task =>
           task.id === taskId
             ? {
-                ...task,
-                status: {
-                  ...task.status,
-                  label,
-                },
-              }
+              ...task,
+              status: {
+                ...task.status,
+                label,
+              },
+            }
             : task
         )
       );
@@ -60,7 +60,6 @@ export function useUpdateTaskStatus(listId: string | null) {
       }
     },
 
-    // No onSuccess needed - optimistic update already applied
-    // Status is now correct in UI, no need to refetch all tasks
+    // Optimistic update already applied - tabs will reflect changes immediately
   });
 }
