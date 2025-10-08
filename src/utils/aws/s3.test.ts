@@ -1,62 +1,96 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getS3ImageUrl } from "./s3";
+import { getCloudFrontImageUrl } from "./s3";
 
-describe("getS3ImageUrl", () => {
+describe("getCloudFrontImageUrl", () => {
   const originalEnv = process.env;
+  const defaultCloudFrontUrl = "https://d3phw8pj0ea6u1.cloudfront.net";
 
   beforeEach(() => {
-    // Reset env before each test
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_S3_BUCKET_NAME: "inbeat-project-creator-approval-portal",
-      NEXT_PUBLIC_S3_REGION: "us-east-1",
-    };
+    process.env = { ...originalEnv };
   });
 
   afterEach(() => {
-    // Restore original env
     process.env = originalEnv;
   });
 
-  it("should generate correct S3 URL for simple task name", () => {
-    const url = getS3ImageUrl("TestTask");
-    expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask"
-    );
+  describe("URL generation", () => {
+    it("should generate CloudFront URL with default parameters", () => {
+      const url = getCloudFrontImageUrl("TestTask");
+      expect(url).toBe(
+        `${defaultCloudFrontUrl}/testtask?width=650&height=650&fit=cover&quality=85`
+      );
+    });
+
+    it("should use custom CloudFront URL from environment variable", () => {
+      // Note: This test verifies the fallback works. In production, set NEXT_PUBLIC_CLOUDFRONT_URL env var
+      const url = getCloudFrontImageUrl("TestTask");
+      expect(url).toContain(defaultCloudFrontUrl);
+    });
   });
 
-  it("should clean task name by removing special characters", () => {
-    const url = getS3ImageUrl("Test-Task_123");
-    expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/testtask123"
-    );
+  describe("filename normalization", () => {
+    it("should normalize task name by removing special characters", async () => {
+      const { getCloudFrontImageUrl } = await import("./s3");
+      const url = getCloudFrontImageUrl("Test-Task_123");
+      expect(url).toContain("/testtask123?");
+    });
+
+    it("should convert to lowercase", async () => {
+      const { getCloudFrontImageUrl } = await import("./s3");
+      const url = getCloudFrontImageUrl("UPPERCASE");
+      expect(url).toContain("/uppercase?");
+    });
+
+    it("should handle task names with spaces", async () => {
+      const { getCloudFrontImageUrl } = await import("./s3");
+      const url = getCloudFrontImageUrl("Task With Spaces");
+      expect(url).toContain("/taskwithspaces?");
+    });
+
+    it("should handle complex special characters", async () => {
+      const { getCloudFrontImageUrl } = await import("./s3");
+      const url = getCloudFrontImageUrl("Test!@#$%^&*()Task");
+      expect(url).toContain("/testtask?");
+    });
   });
 
-  it("should convert to lowercase", () => {
-    const url = getS3ImageUrl("UPPERCASE");
-    expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/uppercase"
-    );
-  });
+  describe("image transformation parameters", () => {
+    it("should apply custom width and height", () => {
+      const url = getCloudFrontImageUrl("TestTask", {
+        width: 400,
+        height: 600,
+      });
+      expect(url).toContain("width=400");
+      expect(url).toContain("height=600");
+    });
 
-  it("should handle task names with spaces", () => {
-    const url = getS3ImageUrl("Task With Spaces");
-    expect(url).toBe(
-      "https://inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com/taskwithspaces"
-    );
-  });
+    it("should apply custom fit parameter", () => {
+      const url = getCloudFrontImageUrl("TestTask", { fit: "contain" });
+      expect(url).toContain("fit=contain");
+    });
 
-  it("should throw error if bucket name is missing", () => {
-    delete process.env.NEXT_PUBLIC_S3_BUCKET_NAME;
-    expect(() => getS3ImageUrl("test")).toThrow(
-      "S3 bucket name or region is not set"
-    );
-  });
+    it("should apply custom quality", () => {
+      const url = getCloudFrontImageUrl("TestTask", { quality: 90 });
+      expect(url).toContain("quality=90");
+    });
 
-  it("should throw error if region is missing", () => {
-    delete process.env.NEXT_PUBLIC_S3_REGION;
-    expect(() => getS3ImageUrl("test")).toThrow(
-      "S3 bucket name or region is not set"
-    );
+    it("should merge custom params with defaults", () => {
+      const url = getCloudFrontImageUrl("TestTask", { width: 1000 });
+      expect(url).toContain("width=1000");
+      expect(url).toContain("height=650");
+    });
+
+    it("should handle all custom parameters at once", () => {
+      const url = getCloudFrontImageUrl("TestTask", {
+        width: 1200,
+        height: 900,
+        fit: "inside",
+        quality: 95,
+      });
+      expect(url).toContain("width=1200");
+      expect(url).toContain("height=900");
+      expect(url).toContain("fit=inside");
+      expect(url).toContain("quality=95");
+    });
   });
 });

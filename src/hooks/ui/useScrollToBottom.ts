@@ -1,3 +1,5 @@
+//TODO: Evaluate if this hook is still necessary and remove it if not.
+
 import { useCallback, useRef } from "react";
 
 interface UseScrollToBottomOptions {

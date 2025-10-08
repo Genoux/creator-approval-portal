@@ -14,7 +14,6 @@ export interface Task {
   taskStatus: string;
   id: string;
   title: string;
-  thumbnail: string | null;
   followerCount: string | null;
   date_created: string;
   status: {

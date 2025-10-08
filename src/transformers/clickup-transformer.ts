@@ -1,6 +1,6 @@
 import { formatNumberCompact } from "@automattic/number-formatters";
 import type { ApprovalLabel, ClickUpTask, CustomField, Task } from "@/types";
-import { buildSocials, getS3ImageUrl } from "@/utils";
+import { buildSocials } from "@/utils";
 
 export class ClickUpTransformer {
   transform(clickUpTask: ClickUpTask): Task {
@@ -19,7 +19,6 @@ export class ClickUpTransformer {
       id: clickUpTask.id,
       date_created: clickUpTask.date_created,
       title: clickUpTask.name,
-      thumbnail: getS3ImageUrl(clickUpTask.name),
       followerCount: fields.followercount
         ? formatNumberCompact(Number(fields.followercount))
         : null,

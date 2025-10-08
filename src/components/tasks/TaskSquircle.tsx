@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useGetStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
+import { getCloudFrontImageUrl } from "@/utils/aws";
 import { getDisplayLabel } from "@/utils/status";
 import { StatusDropdown } from "../shared/StatusDropdown";
 import { Badge } from "../ui/badge";
@@ -14,7 +15,10 @@ interface TaskSquircleProps {
 }
 
 export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
-  const { title, thumbnail, socials, status } = task;
+  const { title, socials, status } = task;
+
+  const url = getCloudFrontImageUrl(title);
+
   const isReadOnly = useGetStatusConfirmation() === null;
   return (
     <div>
@@ -33,13 +37,14 @@ export function TaskSquircle({ task, size = "default" }: TaskSquircleProps) {
             size === "default" ? "h-full" : "h-[300px]"
           )}
         >
-          {thumbnail ? (
+          {url ? (
             <Image
-              src={thumbnail}
+              src={url}
               alt={title}
-              width={800}
-              height={800}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority
+              unoptimized
               className="object-cover w-full h-full object-center"
             />
           ) : (

@@ -16,7 +16,6 @@ export class ClickUpAPI {
     if (!tokenToUse) {
       throw new Error("No ClickUp API token available");
     }
-    console.log(`🔑 Using token type: ${oauthToken ? 'OAuth (user)' : 'API (pk_)'}`);
     return new ClickUpAPI(tokenToUse);
   }
 
@@ -56,7 +55,9 @@ export class ClickUpAPI {
 
   async getTasks(listId: string, statuses: string[]): Promise<ClickUpTask[]> {
     // Build status filter from the view configuration
-    const statusFilter = statuses.map(s => `statuses[]=${encodeURIComponent(s)}`).join('&');
+    const statusFilter = statuses
+      .map(s => `statuses[]=${encodeURIComponent(s)}`)
+      .join("&");
     const filter = `archived=false&include_closed=true&order_by=created&${statusFilter}&statuses[]=selected`;
     const baseQuery = `/list/${listId}/task`;
 
@@ -68,7 +69,9 @@ export class ClickUpAPI {
     const promises: Promise<{ tasks: ClickUpTask[] }>[] = [];
     for (let page = 1; page <= 5; page++) {
       promises.push(
-        this.request(`${baseQuery}?${filter}&page=${page}`).catch(() => ({ tasks: [] }))
+        this.request(`${baseQuery}?${filter}&page=${page}`).catch(() => ({
+          tasks: [],
+        }))
       );
     }
 
@@ -148,13 +151,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-        comment_text?: string;
-        comment?: Array<{
-          type?: "tag";
-          text?: string;
-          user?: { id: number };
-        }>;
-      },
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     assignee?: number
   ) {
     const body = {
@@ -176,13 +179,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-        comment_text?: string;
-        comment?: Array<{
-          type?: "tag";
-          text?: string;
-          user?: { id: number };
-        }>;
-      },
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     resolved?: boolean
   ) {
     const body = {

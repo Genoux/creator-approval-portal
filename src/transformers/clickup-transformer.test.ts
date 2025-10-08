@@ -13,8 +13,6 @@ vi.mock("@automattic/number-formatters", () => ({
 }));
 
 vi.mock("@/utils", () => ({
-  getS3ImageUrl: (taskName: string) =>
-    `https://test-bucket.s3.test-region.amazonaws.com/${taskName.toLowerCase().replace(/[^a-z0-9]/g, "")}`,
   buildSocials: (urls: {
     instagram?: string | null;
     tiktok?: string | null;

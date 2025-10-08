@@ -1,1 +1,4 @@
-export { getS3ImageUrl } from "./s3";
+export {
+  getCloudFrontImageUrl,
+  type ImageTransformParams,
+} from "./s3";

@@ -10,12 +10,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname:
-          "inbeat-project-creator-approval-portal.s3.us-east-1.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "attachments.clickup.com",
+        hostname: "d3phw8pj0ea6u1.cloudfront.net",
       },
     ],
   },

@@ -2,7 +2,7 @@ import { ArrowLeftIcon, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsMobile } from "@/hooks/ui/useIsMobile";
 import type { Task } from "@/types";
 
 interface TaskCommentsProps {
