@@ -11,6 +11,7 @@ export interface Social {
  * Task - transformed from ClickUp with only the fields we need
  */
 export interface Task {
+  taskStatus: string;
   id: string;
   title: string;
   thumbnail: string | null;
@@ -31,17 +32,6 @@ export interface Task {
     inBeatPortfolio: string | null;
   };
 }
-
-/**
- * Approval status labels
- */
-export const APPROVAL_LABELS = {
-  FOR_REVIEW: "For Review",
-  PERFECT: "Perfect (Approved)",
-  GOOD: "Good (Approved)",
-  SUFFICIENT: "Sufficient (Backup)",
-  POOR_FIT: "Poor Fit (Rejected)",
-} as const;
 
 export type ApprovalLabel =
   | "For Review"

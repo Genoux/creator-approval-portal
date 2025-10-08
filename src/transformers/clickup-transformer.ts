@@ -15,6 +15,7 @@ export class ClickUpTransformer {
       );
     }
     const task = {
+      taskStatus: clickUpTask.status.status,
       id: clickUpTask.id,
       date_created: clickUpTask.date_created,
       title: clickUpTask.name,
@@ -46,7 +47,7 @@ export class ClickUpTransformer {
   }
 
   private getApprovalLabel(field: CustomField | undefined): ApprovalLabel {
-    if (!field?.value) {
+    if (!field?.value && field?.value !== 0) {
       return "For Review";
     }
 
@@ -60,8 +61,10 @@ export class ClickUpTransformer {
         ? field.value
         : parseInt(String(field.value), 10);
 
-    if (!Number.isNaN(index) && options[index]?.name) {
-      return options[index].name as ApprovalLabel;
+    if (!Number.isNaN(index) && options[index]) {
+      const option = options[index];
+      const label = option.name as ApprovalLabel;
+      return label || "For Review";
     }
 
     return "For Review";
