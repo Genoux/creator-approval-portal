@@ -3,23 +3,6 @@
  */
 
 /**
- * Remove parentheses from labels for cleaner UI display
- * Example: "Perfect (Approved)" → "Perfect"
- */
-export function getDisplayLabel(label: string): string {
-  // Custom mappings
-  const customLabels: Record<string, string> = {
-    "Perfect (Approved)": "Perfect",
-    "Good (Approved)": "Good",
-    "Sufficient (Backup)": "Backup",
-    "Poor Fit (Rejected)": "Rejected",
-    "For Review": "For Review",
-  };
-
-  return customLabels[label] || label.replace(/\s*\([^)]*\)/g, "");
-}
-
-/**
  * Format follower count for display
  * Example: 1234567 → "1.2M"
  */
@@ -50,17 +33,4 @@ export function formatTimeAgo(timestamp: string | Date): string {
     return `${Math.floor(diffInSeconds / 86400)}d ago`;
 
   return date.toLocaleDateString();
-}
-
-/**
- * Check if a task was created within the last 2 weeks
- * @param dateCreated - Timestamp string from ClickUp
- * @returns true if created within last 2 weeks
- */
-export function isRecentlyAdded(dateCreated: string): boolean {
-  const createdDate = new Date(Number(dateCreated));
-  const now = new Date();
-  const hoursDiff = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
-
-  return hoursDiff <= 336; // 2 weeks = 14 days * 24 hours
 }

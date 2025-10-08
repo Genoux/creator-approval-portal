@@ -1,35 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   formatFollowerCount,
-  formatTimeAgo,
-  getDisplayLabel,
-  isRecentlyAdded,
+  formatTimeAgo
 } from "./formatting";
-
-describe("getDisplayLabel", () => {
-  it("should return custom mapped labels", () => {
-    expect(getDisplayLabel("Perfect (Approved)")).toBe("Perfect");
-    expect(getDisplayLabel("Good (Approved)")).toBe("Good");
-    expect(getDisplayLabel("Sufficient (Backup)")).toBe("Backup");
-    expect(getDisplayLabel("Poor Fit (Rejected)")).toBe("Rejected");
-    expect(getDisplayLabel("For Review")).toBe("For Review");
-  });
-
-  it("should strip parentheses from unknown labels", () => {
-    expect(getDisplayLabel("Custom (Status)")).toBe("Custom");
-    expect(getDisplayLabel("Test (Note)")).toBe("Test");
-    expect(getDisplayLabel("Multiple (Words) (Here)")).toBe("Multiple");
-  });
-
-  it("should handle labels without parentheses", () => {
-    expect(getDisplayLabel("Approved")).toBe("Approved");
-    expect(getDisplayLabel("Simple")).toBe("Simple");
-  });
-
-  it("should handle empty string", () => {
-    expect(getDisplayLabel("")).toBe("");
-  });
-});
 
 describe("formatFollowerCount", () => {
   it("should format millions correctly", () => {
@@ -122,53 +95,5 @@ describe("formatTimeAgo", () => {
     const fiveMinutesAgo = (now - 5 * 60 * 1000).toString();
 
     expect(formatTimeAgo(fiveMinutesAgo)).toBe("5m ago");
-  });
-});
-
-describe("isRecentlyAdded", () => {
-  beforeEach(() => {
-    // Mock Date.now() to return a fixed timestamp: Jan 15, 2024 00:00:00
-    const mockNow = new Date("2024-01-15T00:00:00Z").getTime();
-    vi.useFakeTimers();
-    vi.setSystemTime(mockNow);
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("should return true for items created within 2 weeks", () => {
-    const now = Date.now();
-    const oneDayAgo = new Date(now - 1 * 24 * 60 * 60 * 1000).getTime();
-    const oneWeekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).getTime();
-    const thirteenDaysAgo = new Date(now - 13 * 24 * 60 * 60 * 1000).getTime();
-
-    expect(isRecentlyAdded(oneDayAgo.toString())).toBe(true);
-    expect(isRecentlyAdded(oneWeekAgo.toString())).toBe(true);
-    expect(isRecentlyAdded(thirteenDaysAgo.toString())).toBe(true);
-  });
-
-  it("should return true for exactly 2 weeks (336 hours)", () => {
-    const now = Date.now();
-    const exactlyTwoWeeks = new Date(now - 336 * 60 * 60 * 1000).getTime();
-
-    expect(isRecentlyAdded(exactlyTwoWeeks.toString())).toBe(true);
-  });
-
-  it("should return false for items older than 2 weeks", () => {
-    const now = Date.now();
-    const fifteenDaysAgo = new Date(now - 15 * 24 * 60 * 60 * 1000).getTime();
-    const oneMonthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).getTime();
-    const oneYearAgo = new Date(now - 365 * 24 * 60 * 60 * 1000).getTime();
-
-    expect(isRecentlyAdded(fifteenDaysAgo.toString())).toBe(false);
-    expect(isRecentlyAdded(oneMonthAgo.toString())).toBe(false);
-    expect(isRecentlyAdded(oneYearAgo.toString())).toBe(false);
-  });
-
-  it("should return true for items created just now", () => {
-    const now = Date.now();
-
-    expect(isRecentlyAdded(now.toString())).toBe(true);
   });
 });

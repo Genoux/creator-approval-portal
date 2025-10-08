@@ -11,7 +11,7 @@ import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { DropdownProvider } from "@/contexts/DropdownContext";
 import { StatusConfirmationProvider } from "@/contexts/StatusConfirmationContext";
 import type { ApprovalLabel } from "@/types";
-import { getDisplayLabel } from "@/utils/ui";
+import { getDisplayLabel } from "@/utils/status";
 
 function ManagementContent({
   activeStatus,
