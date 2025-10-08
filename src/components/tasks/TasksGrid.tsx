@@ -5,7 +5,7 @@ import type { Task } from "@/types";
 import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
 
-const INITIAL_VISIBLE_CARDS = 8;
+const INITIAL_VISIBLE_CARDS = 4;
 const SKELETON_COUNT = 4;
 
 // Lazy loading wrapper for TaskCard
@@ -42,15 +42,13 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
         <motion.div
           layout
           key="task-card"
-          initial={{ y: 50, opacity: 0, scale: 1 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: -20, opacity: 0, scale: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
           transition={{
-            delay: 0,
-            duration: 0.2,
-            type: "spring",
-            damping: 50,
-            stiffness: 500,
+            delay: index * 0.1,
+            duration: 0.4,
+            ease: "easeInOut",
           }}
         >
           <TaskCard task={task} />
