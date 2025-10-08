@@ -1,48 +1,44 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type { ApiResponse, ApprovalLabel, Task } from "@/types";
 import { logError } from "@/utils/errors";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 
-const STATUS_MAP: ApprovalLabel[] = [
-  "Perfect (Approved)",
-  "Good (Approved)",
-  "Sufficient (Backup)",
-  "Poor Fit (Rejected)",
-  "For Review",
-] as const;
-
-function getApprovalOptionId(label: ApprovalLabel): number {
-  const index = STATUS_MAP.indexOf(label as (typeof STATUS_MAP)[number]);
-  return index >= 0 ? index : 4;
-}
+const getApprovalOptionId = (label: ApprovalLabel): number => {
+  const map: Record<ApprovalLabel, number | null> = {
+    "Perfect (Approved)": 0,
+    "Good (Approved)": 1,
+    "Sufficient (Backup)": 2,
+    "Poor Fit (Rejected)": 3,
+    "For Review": null,
+  };
+  return map[label] ?? 4;
+};
 
 interface UseTasksResult {
-  // Data
   data: Task[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
-
-  // Actions
   handleApprove: (task: Task) => Promise<void>;
   handleGood: (task: Task) => Promise<void>;
   handleBackup: (task: Task) => Promise<void>;
   handleDecline: (task: Task) => Promise<void>;
-  handleMoveToReview: (task: Task) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
 }
 
-export function useTasks(listId: string | null): UseTasksResult {
+export function useTasks(listId: string | null, statuses: string[]): UseTasksResult {
   const [pendingTasks, setPendingTasks] = useState<Set<string>>(new Set());
+
+  const isQueryEnabled = !!listId && statuses.length > 0;
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: QUERY_KEYS.tasks(listId),
     queryFn: async (): Promise<Task[]> => {
       const response = await fetch(
-        `/api/tasks?listId=${encodeURIComponent(listId || "")}`
+        `/api/tasks?listId=${encodeURIComponent(listId || "")}&statuses=${encodeURIComponent(statuses.join(","))}`
       );
 
       if (response.status === 401) {
@@ -59,9 +55,10 @@ export function useTasks(listId: string | null): UseTasksResult {
 
       return result.data;
     },
-    enabled: !!listId,
+    enabled: isQueryEnabled,
     staleTime: 60000, // 1 minute
     gcTime: 600000, // 10 minutes
+    refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
@@ -69,7 +66,7 @@ export function useTasks(listId: string | null): UseTasksResult {
 
   const updateTaskStatus = useUpdateTaskStatus(listId);
 
-  const handleStatusUpdate = async (
+  const handleStatusUpdate = useCallback(async (
     task: Task,
     label: ApprovalLabel,
     successMessage: string
@@ -80,14 +77,10 @@ export function useTasks(listId: string | null): UseTasksResult {
     setPendingTasks(prev => new Set(prev).add(task.id));
 
     try {
-      // "For Review" clears the field (null), others use index
-      const statusValue =
-        label === "For Review" ? null : getApprovalOptionId(label);
-
       await updateTaskStatus.mutateAsync({
         taskId: task.id,
         fieldId: task.status.fieldId,
-        status: statusValue,
+        status: getApprovalOptionId(label),
         label,
       });
       showToast.update(loadingId, "success", successMessage);
@@ -110,22 +103,27 @@ export function useTasks(listId: string | null): UseTasksResult {
         return next;
       });
     }
-  };
+  }, [pendingTasks, updateTaskStatus]);
 
-  const handleApprove = (task: Task) =>
-    handleStatusUpdate(task, "Perfect (Approved)", "Creator approved!");
+  const handleApprove = useCallback(
+    (task: Task) => handleStatusUpdate(task, "Perfect (Approved)", "Creator approved!"),
+    [handleStatusUpdate]
+  );
 
-  const handleGood = (task: Task) =>
-    handleStatusUpdate(task, "Good (Approved)", "Creator approved as Good!");
+  const handleGood = useCallback(
+    (task: Task) => handleStatusUpdate(task, "Good (Approved)", "Creator approved as Good!"),
+    [handleStatusUpdate]
+  );
 
-  const handleBackup = (task: Task) =>
-    handleStatusUpdate(task, "Sufficient (Backup)", "Marked as backup!");
+  const handleBackup = useCallback(
+    (task: Task) => handleStatusUpdate(task, "Sufficient (Backup)", "Marked as backup!"),
+    [handleStatusUpdate]
+  );
 
-  const handleDecline = (task: Task) =>
-    handleStatusUpdate(task, "Poor Fit (Rejected)", "Creator declined");
-
-  const handleMoveToReview = (task: Task) =>
-    handleStatusUpdate(task, "For Review", "Moved to review");
+  const handleDecline = useCallback(
+    (task: Task) => handleStatusUpdate(task, "Poor Fit (Rejected)", "Creator declined"),
+    [handleStatusUpdate]
+  );
 
   return {
     data: data || [],
@@ -136,7 +134,6 @@ export function useTasks(listId: string | null): UseTasksResult {
     handleGood,
     handleBackup,
     handleDecline,
-    handleMoveToReview,
     isTaskPending: (taskId: string) => pendingTasks.has(taskId),
   };
 }

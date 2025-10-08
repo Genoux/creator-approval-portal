@@ -1,6 +1,6 @@
 // TODO:CHORE: Extract functions to a separate file
 
-import type { Task } from "@/types";
+import type { ClickUpTask } from "@/types";
 
 export class ClickUpAPI {
   private apiToken: string;
@@ -16,6 +16,7 @@ export class ClickUpAPI {
     if (!tokenToUse) {
       throw new Error("No ClickUp API token available");
     }
+    console.log(`🔑 Using token type: ${oauthToken ? 'OAuth (user)' : 'API (pk_)'}`);
     return new ClickUpAPI(tokenToUse);
   }
 
@@ -42,6 +43,7 @@ export class ClickUpAPI {
         status: response.status,
         statusText: response.statusText,
         url: response.url,
+        endpoint,
         errorBody: errorText,
       });
       throw new Error(
@@ -52,9 +54,10 @@ export class ClickUpAPI {
     return response.json();
   }
 
-  async getTasks(listId: string) {
-    const filter =
-      "archived=false&include_closed=true&order_by=created&reverse=true&limit=100&statuses[]=client%20approval&statuses[]=backup&statuses[]=declined%20(client)&statuses[]=selected";
+  async getTasks(listId: string, statuses: string[]): Promise<ClickUpTask[]> {
+    // Build status filter from the view configuration
+    const statusFilter = statuses.map(s => `statuses[]=${encodeURIComponent(s)}`).join('&');
+    const filter = `archived=false&include_closed=true&order_by=created&${statusFilter}&statuses[]=selected`;
     const baseQuery = `/list/${listId}/task`;
 
     const firstResponse = await this.request(`${baseQuery}?${filter}&page=0`);
@@ -62,10 +65,10 @@ export class ClickUpAPI {
 
     if (allTasks.length < 100) return allTasks;
 
-    const promises: Promise<{ tasks: Task[] }>[] = [];
+    const promises: Promise<{ tasks: ClickUpTask[] }>[] = [];
     for (let page = 1; page <= 5; page++) {
       promises.push(
-        this.request(`${baseQuery}&page=${page}`).catch(() => ({ tasks: [] }))
+        this.request(`${baseQuery}?${filter}&page=${page}`).catch(() => ({ tasks: [] }))
       );
     }
 
@@ -116,6 +119,10 @@ export class ClickUpAPI {
     return this.request(`/list/${listId}`);
   }
 
+  async getListViews(listId: string) {
+    return this.request(`/list/${listId}/view`);
+  }
+
   async getFolder(folderId: string) {
     return this.request(`/folder/${folderId}`);
   }
@@ -141,13 +148,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-          comment_text?: string;
-          comment?: Array<{
-            type?: "tag";
-            text?: string;
-            user?: { id: number };
-          }>;
-        },
+        comment_text?: string;
+        comment?: Array<{
+          type?: "tag";
+          text?: string;
+          user?: { id: number };
+        }>;
+      },
     assignee?: number
   ) {
     const body = {
@@ -169,13 +176,13 @@ export class ClickUpAPI {
     commentData:
       | string
       | {
-          comment_text?: string;
-          comment?: Array<{
-            type?: "tag";
-            text?: string;
-            user?: { id: number };
-          }>;
-        },
+        comment_text?: string;
+        comment?: Array<{
+          type?: "tag";
+          text?: string;
+          user?: { id: number };
+        }>;
+      },
     resolved?: boolean
   ) {
     const body = {

@@ -8,19 +8,21 @@ export async function GET(request: NextRequest) {
   return withAuth(request, async session => {
     const { searchParams } = new URL(request.url);
     const listId = searchParams.get("listId");
+    const statusesParam = searchParams.get("statuses");
 
-    if (!listId) {
+    if (!listId || !statusesParam) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "No listId provided", data: null },
+        { success: false, message: "listId and statuses are required", data: null },
         { status: 400 }
       );
     }
 
+    const statuses = statusesParam.split(",");
     const clickup = ClickUpAPI.createFromSession(
       session.apiToken,
       session.clickupAccessToken
     );
-    const clickUpTasks = await clickup.getTasks(listId);
+    const clickUpTasks = await clickup.getTasks(listId, statuses);
     const tasks: Task[] = clickUpTasks.map(extractTask);
 
     return NextResponse.json<ApiResponse<Task[]>>({
