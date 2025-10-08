@@ -35,13 +35,20 @@ export function NavigationBar({ className }: { className?: string }) {
   const user = useCurrentUser();
   const pathname = usePathname();
 
-  const { sharedLists, getApprovedTasks } = useCreatorManagement();
+  const { sharedLists, tasks } = useCreatorManagement();
   const [showListSelection, setShowListSelection] = useState(false);
 
   const isManagementActive = pathname === "/dashboard/management";
   const isSelectionsActive = pathname === "/dashboard/selections";
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const approvedCount = tasks.filter(
+    task =>
+      task.status.label === "Perfect (Approved)" ||
+      task.status.label === "Good (Approved)" ||
+      task.taskStatus === "selected"
+  ).length;
 
   return (
     <nav className={className}>
@@ -80,9 +87,9 @@ export function NavigationBar({ className }: { className?: string }) {
                 )}
               >
                 My Selections
-                {getApprovedTasks.length > 0 && (
+                {approvedCount > 0 && (
                   <span className="inline-flex items-center justify-center rounded-full min-w-5 h-5 px-1.5 text-xs font-medium bg-black/90 text-white leading-none">
-                    {getApprovedTasks.length}
+                    {approvedCount}
                   </span>
                 )}
               </Button>
@@ -130,9 +137,9 @@ export function NavigationBar({ className }: { className?: string }) {
                       prefetch={true}
                     >
                       My Selections
-                      {getApprovedTasks.length > 0 && (
+                      {approvedCount > 0 && (
                         <span className="inline-flex items-center justify-center rounded-full min-w-4 h-4 px-1 text-[10px] font-medium bg-black/90 text-white leading-none">
-                          {getApprovedTasks.length}
+                          {approvedCount}
                         </span>
                       )}
                     </Link>

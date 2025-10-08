@@ -6,11 +6,7 @@ import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import type { ApprovalLabel, Task } from "@/types";
 
 interface StatusConfirmationContextValue {
-  handleApprove: (task: Task) => Promise<void>;
-  handleGood: (task: Task) => Promise<void>;
-  handleBackup: (task: Task) => Promise<void>;
-  handleDecline: (task: Task) => Promise<void>;
-  handleMoveToReview: (task: Task) => Promise<void>;
+  handleStatusChange: (task: Task, newStatus: ApprovalLabel) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
 }
 
@@ -41,7 +37,6 @@ export function StatusConfirmationProvider({
     handleGood: _handleGood,
     handleBackup: _handleBackup,
     handleDecline: _handleDecline,
-    handleMoveToReview: _handleMoveToReview,
     isTaskPending,
   } = useCreatorManagement();
 
@@ -77,86 +72,84 @@ export function StatusConfirmationProvider({
     hideConfirmation();
   };
 
-  // Helper to determine if we're removing from selections
   const isRemovingFromSelections = (
-    currentLabel: ApprovalLabel,
-    newLabel: ApprovalLabel
-  ) => {
-    const isCurrentlySelected =
-      currentLabel === "Perfect (Approved)" ||
-      currentLabel === "Good (Approved)";
-    const isNoLongerSelected =
-      newLabel !== "Perfect (Approved)" && newLabel !== "Good (Approved)";
-    return isCurrentlySelected && isNoLongerSelected;
-  };
+    current: ApprovalLabel,
+    next: ApprovalLabel
+  ) =>
+    (current === "Perfect (Approved)" || current === "Good (Approved)") &&
+    next !== "Perfect (Approved)" &&
+    next !== "Good (Approved)";
 
-  // Wrapped handlers with confirmation
-  const handleApprove = async (task: Task) => {
+  const handleStatusChange = async (task: Task, newStatus: ApprovalLabel) => {
+    const isRemoving = isRemovingFromSelections(task.status.label, newStatus);
+
+    // Configuration for each actionable status
+    const statusConfig: Record<
+      Exclude<ApprovalLabel, "For Review">,
+      {
+        handler: (task: Task) => Promise<void>;
+        modal: {
+          title: string;
+          description: string;
+          confirmLabel: string;
+        };
+      }
+    > = {
+      "Perfect (Approved)": {
+        handler: _handleApprove,
+        modal: {
+          title: "You're about to select this creator.",
+          description: `${task.title} will be added to your selections. Are you sure?`,
+          confirmLabel: "Yes, approve",
+        },
+      },
+      "Good (Approved)": {
+        handler: _handleGood,
+        modal: {
+          title: "You're about to select this creator.",
+          description: `${task.title} will be added to your selections. Are you sure?`,
+          confirmLabel: "Yes, approve",
+        },
+      },
+      "Sufficient (Backup)": {
+        handler: _handleBackup,
+        modal: {
+          title: "You're about to set this creator as backup.",
+          description: isRemoving
+            ? `${task.title} will be removed from your selections. Are you sure?`
+            : `${task.title} will be set as backup.`,
+          confirmLabel: "Yes, set as backup",
+        },
+      },
+      "Poor Fit (Rejected)": {
+        handler: _handleDecline,
+        modal: {
+          title: "You're about to reject this creator.",
+          description: isRemoving
+            ? `${task.title} will be removed from your selections. Are you sure?`
+            : `${task.title} will be set as rejected. Are you sure?`,
+          confirmLabel: "Yes, reject",
+        },
+      },
+    };
+
+    const config =
+      statusConfig[newStatus as Exclude<ApprovalLabel, "For Review">];
+    if (!config) return;
+
+    // Execute with confirmation
     showConfirmation(
-      "You're about to select this creator.",
-      `${task.title} will be added to your selections. Are you sure?`,
-      "Yes, approve",
-      () => _handleApprove(task)
+      config.modal.title,
+      config.modal.description,
+      config.modal.confirmLabel,
+      () => config.handler(task)
     );
-  };
-
-  const handleGood = async (task: Task) => {
-    showConfirmation(
-      "You're about to select this creator.",
-      `${task.title} will be added to your selections. Are you sure?`,
-      "Yes, approve",
-      () => _handleGood(task)
-    );
-  };
-
-  const handleBackup = async (task: Task) => {
-    if (isRemovingFromSelections(task.status.label, "Sufficient (Backup)")) {
-      showConfirmation(
-        "You're about to set this creator as backup.",
-        `${task.title} will be removed from your selections. Are you sure?`,
-        "Yes, set as backup",
-        () => _handleBackup(task)
-      );
-    } else {
-      showConfirmation(
-        "You're about to set this creator as backup. Are you sure?",
-        `${task.title} will be set as backup.`,
-        "Yes, set as backup",
-        () => _handleBackup(task)
-      );
-    }
-  };
-
-  const handleDecline = async (task: Task) => {
-    if (isRemovingFromSelections(task.status.label, "Poor Fit (Rejected)")) {
-      showConfirmation(
-        "You're about to reject this creator.",
-        `${task.title} will be removed from your selections. Are you sure?`,
-        "Yes, reject",
-        () => _handleDecline(task)
-      );
-    } else {
-      showConfirmation(
-        "You're about to reject this creator.",
-        `${task.title} will be set as rejected. Are you sure?`,
-        "Yes, reject",
-        () => _handleDecline(task)
-      );
-    }
-  };
-
-  const handleMoveToReview = async (task: Task) => {
-    _handleMoveToReview(task);
   };
 
   return (
     <StatusConfirmationContext.Provider
       value={{
-        handleApprove,
-        handleGood,
-        handleBackup,
-        handleDecline,
-        handleMoveToReview,
+        handleStatusChange,
         isTaskPending,
       }}
     >

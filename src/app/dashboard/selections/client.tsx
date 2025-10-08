@@ -8,7 +8,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 
 export function SelectionsClient() {
-  const { isLoading, getApprovedTasks } = useCreatorManagement();
+  const { isLoading, tasks } = useCreatorManagement();
+
+  const approvedTasks = tasks.filter(
+    task =>
+      task.status.label === "Perfect (Approved)" ||
+      task.status.label === "Good (Approved)" ||
+      task.taskStatus === "selected"
+  );
 
   return (
     <LayoutDebug>
@@ -23,8 +30,8 @@ export function SelectionsClient() {
                 </h1>
                 {!isLoading ? (
                   <p className="text-gray-600 mt-1">
-                    You have {getApprovedTasks.length} creator
-                    {getApprovedTasks.length !== 1 ? "s" : ""} selected
+                    You have {approvedTasks.length} creator
+                    {approvedTasks.length !== 1 ? "s" : ""} selected
                   </p>
                 ) : (
                   <Skeleton className="w-54 h-4 mt-3" />
@@ -32,7 +39,7 @@ export function SelectionsClient() {
               </div>
             </div>
             <TasksGrid
-              tasks={getApprovedTasks}
+              tasks={approvedTasks}
               empty={{
                 title: "No Selections Yet",
                 description:

@@ -3,6 +3,7 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -30,9 +31,7 @@ interface CreatorManagementContextValue {
   handleGood: (task: Task) => Promise<void>;
   handleBackup: (task: Task) => Promise<void>;
   handleDecline: (task: Task) => Promise<void>;
-  handleMoveToReview: (task: Task) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
-  getApprovedTasks: Task[];
 }
 
 const CreatorManagementContext =
@@ -70,16 +69,20 @@ export function CreatorManagementProvider({
     }
   }, [sharedLists]);
 
-  const handleSetSelectedListId = (listId: string | null) => {
+  const handleSetSelectedListId = useCallback((listId: string | null) => {
     if (listId) {
       localStorage.setItem(SELECTED_LIST_KEY, listId);
     } else {
       localStorage.removeItem(SELECTED_LIST_KEY);
     }
     setSelectedListId(listId);
-  };
+  }, []);
 
-  const effectiveListId = selectedListId;
+  // Extract statusFilters from selected list for fetching tasks
+  const statusFilters = useMemo(
+    () => sharedLists.find(l => l.listId === selectedListId)?.statusFilters || [],
+    [sharedLists, selectedListId]
+  );
 
   const {
     data: tasks = [],
@@ -90,53 +93,59 @@ export function CreatorManagementProvider({
     handleGood,
     handleBackup,
     handleDecline,
-    handleMoveToReview,
     isTaskPending,
-  } = useTasks(effectiveListId);
+  } = useTasks(selectedListId, statusFilters);
 
   const {
     data: workspaceUsers = [],
     isLoading: usersLoading,
     error: usersError,
-  } = useWorkspaceUsers(effectiveListId);
+  } = useWorkspaceUsers(selectedListId);
 
   const isLoading = listLoading || tasksLoading || usersLoading;
   const error = listError || tasksError || usersError;
 
-  const refetch = () => {
+  const refetch = useCallback(() => {
     refetchList();
     refetchTasks();
-  };
+  }, [refetchList, refetchTasks]);
 
-  const getApprovedTasks = useMemo(() => {
-    return tasks.filter(
-      task =>
-        task.status.label === "Perfect (Approved)" ||
-        task.status.label === "Good (Approved)"
-    );
-  }, [tasks]);
+  const value = useMemo(
+    () => ({
+      listId: selectedListId,
+      selectedListId,
+      setSelectedListId: handleSetSelectedListId,
+      sharedLists,
+      tasks,
+      workspaceUsers,
+      isLoading,
+      error,
+      refetch,
+      handleApprove,
+      handleGood,
+      handleBackup,
+      handleDecline,
+      isTaskPending,
+    }),
+    [
+      selectedListId,
+      handleSetSelectedListId,
+      sharedLists,
+      tasks,
+      workspaceUsers,
+      isLoading,
+      error,
+      refetch,
+      handleApprove,
+      handleGood,
+      handleBackup,
+      handleDecline,
+      isTaskPending,
+    ]
+  );
 
   return (
-    <CreatorManagementContext.Provider
-      value={{
-        listId: effectiveListId,
-        selectedListId,
-        setSelectedListId: handleSetSelectedListId,
-        sharedLists,
-        tasks,
-        workspaceUsers,
-        isLoading,
-        error,
-        refetch,
-        handleApprove,
-        handleGood,
-        handleBackup,
-        handleDecline,
-        handleMoveToReview,
-        getApprovedTasks,
-        isTaskPending,
-      }}
-    >
+    <CreatorManagementContext.Provider value={value}>
       {children}
     </CreatorManagementContext.Provider>
   );
