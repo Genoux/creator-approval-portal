@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Edit3, MessageCircle, MoreVertical, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Badge } from "@/components/ui/badge";
@@ -17,13 +17,13 @@ import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
 import { cn } from "@/lib/utils";
 import type { Comment } from "@/types";
 import { formatTimeAgo } from "@/utils";
+import { ScrollGradient } from "../shared/ScrollGradient";
 import { CommentForm } from "./CommentForm";
 import { CommentText } from "./CommentSingle";
 
 interface CommentListProps {
   comments: Comment[];
   isLoading: boolean;
-  scrollRef?: React.RefObject<HTMLDivElement | null>;
   onCommentsChange?: () => void;
   taskId: string;
 }
@@ -31,15 +31,22 @@ interface CommentListProps {
 export function CommentList({
   comments,
   isLoading,
-  scrollRef,
   onCommentsChange,
   taskId,
 }: CommentListProps) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (!isLoading && comments.length > 0 && onCommentsChange) {
-      onCommentsChange();
+    if (!isLoading && comments.length > 0) {
+      // Scroll to bottom when new comments are added
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 100);
+      onCommentsChange?.();
     }
-  }, [comments, isLoading, onCommentsChange]);
+  }, [comments.length, isLoading, onCommentsChange]);
 
   if (isLoading) {
     return <CommentListSkeleton />;
@@ -47,14 +54,24 @@ export function CommentList({
 
   return (
     <div className="relative h-full">
-      <div className="h-4 absolute top-0 left-0 right-0 w-full bg-gradient-to-b from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
-      <div className="h-6 absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
+      <ScrollGradient
+        scrollRef={scrollRef}
+        position="top"
+        from="from-[#F9F7F7]"
+        via="via-[#f9f7f77f]"
+      />
+      <ScrollGradient
+        scrollRef={scrollRef}
+        position="bottom"
+        from="from-[#F9F7F7]"
+        via="via-[#f9f7f77f]"
+      />
       <div ref={scrollRef} className="h-full overflow-y-auto relative">
         {comments.length === 0 ? (
           <ErrorBlock
             title="No comments yet"
             description="Comments will appear here"
-            icon={<MessageCircle className="w-6 h-6 opacity-40" />}
+            icon={<MessageCircle className="w-5 h-5" />}
             className="h-full border-none shadow-none absolute top-0 left-0 right-0 bottom-0"
           />
         ) : (
@@ -105,7 +122,7 @@ function CommentItem({
 
   const handleSave = () => {
     setIsEditing(false);
-    toast.success("Comment updated");
+    toast.success("Comment saved");
   };
 
   const handleCancel = () => {
@@ -141,7 +158,7 @@ function CommentItem({
             </Badge>
           )}
           {canEdit && !isEditing && (
-            <DropdownMenu>
+            <DropdownMenu modal>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -153,7 +170,7 @@ function CommentItem({
                   <span className="sr-only">Comment actions</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32 z-90">
+              <DropdownMenuContent align="end" className="w-32 z-[100]">
                 <DropdownMenuItem
                   onClick={handleEdit}
                   disabled={isEditing || isDeleting || isUpdating}

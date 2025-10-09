@@ -28,8 +28,8 @@ export function ErrorBlock({
       )}
     >
       <div className="flex flex-col items-center justify-center py-12 px-6">
-        {icon && <div className="mb-2 text-muted-foreground">{icon}</div>}
-        <h3 className="text-lg font-normal text-muted-foreground">{title}</h3>
+        {icon && <div className="mb-1 text-muted-foreground">{icon}</div>}
+        <h3 className="text-md font-normal text-muted-foreground">{title}</h3>
         <p className="text-sm text-black/50 text-center max-w-sm">
           {description}
         </p>

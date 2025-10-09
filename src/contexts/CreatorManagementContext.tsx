@@ -80,7 +80,8 @@ export function CreatorManagementProvider({
 
   // Extract statusFilters from selected list for fetching tasks
   const statusFilters = useMemo(
-    () => sharedLists.find(l => l.listId === selectedListId)?.statusFilters || [],
+    () =>
+      sharedLists.find(l => l.listId === selectedListId)?.statusFilters || [],
     [sharedLists, selectedListId]
   );
 

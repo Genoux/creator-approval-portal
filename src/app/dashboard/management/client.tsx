@@ -8,7 +8,6 @@ import { NavigationBar } from "@/components/shared/NavigationBar";
 import { StatusTabs } from "@/components/shared/StatusTabs";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
-import { DropdownProvider } from "@/contexts/DropdownContext";
 import { StatusConfirmationProvider } from "@/contexts/StatusConfirmationContext";
 import type { ApprovalLabel } from "@/types";
 import { getDisplayLabel } from "@/utils/status";
@@ -61,12 +60,10 @@ export function ManagementClient() {
           <NavigationBar className="z-10" />
           <div className="flex flex-col gap-6">
             <StatusConfirmationProvider>
-              <DropdownProvider>
-                <ManagementContent
-                  activeStatus={activeStatus}
-                  setActiveStatus={setActiveStatus}
-                />
-              </DropdownProvider>
+              <ManagementContent
+                activeStatus={activeStatus}
+                setActiveStatus={setActiveStatus}
+              />
             </StatusConfirmationProvider>
           </div>
         </main>

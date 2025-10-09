@@ -1,9 +1,12 @@
+// TODO: Not sure if this is the best way to handle global dropwdowns, but it works for now
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { DropdownProvider } from "@/contexts/DropdownContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +39,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black overflow-x-hidden`}
       >
         <ErrorBoundary>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <DropdownProvider>{children}</DropdownProvider>
+          </QueryProvider>
         </ErrorBoundary>
         <Toaster position="bottom-center" />
       </body>

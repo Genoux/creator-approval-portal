@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/ui/useIsMobile";
 import type { Task } from "@/types";
 import { TaskComments } from "./TaskComments";
 import { TaskDetails } from "./TaskDetails";
@@ -18,13 +19,15 @@ interface TaskModalProps {
 
 export function TaskModal({ task, children }: TaskModalProps) {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="overflow-hidden p-4 rounded-3xl w-full md:!max-w-4xl min-h-[90vh] max-h-[660px] flex flex-col"
+        className="overflow-auto p-4 rounded-3xl w-full md:!max-w-4xl flex flex-col"
+        style={{ height: "clamp(660px, 90vh, 800px)" }}
         onPointerDownOutside={e => {
           const target = e.target as Element;
           if (
@@ -43,7 +46,7 @@ export function TaskModal({ task, children }: TaskModalProps) {
           <TaskComments task={task} />
         </section>
       </DialogContent>
-      {open && (
+      {isMobile && open && (
         <Button
           className="fixed top-4 right-4 rounded-full h-fit w-fit p-2 cursor-pointer z-[999]"
           onClick={() => setOpen(false)}

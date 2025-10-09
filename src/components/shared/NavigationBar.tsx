@@ -37,11 +37,10 @@ export function NavigationBar({ className }: { className?: string }) {
 
   const { sharedLists, tasks } = useCreatorManagement();
   const [showListSelection, setShowListSelection] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const isManagementActive = pathname === "/dashboard/management";
   const isSelectionsActive = pathname === "/dashboard/selections";
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const approvedCount = tasks.filter(
     task =>
@@ -106,7 +105,7 @@ export function NavigationBar({ className }: { className?: string }) {
                     {isSelectionsActive ? "My Selections" : "Management"}
                     <ChevronDownIcon
                       className={cn(
-                        "w-4 h-4 transition-transform duration-125",
+                        "w-4 h-4 transition-transform duration-125 group-data-[state=open]:rotate-180",
                         isOpen && "rotate-180"
                       )}
                     />
@@ -118,7 +117,6 @@ export function NavigationBar({ className }: { className?: string }) {
                       "cursor-pointer",
                       isManagementActive && "bg-black/5"
                     )}
-                    onClick={() => setIsOpen(false)}
                   >
                     <Link href="/dashboard/management" prefetch={true}>
                       Management
@@ -129,7 +127,6 @@ export function NavigationBar({ className }: { className?: string }) {
                       "cursor-pointer",
                       isSelectionsActive && "bg-black/5"
                     )}
-                    onClick={() => setIsOpen(false)}
                   >
                     <Link
                       className="flex items-center gap-2"

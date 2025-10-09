@@ -1,5 +1,3 @@
-//TODO: Evaluate if this hook is still necessary and remove it if not.
-
 import { useCallback, useRef } from "react";
 
 interface UseScrollToBottomOptions {
@@ -8,11 +6,6 @@ interface UseScrollToBottomOptions {
    * @default 100
    */
   delay?: number;
-  /**
-   * Selector for the scrollable container within the ref element
-   * @default "[data-radix-scroll-area-viewport]"
-   */
-  scrollSelector?: string;
 }
 
 /**
@@ -20,8 +13,7 @@ interface UseScrollToBottomOptions {
  * Provides both automatic scrolling on dependency changes and manual scroll trigger
  */
 export function useScrollToBottom(options: UseScrollToBottomOptions = {}) {
-  const { delay = 100, scrollSelector = "[data-radix-scroll-area-viewport]" } =
-    options;
+  const { delay = 100 } = options;
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -29,12 +21,11 @@ export function useScrollToBottom(options: UseScrollToBottomOptions = {}) {
     if (!scrollRef.current) return;
 
     setTimeout(() => {
-      const scrollContainer = scrollRef.current?.querySelector(scrollSelector);
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     }, delay);
-  }, [delay, scrollSelector]);
+  }, [delay]);
 
   return {
     scrollRef,

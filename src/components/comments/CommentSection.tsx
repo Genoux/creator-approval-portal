@@ -1,7 +1,6 @@
 "use client";
 
 import { useTaskComments } from "@/hooks/data/comments/useTaskComments";
-import { useScrollToBottom } from "@/hooks/ui/useScrollToBottom";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "../shared/ErrorBlock";
 import { CommentForm } from "./CommentForm";
@@ -19,7 +18,6 @@ export function CommentSection({
   showHeader = true,
 }: CommentSectionProps) {
   const { data: comments = [], isLoading, error } = useTaskComments(taskId);
-  const { scrollRef, scrollToBottom } = useScrollToBottom();
 
   return (
     <div
@@ -54,15 +52,13 @@ export function CommentSection({
           <CommentList
             comments={comments}
             isLoading={isLoading}
-            scrollRef={scrollRef}
-            onCommentsChange={scrollToBottom}
             taskId={taskId}
           />
         )}
       </div>
 
       <div className="flex-shrink-0 p-4">
-        <CommentForm taskId={taskId} onCommentSent={scrollToBottom} />
+        <CommentForm taskId={taskId} />
       </div>
     </div>
   );
