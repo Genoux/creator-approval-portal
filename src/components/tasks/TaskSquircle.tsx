@@ -1,7 +1,7 @@
 import { Squircle } from "@squircle-js/react";
+import { ImageOff } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-//import Image from "next/image";
 import { useState } from "react";
 import { useGetStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ interface TaskSquircleProps {
   size?: "default" | "modal";
   onLoadingChange?: (loading: boolean) => void;
   className?: string;
+  priority?: boolean; // Priority loading for above-the-fold images
 }
 
 export function TaskSquircle({
@@ -24,15 +25,23 @@ export function TaskSquircle({
   size = "default",
   className,
   onLoadingChange,
+  priority = false,
 }: TaskSquircleProps) {
   const { title, socials, status } = task;
   const filename = `${title.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
   const url = `https://d3phw8pj0ea6u1.cloudfront.net/${filename}`;
   const isReadOnly = useGetStatusConfirmation() === null;
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   const handleLoadingComplete = () => {
     setIsImageLoading(false);
+    onLoadingChange?.(false);
+  };
+
+  const handleImageError = () => {
+    setIsImageLoading(false);
+    setImageError(true);
     onLoadingChange?.(false);
   };
 
@@ -62,21 +71,29 @@ export function TaskSquircle({
           >
             <div
               className={cn(
-                "absolute rounded-2xl overflow-hidden",
+                "absolute rounded-2xl overflow-hidden flex items-center justify-center",
                 size === "default"
                   ? "inset-0 h-full"
-                  : "inset-0 md:right-4 h-[420px]"
+                  : "inset-0 md:right-4 h-[420px]",
+                imageError && "bg-black/30"
               )}
             >
-              <Image
-                src={url}
-                alt={title}
-                width={550}
-                height={550}
-                loading="lazy"
-                onLoad={handleLoadingComplete}
-                className="flex items-center justify-center object-cover w-full h-full object-center"
-              />
+              {imageError && (
+                <ImageOff className="w-6 h-6 opacity-70 text-white" />
+              )}
+              {!imageError && (
+                <Image
+                  src={url}
+                  alt={title}
+                  width={550}
+                  height={550}
+                  loading={priority ? "eager" : "lazy"}
+                  priority={priority}
+                  onLoad={handleLoadingComplete}
+                  onError={handleImageError}
+                  className="flex items-center justify-center object-cover w-full h-full object-center"
+                />
+              )}
               <div className="absolute bottom-0 left-0 right-0 h-[150px] pointer-events-none bg-gradient-to-b from-transparent via-black/70 to-black"></div>
               {/* Content Overlay */}
               <div className="absolute inset-2 flex self-end flex-wrap justify-between gap-2 p-3 text-white items-end">

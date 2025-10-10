@@ -36,12 +36,21 @@ export function useWorkspaceUsers(
       return result.data;
     },
     enabled: !!listId, // Only run query when listId is available
-    staleTime: 3600000, // 1 hour - users don't change often
-    gcTime: 7200000, // 2 hours
+    staleTime: 60 * 60 * 1000, // 1 hour - users don't change often
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours
     refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error instanceof Error && error.message.includes("401")) {
+        return false;
+      }
+      // Retry once for network/server errors
+      return failureCount < 1;
+    },
+    retryDelay: 2000, // 2 second delay before retry
   });
 
   return {

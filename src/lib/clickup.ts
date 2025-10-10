@@ -1,6 +1,7 @@
 // TODO:CHORE: Extract functions to a separate file
 
 import type { ClickUpTask } from "@/types";
+import { logError } from "@/utils/errors";
 
 export class ClickUpAPI {
   private apiToken: string;
@@ -38,16 +39,21 @@ export class ClickUpAPI {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ ClickUp API Error:", {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-        endpoint,
-        errorBody: errorText,
-      });
-      throw new Error(
+      const error = new Error(
         `ClickUp API error: ${response.status} ${response.statusText} - ${errorText}`
       );
+      logError(error, {
+        component: "ClickUpAPI",
+        action: "request",
+        metadata: {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          endpoint,
+          errorBody: errorText,
+        },
+      });
+      throw error;
     }
 
     return response.json();

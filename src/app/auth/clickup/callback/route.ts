@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { COOKIE_OPTIONS, createAuthToken } from "@/lib/auth";
 import type { ClickUpAuthResponse, ClickUpTokenResponse } from "@/types";
+import { logError } from "@/utils/errors";
 
 /**
  * Handle ClickUp OAuth callback
@@ -48,7 +49,10 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error("Token exchange failed:", errorText);
+      logError(new Error(`Token exchange failed: ${errorText}`), {
+        component: "OAuthCallback",
+        action: "token_exchange",
+      });
       return NextResponse.redirect(
         new URL("/?error=token_exchange", request.url)
       );
@@ -64,7 +68,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!userResponse.ok) {
-      console.error("Failed to fetch user info");
+      logError(new Error("Failed to fetch user info"), {
+        component: "OAuthCallback",
+        action: "fetch_user_info",
+      });
       return NextResponse.redirect(new URL("/?error=user_info", request.url));
     }
 
@@ -117,7 +124,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("OAuth callback error:", error);
+    logError(error, { component: "OAuthCallback", action: "callback" });
     return NextResponse.redirect(
       new URL("/?error=callback_error", request.url)
     );

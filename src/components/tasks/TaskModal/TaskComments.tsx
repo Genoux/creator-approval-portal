@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, MessageSquareIcon } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/ui/useIsMobile";
@@ -9,7 +9,7 @@ interface TaskCommentsProps {
   task: Task;
 }
 
-export function TaskComments({ task }: TaskCommentsProps) {
+function TaskCommentsComponent({ task }: TaskCommentsProps) {
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const isMobile = useIsMobile();
 
@@ -57,3 +57,8 @@ export function TaskComments({ task }: TaskCommentsProps) {
     </>
   );
 }
+
+// Memoize component to prevent unnecessary re-renders when task.id hasn't changed
+export const TaskComments = memo(TaskCommentsComponent, (prev, next) => {
+  return prev.task.id === next.task.id;
+});

@@ -6,9 +6,10 @@ import { TaskSquircle } from "./TaskSquircle";
 
 interface TaskCardProps {
   task: Task;
+  priority?: boolean; // Priority loading for above-the-fold images
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, priority = false }: TaskCardProps) {
   const [isImageLoading, setIsImageLoading] = useState(false);
 
   return (
@@ -19,11 +20,19 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
       )}
       {isImageLoading ? (
-        <TaskSquircle task={task} onLoadingChange={setIsImageLoading} />
+        <TaskSquircle
+          task={task}
+          onLoadingChange={setIsImageLoading}
+          priority={priority}
+        />
       ) : (
         <TaskModal task={task}>
           <div className="cursor-pointer">
-            <TaskSquircle task={task} onLoadingChange={setIsImageLoading} />
+            <TaskSquircle
+              task={task}
+              onLoadingChange={setIsImageLoading}
+              priority={priority}
+            />
           </div>
         </TaskModal>
       )}

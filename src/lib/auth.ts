@@ -2,6 +2,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { ApiResponse, User } from "@/types";
+import { logError } from "@/utils/errors";
 
 export interface AuthSession {
   listId?: string;
@@ -67,7 +68,7 @@ export async function verifyAuthToken(
       exp: payload.exp as number,
     };
   } catch (error) {
-    console.error("❌ JWT verification error:", error);
+    logError(error, { component: "Auth", action: "verify_token" });
     return null;
   }
 }
@@ -83,7 +84,7 @@ export async function getServerSession(): Promise<AuthSession | null> {
 
     return await verifyAuthToken(authToken.value);
   } catch (error) {
-    console.error("Error getting server session:", error);
+    logError(error, { component: "Auth", action: "get_session" });
     return null;
   }
 }
@@ -133,7 +134,7 @@ export async function withAuth<T>(
 
     return await handler(session, request);
   } catch (error) {
-    console.error("Auth middleware error:", error);
+    logError(error, { component: "Auth", action: "middleware" });
     return NextResponse.json<ApiResponse<null>>(
       { success: false, message: "Authentication failed", data: null },
       { status: 500 }

@@ -1,5 +1,5 @@
 import { RenderDelta } from "quill-delta-to-react";
-import { useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 import { ScrollGradient } from "@/components/shared/ScrollGradient";
 import { PortfolioPreview } from "@/components/social/portfolioPreview";
 import { SocialMediaButtons } from "@/components/social/SocialMediaButtons";
@@ -12,10 +12,15 @@ interface TaskDetailsProps {
   className?: string;
 }
 
-export function TaskDetails({ task, className }: TaskDetailsProps) {
+function TaskDetailsComponent({ task, className }: TaskDetailsProps) {
   const { followerCount, socials, portfolio, er } = task;
-  const delta = JSON.parse(portfolio.whyGoodFit || "{}");
-  const ops = Array.isArray(delta.ops) ? delta.ops : [];
+
+  // Memoize JSON parsing to avoid re-parsing on every render
+  const ops = useMemo(() => {
+    const delta = JSON.parse(portfolio.whyGoodFit || "{}");
+    return Array.isArray(delta.ops) ? delta.ops : [];
+  }, [portfolio.whyGoodFit]);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -87,3 +92,6 @@ export function TaskDetails({ task, className }: TaskDetailsProps) {
     </div>
   );
 }
+
+// Memoize component to prevent unnecessary re-renders when task hasn't changed
+export const TaskDetails = memo(TaskDetailsComponent);

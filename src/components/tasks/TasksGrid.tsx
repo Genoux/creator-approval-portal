@@ -13,6 +13,9 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
   const [isVisible, setIsVisible] = useState(index < INITIAL_VISIBLE_CARDS);
   const ref = useRef<HTMLDivElement>(null);
 
+  // Priority load first 4 images (above-the-fold)
+  const isPriority = index < INITIAL_VISIBLE_CARDS;
+
   useEffect(() => {
     if (isVisible) return; // Already visible, no need to observe
 
@@ -51,7 +54,7 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
             ease: "easeInOut",
           }}
         >
-          <TaskCard task={task} />
+          <TaskCard task={task} priority={isPriority} />
         </motion.div>
       ) : (
         <motion.div

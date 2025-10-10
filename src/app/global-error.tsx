@@ -2,6 +2,7 @@
 
 import NextError from "next/error";
 import { useEffect } from "react";
+import { logError } from "@/utils/errors";
 
 export default function GlobalError({
   error,
@@ -9,13 +10,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      import("@sentry/nextjs").then((Sentry) => {
-        Sentry.captureException(error);
-      });
-    } else {
-      console.error("Global error:", error);
-    }
+    logError(error, { component: "GlobalError", action: "render" });
   }, [error]);
 
   return (

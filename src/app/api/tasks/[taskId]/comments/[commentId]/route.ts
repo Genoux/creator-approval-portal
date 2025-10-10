@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse } from "@/types";
+import { logError } from "@/utils/errors";
 
 export async function PUT(
   request: NextRequest,
@@ -44,7 +45,7 @@ export async function PUT(
         data: result,
       });
     } catch (error) {
-      console.error("Failed to update comment:", error);
+      logError(error, { component: "CommentAPI", action: "update_comment" });
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -78,7 +79,7 @@ export async function DELETE(
         data: null,
       });
     } catch (error) {
-      console.error("Failed to delete comment:", error);
+      logError(error, { component: "CommentAPI", action: "delete_comment" });
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,

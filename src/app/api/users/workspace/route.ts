@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse, User } from "@/types";
+import { logError } from "@/utils/errors";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async session => {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
         data: members,
       });
     } catch (error) {
-      console.error("Error fetching workspace users:", error);
+      logError(error, { component: "WorkspaceAPI", action: "fetch_users" });
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,

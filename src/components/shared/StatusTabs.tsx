@@ -1,6 +1,5 @@
-//TODO: Optimize this component
-
 import { ChevronDownIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { ApprovalLabel, Task } from "@/types";
-import { getDisplayLabel, STATUS_CONFIG } from "@/utils/status";
+import {
+  getDisplayLabel,
+  SELECTED_STATUSES,
+  STATUS_CONFIG,
+} from "@/utils/status";
 import { Skeleton } from "../ui/skeleton";
 
 interface StatusTabsProps {
@@ -20,35 +23,44 @@ interface StatusTabsProps {
   loading: boolean;
 }
 
-const SELECTED_STATUSES: ApprovalLabel[] = [
-  "Perfect (Approved)",
-  "Good (Approved)",
-];
-
 export function StatusTabs({
   tasks,
   activeStatus,
   onStatusChange,
   loading,
 }: StatusTabsProps) {
-  // Count tasks by status
-  const tasksByStatus = STATUS_CONFIG.reduce(
-    (acc, config) => {
-      acc[config.label] = tasks.filter(
-        task => task.status.label === config.label
-      ).length;
-      return acc;
-    },
-    {} as Record<string, number>
+  // Memoize task counts to prevent recalculation on every render
+  const tasksByStatus = useMemo(
+    () =>
+      STATUS_CONFIG.reduce(
+        (acc, config) => {
+          acc[config.label] = tasks.filter(
+            task => task.status.label === config.label
+          ).length;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+    [tasks]
   );
 
-  const selectedCount = SELECTED_STATUSES.reduce(
-    (sum, status) => sum + (tasksByStatus[status] || 0),
-    0
+  const selectedCount = useMemo(
+    () =>
+      SELECTED_STATUSES.reduce(
+        (sum, status) => sum + (tasksByStatus[status] || 0),
+        0
+      ),
+    [tasksByStatus]
   );
-  const isSelectedActive = SELECTED_STATUSES.includes(activeStatus);
-  const otherStatuses = STATUS_CONFIG.filter(
-    c => !SELECTED_STATUSES.includes(c.label)
+
+  const isSelectedActive = useMemo(
+    () => SELECTED_STATUSES.includes(activeStatus),
+    [activeStatus]
+  );
+
+  const otherStatuses = useMemo(
+    () => STATUS_CONFIG.filter(c => !SELECTED_STATUSES.includes(c.label)),
+    []
   );
 
   return (

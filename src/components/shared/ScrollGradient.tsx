@@ -28,7 +28,6 @@ export function ScrollGradient({
 
   useEffect(() => {
     const element = scrollRef.current;
-    console.log(element);
     if (!element) return;
 
     const handleScroll = () => {

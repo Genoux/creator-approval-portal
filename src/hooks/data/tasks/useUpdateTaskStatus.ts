@@ -26,6 +26,8 @@ export function useUpdateTaskStatus(listId: string | null) {
 
       return response.json();
     },
+    retry: 2, // Retry twice on failure for critical status updates
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff, max 5s
 
     onMutate: async ({ taskId, label }) => {
       if (!listId) {
@@ -41,12 +43,12 @@ export function useUpdateTaskStatus(listId: string | null) {
         old?.map(task =>
           task.id === taskId
             ? {
-              ...task,
-              status: {
-                ...task.status,
-                label,
-              },
-            }
+                ...task,
+                status: {
+                  ...task.status,
+                  label,
+                },
+              }
             : task
         )
       );

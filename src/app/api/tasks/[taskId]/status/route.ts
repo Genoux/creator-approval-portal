@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
 import type { ApiResponse } from "@/types";
+import { logError } from "@/utils/errors";
 
 interface UpdateStatusBody {
   status: number | string | null;
@@ -46,7 +47,7 @@ export async function PUT(
         data: null,
       });
     } catch (error) {
-      console.error("❌ Failed to update status:", error);
+      logError(error, { component: "StatusAPI", action: "update_status" });
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,

@@ -55,8 +55,17 @@ export function useTaskComments(taskId: string, enabled = true) {
     queryFn: ({ signal }) => fetchTaskComments(taskId, signal),
     enabled: !!taskId && enabled,
     staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes - keep comments cached
     refetchInterval: false, // Only refetch on demand (when modal opens)
-    // retry, retryDelay, refetchOnWindowFocus, refetchIntervalInBackground
-    // all inherited from global defaults
+    refetchOnWindowFocus: false, // Don't auto-refetch on window focus
+    retry: (failureCount, error) => {
+      // Don't retry on client errors (4xx)
+      if (error instanceof Error && error.message.includes("(4")) {
+        return false;
+      }
+      // Retry up to 2 times for network/server errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 }

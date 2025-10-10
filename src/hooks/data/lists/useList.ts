@@ -19,12 +19,19 @@ export function useSharedLists() {
   return useQuery({
     queryKey: ["lists", "shared"],
     queryFn: fetchSharedLists,
-    retry: false,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutes - lists don't change often
+    gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Retry once on network/server errors
+      if (error instanceof Error && error.message.includes("Failed to fetch")) {
+        return failureCount < 1;
+      }
+      return false;
+    },
+    retryDelay: 2000, // 2 second delay before retry
   });
 }

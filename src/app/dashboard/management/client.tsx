@@ -1,6 +1,5 @@
 "use client";
 
-import { LayoutDebug } from "layout-debug-tool";
 import { useMemo, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Footer } from "@/components/shared/FooterBar";
@@ -54,21 +53,19 @@ export function ManagementClient() {
   const [activeStatus, setActiveStatus] = useState<ApprovalLabel>("For Review");
 
   return (
-    <LayoutDebug>
-      <div className="min-h-screen bg-white flex flex-col">
-        <main className="flex-1 max-w-7xl px-4 mx-auto flex flex-col gap-10 w-full relative">
-          <NavigationBar className="z-10" />
-          <div className="flex flex-col gap-6">
-            <StatusConfirmationProvider>
-              <ManagementContent
-                activeStatus={activeStatus}
-                setActiveStatus={setActiveStatus}
-              />
-            </StatusConfirmationProvider>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    </LayoutDebug>
+    <div className="min-h-screen bg-white flex flex-col">
+      <main className="flex-1 max-w-7xl px-4 mx-auto flex flex-col gap-10 w-full relative">
+        <NavigationBar className="z-10" />
+        <div className="flex flex-col gap-6">
+          <StatusConfirmationProvider>
+            <ManagementContent
+              activeStatus={activeStatus}
+              setActiveStatus={setActiveStatus}
+            />
+          </StatusConfirmationProvider>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }
