@@ -1,9 +1,12 @@
+// TODO: Not sure if this is the best way to handle global dropwdowns, but it works for now
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { DropdownProvider } from "@/contexts/DropdownContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +19,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"
+  ),
   title: "Creator Approval Portal",
   description: "Manage creator approvals synced with ClickUp",
 };
@@ -28,12 +36,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black overflow-x-hidden`}
       >
         <ErrorBoundary>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <DropdownProvider>{children}</DropdownProvider>
+          </QueryProvider>
         </ErrorBoundary>
-        <Toaster position="top-center" />
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

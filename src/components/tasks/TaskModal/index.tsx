@@ -1,6 +1,5 @@
-import { MessageSquareIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useState } from "react";
-import { CommentSection } from "@/components/comments/CommentSection";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useTaskComments } from "@/hooks/data/comments/useTaskComments";
+import { useIsMobile } from "@/hooks/ui/useIsMobile";
 import type { Task } from "@/types";
 import { TaskComments } from "./TaskComments";
 import { TaskDetails } from "./TaskDetails";
@@ -20,15 +19,15 @@ interface TaskModalProps {
 
 export function TaskModal({ task, children }: TaskModalProps) {
   const [open, setOpen] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const { data: comments = [], isLoading } = useTaskComments(task.id);
+  const isMobile = useIsMobile();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="rounded-3xl w-full md:!max-w-4xl px-4 pb-4 pt-3 h-[864px] transition-none md:h-[768px] md:min-h-[720px] max-h-full overflow-hidden flex flex-col"
+        className="overflow-auto p-4 rounded-3xl w-full md:!max-w-4xl flex flex-col"
+        style={{ height: "clamp(660px, 90vh, 800px)" }}
         onPointerDownOutside={e => {
           const target = e.target as Element;
           if (
@@ -40,53 +39,16 @@ export function TaskModal({ task, children }: TaskModalProps) {
           }
         }}
       >
-        <Button
-          className="sm:hidden rounded-full flex self-end"
-          onClick={() => setOpen(false)}
-          variant="outline"
-          size="icon"
-        >
-          <XIcon className="w-6 h-6 text-black" />
-        </Button>
-        <DialogTitle className="sr-only">{task.name}</DialogTitle>
+        <DialogTitle className="sr-only">{task.title}</DialogTitle>
 
-        <section className="flex flex-col md:flex-row justify-between gap-4 min-h-0 flex-1 overflow-hidden">
-          <TaskDetails
-            task={task}
-            className="flex-1 overflow-y-auto sm:p-4 p-0"
-          />
-
-          {/* Desktop Comments - Always visible on md+ */}
-          <CommentSection
-            taskId={task.id}
-            className="w-auto flex-1 hidden md:flex"
-          />
-
-          {/* Mobile Comments - Overlay */}
-          {showComments && (
-            <TaskComments
-              taskId={task.id}
-              comments={comments}
-              isLoading={isLoading}
-              onClose={() => setShowComments(false)}
-            />
-          )}
+        <section className="grid grid-cols-1 md:grid-cols-2 justify-between flex-1 min-h-0 h-full">
+          <TaskDetails task={task} className="flex flex-col min-h-0" />
+          <TaskComments task={task} />
         </section>
-
-        {!showComments && (
-          <Button
-            onClick={() => setShowComments(true)}
-            className="md:hidden rounded-full bg-[#2A0006] hover:bg-[#2A0006]/90 cursor-pointer text-white"
-            size="lg"
-          >
-            <MessageSquareIcon className="w-4 h-4" />
-            Comments
-          </Button>
-        )}
       </DialogContent>
-      {open && (
+      {isMobile && open && (
         <Button
-          className="hidden sm:flex fixed top-4 right-4 rounded-full h-fit w-fit p-2 cursor-pointer z-[999]"
+          className="fixed top-4 right-4 rounded-full h-fit w-fit p-2 cursor-pointer z-[999]"
           onClick={() => setOpen(false)}
           variant="outline"
           size="icon"

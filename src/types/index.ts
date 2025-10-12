@@ -6,12 +6,12 @@ export type {
   ClickUpSessionData,
   ClickUpSpace,
   ClickUpSpaceWithLists,
+  ClickUpTask,
   ClickUpTokenResponse,
   ClickUpWorkspace,
   ClickUpWorkspaceWithSpaces,
   CustomField,
   DropdownOption,
-  Task,
   TaskStatus,
 } from "./clickup";
 // Comment types
@@ -23,14 +23,14 @@ export type {
 } from "./comments";
 export type {
   ApiResponse,
+  AuthCredentials,
   StatusUpdate,
   User,
 } from "./core";
-// Creator-related types
+// App types (transformed from ClickUp)
 export type {
   ApprovalLabel,
-  CreatorProfile,
-  SocialPlatform,
-  SocialProfile,
-} from "./creators";
-export { APPROVAL_LABELS } from "./creators";
+  Social,
+  StatusFilter,
+  Task,
+} from "./tasks";

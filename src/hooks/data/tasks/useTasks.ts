@@ -1,125 +1,137 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { getApprovalOptionId } from "@/services/ApprovalService";
-import type { ApiResponse, Task } from "@/types";
-import { APPROVAL_LABELS } from "@/types";
+import type { ApiResponse, ApprovalLabel, Task } from "@/types";
+import { logError } from "@/utils/errors";
+import { APPROVAL_LABELS, getApprovalOptionId } from "@/utils/status";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 
 interface UseTasksResult {
-  // Data
   data: Task[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
-
-  // Actions
   handleApprove: (task: Task) => Promise<void>;
   handleGood: (task: Task) => Promise<void>;
   handleBackup: (task: Task) => Promise<void>;
   handleDecline: (task: Task) => Promise<void>;
-  handleMoveToReview: (task: Task) => Promise<void>;
   isTaskPending: (taskId: string) => boolean;
 }
 
-export function useTasks(listId: string | null): UseTasksResult {
+export function useTasks(
+  listId: string | null,
+  statuses: string[]
+): UseTasksResult {
   const [pendingTasks, setPendingTasks] = useState<Set<string>>(new Set());
+
+  const isQueryEnabled = !!listId && statuses.length > 0;
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: QUERY_KEYS.tasks(listId),
     queryFn: async (): Promise<Task[]> => {
-      if (!listId?.trim()) throw new Error("No list ID provided");
-
-      const response = await fetch(`/api/tasks?listId=${encodeURIComponent(listId)}`);
+      const response = await fetch(
+        `/api/tasks?listId=${encodeURIComponent(listId || "")}&statuses=${encodeURIComponent(statuses.join(","))}`
+      );
 
       if (response.status === 401) {
         window.location.href = "/";
         return [];
       }
 
-      if (!response.ok) throw new Error(`Failed to fetch tasks (${response.status})`);
+      if (!response.ok)
+        throw new Error(`Failed to fetch tasks (${response.status})`);
 
       const result: ApiResponse<Task[]> = await response.json();
-      if (!result.success) throw new Error(result.message || "Failed to fetch tasks");
+      if (!result.success)
+        throw new Error(result.message || "Failed to fetch tasks");
 
       return result.data;
     },
-    enabled: !!listId,
-    staleTime: 600000,
-    gcTime: 3600000,
+    enabled: isQueryEnabled,
+    staleTime: 2 * 60 * 1000, // 2 minutes - increased for better caching
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error instanceof Error && error.message.includes("401")) {
+        return false;
+      }
+      // Retry up to 2 times for network/server errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const updateTaskStatus = useUpdateTaskStatus(listId);
 
-  const handleStatusUpdate = async (
-    task: Task,
-    status: string | null,
-    loadingMessage: string,
-    successMessage: string,
-    errorMessage: string
-  ) => {
-    if (pendingTasks.has(task.id)) return;
+  const handleStatusUpdate = useCallback(
+    async (task: Task, label: ApprovalLabel, successMessage: string) => {
+      if (pendingTasks.has(task.id)) return;
 
-    const loadingId = showToast.loading(loadingMessage);
-    setPendingTasks(prev => new Set(prev).add(task.id));
+      const loadingId = showToast.loading(`Updating ${task.title}...`);
+      setPendingTasks(prev => new Set(prev).add(task.id));
 
-    try {
-      await updateTaskStatus.mutateAsync({ taskId: task.id, status });
-      showToast.update(loadingId, "success", successMessage, `${task.name} updated successfully`);
-    } catch (error) {
-      console.error(`❌ Status update failed:`, error);
-      showToast.update(loadingId, "error", errorMessage, `Could not update ${task.name}. Please try again.`);
-    } finally {
-      setPendingTasks(prev => {
-        const next = new Set(prev);
-        next.delete(task.id);
-        return next;
-      });
-    }
-  };
-
-  const handleApprove = (task: Task) => handleStatusUpdate(
-    task,
-    getApprovalOptionId(task, APPROVAL_LABELS.PERFECT),
-    `Marking ${task.name} as Perfect...`,
-    "Creator approved!",
-    "Failed to approve"
+      try {
+        await updateTaskStatus.mutateAsync({
+          taskId: task.id,
+          fieldId: task.status.fieldId,
+          status: getApprovalOptionId(label),
+          label,
+        });
+        showToast.update(loadingId, "success", successMessage);
+      } catch (error) {
+        logError(error, {
+          component: "useTasks",
+          action: "update_status",
+          metadata: { taskId: task.id, label },
+        });
+        showToast.update(
+          loadingId,
+          "error",
+          "Update failed",
+          `Could not update ${task.title}. Please try again.`
+        );
+      } finally {
+        setPendingTasks(prev => {
+          const next = new Set(prev);
+          next.delete(task.id);
+          return next;
+        });
+      }
+    },
+    [pendingTasks, updateTaskStatus]
   );
 
-  const handleGood = (task: Task) => handleStatusUpdate(
-    task,
-    getApprovalOptionId(task, APPROVAL_LABELS.GOOD),
-    `Marking ${task.name} as Good...`,
-    "Creator approved as Good!",
-    "Failed to mark as Good"
+  const handleApprove = useCallback(
+    (task: Task) =>
+      handleStatusUpdate(task, APPROVAL_LABELS.PERFECT, "Creator approved!"),
+    [handleStatusUpdate]
   );
 
-  const handleBackup = (task: Task) => handleStatusUpdate(
-    task,
-    getApprovalOptionId(task, APPROVAL_LABELS.SUFFICIENT),
-    `Marking ${task.name} as Sufficient...`,
-    "Marked as backup!",
-    "Failed to mark as backup"
+  const handleGood = useCallback(
+    (task: Task) =>
+      handleStatusUpdate(
+        task,
+        APPROVAL_LABELS.GOOD,
+        "Creator approved as Good!"
+      ),
+    [handleStatusUpdate]
   );
 
-  const handleDecline = (task: Task) => handleStatusUpdate(
-    task,
-    getApprovalOptionId(task, APPROVAL_LABELS.POOR_FIT),
-    `Marking ${task.name} as Poor Fit...`,
-    "Creator declined",
-    "Failed to decline"
+  const handleBackup = useCallback(
+    (task: Task) =>
+      handleStatusUpdate(task, APPROVAL_LABELS.BACKUP, "Marked as backup!"),
+    [handleStatusUpdate]
   );
 
-  const handleMoveToReview = (task: Task) => handleStatusUpdate(
-    task,
-    null,
-    `Moving ${task.name} to review...`,
-    "Moved to review",
-    "Failed to move to review"
+  const handleDecline = useCallback(
+    (task: Task) =>
+      handleStatusUpdate(task, APPROVAL_LABELS.REJECTED, "Creator declined"),
+    [handleStatusUpdate]
   );
 
   return {
@@ -131,7 +143,6 @@ export function useTasks(listId: string | null): UseTasksResult {
     handleGood,
     handleBackup,
     handleDecline,
-    handleMoveToReview,
     isTaskPending: (taskId: string) => pendingTasks.has(taskId),
   };
 }

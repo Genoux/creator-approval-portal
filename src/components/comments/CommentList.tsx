@@ -1,88 +1,149 @@
-import { MessageCircle } from "lucide-react";
-import { useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Edit3, MessageCircle, MoreVertical, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrentUser } from "@/contexts/AuthContext";
+import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
+import { cn } from "@/lib/utils";
 import type { Comment } from "@/types";
-
-function parseCommentDate(dateInput: string): Date {
-  return new Date(Number(dateInput));
-}
-
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) return "just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-
-  return date.toLocaleDateString();
-}
+import { formatTimeAgo } from "@/utils";
+import { ScrollGradient } from "../shared/ScrollGradient";
+import { CommentForm } from "./CommentForm";
+import { CommentText } from "./CommentSingle";
 
 interface CommentListProps {
   comments: Comment[];
   isLoading: boolean;
-  scrollRef?: React.RefObject<HTMLDivElement | null>;
   onCommentsChange?: () => void;
+  taskId: string;
 }
 
 export function CommentList({
   comments,
   isLoading,
-  scrollRef,
   onCommentsChange,
+  taskId,
 }: CommentListProps) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (!isLoading && comments.length > 0 && onCommentsChange) {
-      onCommentsChange();
+    if (!isLoading && comments.length > 0) {
+      // Scroll to bottom when new comments are added
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 100);
+      onCommentsChange?.();
     }
-  }, [comments, isLoading, onCommentsChange]);
+  }, [comments.length, isLoading, onCommentsChange]);
 
   if (isLoading) {
     return <CommentListSkeleton />;
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className="flex-1 overflow-y-auto relative pt-2 pr-4 pl-1.5"
-    >
-      {comments.length === 0 ? (
-        <ErrorBlock
-          title="No comments yet"
-          description="Comments will appear here"
-          icon={<MessageCircle className="w-6 h-6 opacity-40" />}
-          className="h-full border-none shadow-none absolute top-0 left-0 right-0 bottom-0"
-        />
-      ) : (
-        <div className="w-full">
-          <div className="h-6 absolute top-0 left-0 right-0 w-full bg-gradient-to-b from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
-          <div className="h-6 absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-[#F9F7F7] to-transparent pointer-events-none z-10"></div>
-          <div className="space-y-2 pt-1 pb-4">
-            {comments.map(comment => (
-              <CommentItem key={comment.id} comment={comment} />
-            ))}
+    <div className="relative h-full">
+      <ScrollGradient
+        scrollRef={scrollRef}
+        position="top"
+        from="from-[#F9F7F7]"
+        via="via-[#f9f7f77f]"
+      />
+      <ScrollGradient
+        scrollRef={scrollRef}
+        position="bottom"
+        from="from-[#F9F7F7]"
+        via="via-[#f9f7f77f]"
+      />
+      <div ref={scrollRef} className="h-full overflow-y-auto relative">
+        {comments.length === 0 ? (
+          <ErrorBlock
+            title="No comments yet"
+            description="Comments will appear here"
+            icon={<MessageCircle className="w-5 h-5" />}
+            className="h-full border-none shadow-none absolute top-0 left-0 right-0 bottom-0"
+          />
+        ) : (
+          <div className="space-y-2 pt-2 pb-4 px-4">
+            <div className="w-full flex flex-col gap-2">
+              {comments.map(comment => (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  taskId={taskId}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-function CommentItem({ comment }: { comment: Comment }) {
-  const createdAt = parseCommentDate(comment.createdAt);
-  const timeAgo = formatTimeAgo(createdAt);
+function CommentItem({
+  comment,
+  taskId,
+}: {
+  comment: Comment;
+  taskId: string;
+}) {
+  const timeAgo = formatTimeAgo(comment.createdAt);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const { deleteComment, isUpdating } = useCommentActions(taskId);
+  const currentUser = useCurrentUser();
+  const canEdit = currentUser?.id === comment.author.id;
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+
+    setIsDeleting(true);
+    // Let the mutation handle errors via onError callback
+    deleteComment(comment.id).catch(() => {
+      setIsDeleting(false);
+    });
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+    toast.success("Comment saved");
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
 
   return (
-    <div className="border rounded-lg p-4 space-y-3 w-full bg-white/40">
+    <div
+      className={cn(
+        "border rounded-lg p-3 space-y-3 w-full bg-white/40",
+        (isDeleting || isUpdating) && "opacity-50 pointer-events-none"
+      )}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-            {comment.author.initials}
-          </div>
+          <Avatar className="w-7 h-7 overflow-hidden rounded-full bg-gray-200 flex items-center justify-center">
+            <AvatarImage src={comment.author.profilePicture} />
+            <AvatarFallback className="text-xs">
+              {comment.author.initials}
+            </AvatarFallback>
+          </Avatar>
           <div>
             <p className="text-sm font-medium">{comment.author.name}</p>
             <p className="text-xs text-muted-foreground" title={timeAgo}>
@@ -90,22 +151,65 @@ function CommentItem({ comment }: { comment: Comment }) {
             </p>
           </div>
         </div>
-        {comment.resolved && (
-          <Badge variant="secondary" className="text-xs">
-            Resolved
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {comment.resolved && (
+            <Badge variant="secondary" className="text-xs">
+              Resolved
+            </Badge>
+          )}
+          {canEdit && !isEditing && (
+            <DropdownMenu modal>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                  disabled={isDeleting || isUpdating}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                  <span className="sr-only">Comment actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32 z-[100]">
+                <DropdownMenuItem
+                  onClick={handleEdit}
+                  disabled={isEditing || isDeleting || isUpdating}
+                  className="gap-2"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting || isUpdating}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
-      <div className="text-sm leading-relaxed whitespace-pre-wrap">
-        {comment.text}
-      </div>
+      {isEditing ? (
+        <CommentForm
+          taskId={taskId}
+          editingComment={comment}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      ) : (
+        <CommentText comment={comment} />
+      )}
     </div>
   );
 }
 
 function CommentListSkeleton() {
   return (
-    <div className="pt-2 pr-4 pl-1.5">
+    <div className="p-3">
       <div className="space-y-2">
         {Array.from({ length: 2 }).map(() => (
           <div

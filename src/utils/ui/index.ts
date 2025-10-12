@@ -1,6 +1,6 @@
 export {
   formatFollowerCount,
-  getDisplayLabel,
+  formatTimeAgo,
 } from "./formatting";
 
 export { showToast } from "./notifications";

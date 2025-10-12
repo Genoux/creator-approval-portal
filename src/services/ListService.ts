@@ -1,53 +1,62 @@
 import { ClickUpAPI } from "@/lib/clickup";
-import type { ClickUpList, ClickUpSpace } from "@/types";
 
 export interface ListResult {
   listId: string;
   listName: string;
+  viewId: string;
+  statusFilters: string[];
 }
 
-/**
- * Searches for a specific list by name across all teams
- * Uses parallel requests instead of sequential ones
- */
-export async function findListByName(
-  listName: string,
+export async function getSharedLists(
   apiToken: string,
   userAccessToken: string
-): Promise<ListResult | null> {
+): Promise<ListResult[]> {
+  const clickup = ClickUpAPI.createFromSession(apiToken, userAccessToken);
+  const teamsData = await clickup.getTeams();
+  const teams = teamsData.teams || [];
+
+  const results: ListResult[] = [];
+
+  for (const team of teams) {
     try {
-      const clickup = ClickUpAPI.createFromSession(apiToken, userAccessToken);
-      const teamsData = await clickup.getTeams();
-      const teams = teamsData.teams || [];
+      const sharedData = await clickup.getSharedResources(team.id);
+      const sharedLists = sharedData.shared?.lists || [];
+      for (const list of sharedLists) {
+        if (list.name === "Creator Management") {
+          const viewsData = await clickup.getListViews(list.id);
+          const clientView = viewsData.required_views.list;
 
-      const teamPromises = teams.map(async (team: ClickUpSpace) => {
-        try {
-          const sharedData = await clickup.getSharedResources(team.id);
-          const sharedLists = sharedData.shared?.lists || [];
+          //TODO: Verify this is correct
+          // Extract status filters from view configuration
+          // Note: We skip { "type": "closed" } objects since include_closed=true is already set in the API call
+          const statusFilters: string[] = [];
 
-          const targetList = sharedLists.find(
-            (list: ClickUpList) => list.name === listName
-          );
-
-          if (targetList) {
-            return {
-              listId: targetList.id,
-              listName: targetList.name,
-            };
+          if (clientView?.filters?.op === "AND") {
+            for (const filter of clientView.filters.fields || []) {
+              if (filter.field === "status" && filter.values) {
+                for (const value of filter.values) {
+                  if (typeof value === "string") {
+                    statusFilters.push(value);
+                  }
+                }
+              }
+            }
           }
-          return null;
-        } catch (error) {
-          console.warn(`Error processing team ${team.id}:`, error);
-          return null;
+          results.push({
+            listId: list.id,
+            listName: list.name,
+            viewId: clientView.id,
+            statusFilters,
+          });
         }
-      });
-
-      const results = await Promise.all(teamPromises);
-      const foundList = results.find(result => result !== null);
-
-      return foundList || null;
+      }
     } catch (error) {
-      console.error(`Error finding list "${listName}":`, error);
-      return null;
+      console.warn(
+        `Error fetching shared resources for team ${team.id}:`,
+        error
+      );
     }
+  }
+
+  return results;
 }

@@ -13,10 +13,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { SocialProfile } from "@/types";
+import type { Social } from "@/types";
 
 interface SocialMediaButtonsProps {
-  socialProfiles?: SocialProfile[];
+  socials: Social[];
   variant?: "light" | "dark";
   className?: string;
 }
@@ -26,34 +26,34 @@ const PLATFORM_ICONS = {
   TikTok: TikTokIcon,
   YouTube: YouTubeIcon,
   LinkedIn: LinkedInIcon,
-  External: ExternalLinkIcon,
+  Portfolio: ExternalLinkIcon,
 } as const;
 
-const ICON_STYLES = "w-4 h-4 text-white  transition-colors";
+const ICON_STYLES = "w-4 h-4 text-white transition-colors";
 
 export function SocialMediaButtons({
-  socialProfiles = [],
+  socials,
   variant = "light",
   className,
 }: SocialMediaButtonsProps) {
-  const validProfiles = socialProfiles.filter(profile => profile.url !== null);
-  if (validProfiles.length === 0) return null;
-
   return (
-    <section className="flex">
-      {validProfiles.map(({ url, platform }) => {
-        const Icon = PLATFORM_ICONS[platform];
+    <section className="flex gap-1">
+      {socials.map(({ url, platform }) => {
+        const Icon =
+          PLATFORM_ICONS[platform as keyof typeof PLATFORM_ICONS] ||
+          ExternalLinkIcon;
+
         return (
-          <TooltipProvider key={url}>
+          <TooltipProvider key={platform}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href={url || ""}
+                  href={url}
                   onClick={e => e.stopPropagation()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    "group p-1.5  rounded-md hover:bg-white/10 transition-colors",
+                    "group p-1.5 rounded-md hover:bg-white/10 transition-colors border",
                     variant === "dark" && "hover:bg-black/10",
                     className
                   )}

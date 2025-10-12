@@ -1,17 +1,14 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "@/lib/auth";
-import { hasDisclaimerBeenAcknowledged } from "@/lib/disclaimer-actions";
-import { DashboardClient } from "./client";
+"use client";
 
-export default async function DashboardPage() {
-  const session = await getServerSession();
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-  // No session at all - redirect to login
-  if (!session) {
-    redirect("/");
-  }
+export default function DashboardPage() {
+  const router = useRouter();
 
-  const showDisclaimer = !(await hasDisclaimerBeenAcknowledged());
+  useEffect(() => {
+    router.replace("/dashboard/management");
+  }, [router]);
 
-  return <DashboardClient session={session} showDisclaimer={showDisclaimer} />;
+  return null;
 }

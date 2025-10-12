@@ -1,16 +1,19 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 // Initiate ClickUp OAuth flow
-export async function GET() {
+export async function GET(request: NextRequest) {
   const clientId = process.env.CLICKUP_CLIENT_ID;
-  const redirectUri = process.env.CLICKUP_REDIRECT_URI;
 
-  if (!clientId || !redirectUri) {
+  if (!clientId) {
     return NextResponse.json(
       { error: "ClickUp OAuth not configured" },
       { status: 500 }
     );
   }
+
+  // Build dynamic redirect URI based on current host
+  const url = new URL(request.url);
+  const redirectUri = `${url.origin}/auth/clickup/callback`;
 
   // Build ClickUp OAuth URL
   const authUrl = new URL("https://app.clickup.com/api");

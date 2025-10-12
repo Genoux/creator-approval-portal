@@ -6,10 +6,6 @@ async function fetchTaskComments(
   taskId: string,
   signal?: AbortSignal
 ): Promise<Comment[]> {
-  if (!taskId?.trim()) {
-    throw new Error("taskId is required");
-  }
-
   const response = await fetch(`/api/tasks/${taskId}/comments`, {
     signal,
     headers: {
@@ -53,14 +49,23 @@ async function fetchTaskComments(
   return data.data.reverse();
 }
 
-export function useTaskComments(taskId: string) {
+export function useTaskComments(taskId: string, enabled = true) {
   return useQuery({
     queryKey: QUERY_KEYS.taskComments(taskId),
     queryFn: ({ signal }) => fetchTaskComments(taskId, signal),
-    enabled: !!taskId,
-    staleTime: 2 * 60 * 1000, // 2 minutes (override global 5min default)
-    refetchInterval: 60 * 1000, // 60 seconds (reduced from 20s)
-    // retry, retryDelay, refetchOnWindowFocus, refetchIntervalInBackground
-    // all inherited from global defaults
+    enabled: !!taskId && enabled,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes - keep comments cached
+    refetchInterval: false, // Only refetch on demand (when modal opens)
+    refetchOnWindowFocus: false, // Don't auto-refetch on window focus
+    retry: (failureCount, error) => {
+      // Don't retry on client errors (4xx)
+      if (error instanceof Error && error.message.includes("(4")) {
+        return false;
+      }
+      // Retry up to 2 times for network/server errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 }

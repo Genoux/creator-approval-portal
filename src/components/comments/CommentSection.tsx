@@ -1,7 +1,6 @@
 "use client";
 
 import { useTaskComments } from "@/hooks/data/comments/useTaskComments";
-import { useScrollToBottom } from "@/hooks/ui/useScrollToBottom";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "../shared/ErrorBlock";
 import { CommentForm } from "./CommentForm";
@@ -19,18 +18,17 @@ export function CommentSection({
   showHeader = true,
 }: CommentSectionProps) {
   const { data: comments = [], isLoading, error } = useTaskComments(taskId);
-  const { scrollRef, scrollToBottom } = useScrollToBottom();
 
   return (
     <div
       className={cn(
-        "flex flex-col rounded-2xl pb-4 pt-3 bg-[#F9F7F7] min-h-0",
+        "flex flex-col h-full overflow-y-hidden rounded-2xl bg-[#F9F7F7]",
         className
       )}
     >
       {/* Header */}
       {showHeader && comments.length > 0 && (
-        <div className="px-4">
+        <div className="flex-shrink-0 px-4 pt-3 pb-1">
           <div className="flex items-center gap-1">
             <h3 className="text-base font-semibold">Comments</h3>
             {!isLoading && (
@@ -43,7 +41,7 @@ export function CommentSection({
       )}
 
       {/* Comments List */}
-      <div className="flex-1 flex flex-col pl-4 pr-2 h-full">
+      <div className="flex-1 min-h-0">
         {error ? (
           <ErrorBlock
             title="Error loading comments"
@@ -54,13 +52,14 @@ export function CommentSection({
           <CommentList
             comments={comments}
             isLoading={isLoading}
-            scrollRef={scrollRef}
-            onCommentsChange={scrollToBottom}
+            taskId={taskId}
           />
         )}
       </div>
 
-      <CommentForm taskId={taskId} onCommentSent={scrollToBottom} />
+      <div className="flex-shrink-0 p-4">
+        <CommentForm taskId={taskId} />
+      </div>
     </div>
   );
 }

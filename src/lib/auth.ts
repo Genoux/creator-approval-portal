@@ -2,7 +2,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { ApiResponse, User } from "@/types";
-import { ClickUpAPI } from "./clickup";
+import { logError } from "@/utils/errors";
 
 export interface AuthSession {
   listId?: string;
@@ -33,7 +33,6 @@ export const COOKIE_OPTIONS = {
 
 export async function createAuthToken(
   listId: string | null,
-  apiToken: string,
   listName?: string | null,
   clickupAccessToken?: string,
   clickupUser?: User
@@ -41,7 +40,6 @@ export async function createAuthToken(
   const payload: Omit<AuthSession, "exp"> = {
     listId: listId ?? undefined,
     listName: listName ?? undefined,
-    apiToken: apiToken,
     clickupAccessToken: clickupAccessToken,
     clickupUser: clickupUser,
   };
@@ -70,7 +68,7 @@ export async function verifyAuthToken(
       exp: payload.exp as number,
     };
   } catch (error) {
-    console.error("❌ JWT verification error:", error);
+    logError(error, { component: "Auth", action: "verify_token" });
     return null;
   }
 }
@@ -86,30 +84,30 @@ export async function getServerSession(): Promise<AuthSession | null> {
 
     return await verifyAuthToken(authToken.value);
   } catch (error) {
-    console.error("Error getting server session:", error);
+    logError(error, { component: "Auth", action: "get_session" });
     return null;
   }
 }
 
-export async function validateClickUpCredentials(
-  listId: string
-): Promise<boolean> {
-  try {
-    const apiToken = process.env.CLICKUP_API_TOKEN;
-    if (!apiToken) {
-      console.error("CLICKUP_API_TOKEN not found in environment");
-      return false;
-    }
+// export async function validateClickUpCredentials(
+//   listId: string
+// ): Promise<boolean> {
+//   try {
+//     const apiToken = process.env.CLICKUP_API_TOKEN;
+//     if (!apiToken) {
+//       console.error("CLICKUP_API_TOKEN not found in environment");
+//       return false;
+//     }
 
-    // Use ClickUpAPI wrapper for consistent error handling and caching
-    const clickup = new ClickUpAPI(apiToken);
-    await clickup.getList(listId);
-    return true;
-  } catch (error) {
-    console.error("ClickUp validation error:", error);
-    return false;
-  }
-}
+//     // Use ClickUpAPI wrapper for consistent error handling and caching
+//     const clickup = new ClickUpAPI(apiToken);
+//     await clickup.getList(listId);
+//     return true;
+//   } catch (error) {
+//     console.error("ClickUp validation error:", error);
+//     return false;
+//   }
+// }
 
 // Shared auth middleware for API routes
 export async function withAuth<T>(
@@ -136,7 +134,7 @@ export async function withAuth<T>(
 
     return await handler(session, request);
   } catch (error) {
-    console.error("Auth middleware error:", error);
+    logError(error, { component: "Auth", action: "middleware" });
     return NextResponse.json<ApiResponse<null>>(
       { success: false, message: "Authentication failed", data: null },
       { status: 500 }

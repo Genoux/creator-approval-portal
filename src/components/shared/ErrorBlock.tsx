@@ -23,13 +23,13 @@ export function ErrorBlock({
   return (
     <div
       className={cn(
-        "bg-[#F9F7F7] flex-1 w-full shadow-none h-full flex items-center justify-center rounded-3xl",
+        "bg-[#F9F7F7] h-[calc(100vh-300px)] w-full shadow-none flex items-center justify-center rounded-3xl",
         className
       )}
     >
       <div className="flex flex-col items-center justify-center py-12 px-6">
-        {icon && <div className="mb-2 text-muted-foreground">{icon}</div>}
-        <h3 className="text-lg font-normal text-muted-foreground">{title}</h3>
+        {icon && <div className="mb-1 text-muted-foreground">{icon}</div>}
+        <h3 className="text-md font-normal text-muted-foreground">{title}</h3>
         <p className="text-sm text-black/50 text-center max-w-sm">
           {description}
         </p>

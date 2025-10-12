@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
-import { getApprovalFieldId } from "@/services/ApprovalService";
-import type { ApiResponse, Task } from "@/types";
+import type { ApiResponse } from "@/types";
+import { logError } from "@/utils/errors";
 
 interface UpdateStatusBody {
-  status: string | null;
+  status: number | string | null;
+  fieldId: string;
 }
 
 export async function PUT(
@@ -15,46 +16,42 @@ export async function PUT(
   return withAuth(request, async session => {
     try {
       const { taskId } = await params;
-      const { status }: UpdateStatusBody = await request.json();
+      const { status, fieldId }: UpdateStatusBody = await request.json();
 
-      const clickup = ClickUpAPI.createFromSession(
-        session.apiToken,
-        session.clickupAccessToken
-      );
-
-      // Get the task first to discover field ID dynamically
-      const task: Task = await clickup.getTask(taskId);
-      const approvalFieldId = getApprovalFieldId(task);
-
-      if (!approvalFieldId) {
+      if (!fieldId) {
         return NextResponse.json<ApiResponse<null>>(
           {
             success: false,
-            message: "Approval field not found",
+            message: "Field ID is required",
             data: null,
           },
           { status: 400 }
         );
       }
 
-      // Update the task's approval field
-      const response = await clickup.updateTaskCustomField(
-        taskId,
-        approvalFieldId,
-        status
+      const clickup = ClickUpAPI.createFromSession(
+        session.apiToken,
+        session.clickupAccessToken
       );
 
-      return NextResponse.json<ApiResponse<unknown>>({
+      console.log(`🔄 Updating task ${taskId} field ${fieldId} to:`, status);
+
+      // Update the task's approval field
+      await clickup.updateTaskCustomField(taskId, fieldId, status);
+
+      console.log(`✅ Successfully updated task ${taskId} status`);
+
+      return NextResponse.json<ApiResponse<null>>({
         success: true,
-        message: "Task status updated successfully",
-        data: response,
+        message: "Status updated successfully",
+        data: null,
       });
     } catch (error) {
-      console.error("❌ Failed to update task status:", error);
+      logError(error, { component: "StatusAPI", action: "update_status" });
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          message: "Failed to update task status",
+          message: "Failed to update status",
           data: null,
         },
         { status: 500 }

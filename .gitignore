@@ -45,3 +45,9 @@ next-env.d.ts
 
 .vscode
 .cursor
+
+todo
+CLAUDE.md
+# Sentry Config File
+.env.sentry-build-plugin
+.mcp.json

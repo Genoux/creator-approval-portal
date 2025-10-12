@@ -1,22 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { getApprovalFieldId } from "@/services/ApprovalService";
-import type { StatusUpdate, Task } from "@/types";
+import type { ApprovalLabel, StatusUpdate, Task } from "@/types";
 
 interface UpdateStatusParams {
   taskId: string;
-  status: StatusUpdate;
+  fieldId: string;
+  status: StatusUpdate | null;
+  label: ApprovalLabel;
 }
 
 export function useUpdateTaskStatus(listId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ taskId, status }: UpdateStatusParams) => {
+    mutationFn: async ({ taskId, fieldId, status }: UpdateStatusParams) => {
       const response = await fetch(`/api/tasks/${taskId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, fieldId }),
       });
 
       if (!response.ok) {
@@ -25,8 +26,10 @@ export function useUpdateTaskStatus(listId: string | null) {
 
       return response.json();
     },
+    retry: 2, // Retry twice on failure for critical status updates
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff, max 5s
 
-    onMutate: async ({ taskId, status }) => {
+    onMutate: async ({ taskId, label }) => {
       if (!listId) {
         return { previous: null };
       }
@@ -37,20 +40,17 @@ export function useUpdateTaskStatus(listId: string | null) {
       const previous = queryClient.getQueryData<Task[]>(queryKey);
 
       queryClient.setQueryData<Task[]>(queryKey, old =>
-        old?.map(task => {
-          if (task.id === taskId) {
-            const approvalFieldId = getApprovalFieldId(task);
-            return {
-              ...task,
-              custom_fields: task.custom_fields?.map(field =>
-                field.id === approvalFieldId
-                  ? { ...field, value: status }
-                  : field
-              ),
-            };
-          }
-          return task;
-        })
+        old?.map(task =>
+          task.id === taskId
+            ? {
+                ...task,
+                status: {
+                  ...task.status,
+                  label,
+                },
+              }
+            : task
+        )
       );
 
       return { previous };
@@ -62,11 +62,6 @@ export function useUpdateTaskStatus(listId: string | null) {
       }
     },
 
-    onSuccess: () => {
-      // Invalidate tasks cache to ensure fresh data on next fetch
-      if (listId) {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tasks(listId) });
-      }
-    },
+    // Optimistic update already applied - tabs will reflect changes immediately
   });
 }

@@ -1,18 +1,23 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+// TODO: Fix selected tab animation layout.
+// Removed for now
+
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { getApprovalStatus } from "@/services/ApprovalService";
-import type { ApprovalLabel, Task } from "@/types";
-import { APPROVAL_LABELS } from "@/types";
-import { getDisplayLabel } from "@/utils/ui";
+import type { Task } from "@/types";
+import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
+
+const INITIAL_VISIBLE_CARDS = 4;
+const SKELETON_COUNT = 4;
 
 // Lazy loading wrapper for TaskCard
 function LazyTaskCard({ task, index }: { task: Task; index: number }) {
-  const [isVisible, setIsVisible] = useState(index < 8); // Show first 4 immediately
+  const [isVisible, setIsVisible] = useState(index < INITIAL_VISIBLE_CARDS);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Priority load first 4 images (above-the-fold)
+  const isPriority = index < INITIAL_VISIBLE_CARDS;
 
   useEffect(() => {
     if (isVisible) return; // Already visible, no need to observe
@@ -39,109 +44,73 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
 
   return (
     <div ref={ref} className="relative">
-      <AnimatePresence mode="wait">
-        {isVisible ? (
-          <motion.div
-            layout
-            key="task-card"
-            initial={{ y: 50, opacity: 0, scale: 1 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -20, opacity: 0, scale: 1 }}
-            transition={{
-              delay: 0,
-              duration: 0.2,
-              type: "spring",
-              damping: 50,
-              stiffness: 500,
-            }}
-          >
-            <TaskCard task={task} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="placeholder"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="h-[500px] w-full rounded-3xl bg-gray-100 animate-pulse"
-          />
-        )}
-      </AnimatePresence>
+      {isVisible ? (
+        <motion.div
+          key="task-card"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{
+            delay: index * 0.1,
+            duration: 0.4,
+            ease: "easeInOut",
+          }}
+        >
+          <TaskCard task={task} priority={isPriority} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="placeholder"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="h-[500px] w-full rounded-3xl bg-gray-100 animate-pulse"
+        />
+      )}
     </div>
   );
 }
 
-const CATEGORIES = [
-  APPROVAL_LABELS.PERFECT,
-  APPROVAL_LABELS.GOOD,
-  APPROVAL_LABELS.SUFFICIENT,
-  APPROVAL_LABELS.POOR_FIT,
-  APPROVAL_LABELS.FOR_REVIEW,
-] as const;
-
 interface TasksGridProps {
   tasks: Task[];
+  empty?: {
+    title: string;
+    description: string;
+  };
+  loading: boolean;
 }
 
-export function TasksGrid({ tasks }: TasksGridProps) {
-  const [activeTab, setActiveTab] = useState<ApprovalLabel | "">("");
-
-  const tasksByStatus = useMemo(() => {
-    const result: Record<string, Task[]> = {};
-    CATEGORIES.forEach(status => {
-      result[status] = tasks.filter(task => getApprovalStatus(task) === status);
-    });
-    return result;
-  }, [tasks]);
-
-  if (tasks.length === 0) {
+export function TasksGrid({
+  tasks,
+  empty = {
+    title: "No creators found",
+    description: "Creators will appear here when they're assigned this status.",
+  },
+  loading,
+}: TasksGridProps) {
+  if (tasks.length === 0 && !loading) {
     return (
       <ErrorBlock
-        title="No creators found"
-        description="Creators will appear here when they're assigned this status."
+        title={empty.title}
+        description={empty.description}
+        className="h-[580px]"
       />
     );
   }
 
-  const currentActiveTab = activeTab || CATEGORIES[4];
-
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Simple Custom Tabs */}
-      <div className="flex gap-2 w-full flex-wrap">
-        {CATEGORIES.map(status => (
-          <Button
-            key={status}
-            variant="secondary"
-            onClick={() => setActiveTab(status)}
-            className={cn(
-              "py-6 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75",
-              currentActiveTab === status &&
-                "bg-[#2A0006] text-white hover:bg-[#2A0006]"
-            )}
-          >
-            {getDisplayLabel(status)} ({tasksByStatus[status]?.length || 0})
-          </Button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div>
-        {tasksByStatus[currentActiveTab]?.length === 0 ? (
-          <ErrorBlock
-            title={`No creators in "${getDisplayLabel(currentActiveTab)}"`}
-            description={`Creators will appear here when they're assigned this status.`}
-            className="h-[580px]"
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {tasksByStatus[currentActiveTab]?.map((task, index) => (
-              <LazyTaskCard key={task.id} task={task} index={index} />
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {loading
+        ? Array.from({ length: SKELETON_COUNT }, () => (
+            <Skeleton
+              key={`skeleton-${Math.random()}`}
+              className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
+            />
+          ))
+        : tasks.map((task, index) => (
+            <LazyTaskCard key={task.id} task={task} index={index} />
+          ))}
     </div>
   );
 }

@@ -1,38 +1,33 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth";
 import { ClickUpAPI } from "@/lib/clickup";
+import { extractTask } from "@/services/TaskService";
 import type { ApiResponse, Task } from "@/types";
 
 export async function GET(request: NextRequest) {
   return withAuth(request, async session => {
     const { searchParams } = new URL(request.url);
     const listId = searchParams.get("listId");
+    const statusesParam = searchParams.get("statuses");
 
-    if (!listId) {
+    if (!listId || !statusesParam) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "No listId provided", data: null },
+        { success: false, message: "listId and statuses are required", data: null },
         { status: 400 }
       );
     }
 
-    // Use OAuth token if available, otherwise fall back to API token
+    const statuses = statusesParam.split(",");
     const clickup = ClickUpAPI.createFromSession(
       session.apiToken,
       session.clickupAccessToken
     );
-    const selectedTasks = await clickup.getTasks(listId);
-    const creators = selectedTasks.map((task: Task) => {
-      return {
-        id: task.id,
-        name: task.name,
-        custom_fields: task.custom_fields || [],
-        status: task.status,
-      };
-    });
+    const clickUpTasks = await clickup.getTasks(listId, statuses);
+    const tasks: Task[] = clickUpTasks.map(extractTask);
 
-    return NextResponse.json<ApiResponse<typeof creators>>({
+    return NextResponse.json<ApiResponse<Task[]>>({
       success: true,
-      data: creators,
+      data: tasks,
     });
   });
 }

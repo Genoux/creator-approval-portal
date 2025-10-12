@@ -1,2 +1,1 @@
-// Social media utilities
-export { extractHandle } from "./handle-extraction";
+export { buildSocials } from "./social";

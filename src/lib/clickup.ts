@@ -1,4 +1,7 @@
-import type { Task } from "@/types/clickup";
+// TODO:CHORE: Extract functions to a separate file
+
+import type { ClickUpTask } from "@/types";
+import { logError } from "@/utils/errors";
 
 export class ClickUpAPI {
   private apiToken: string;
@@ -10,7 +13,7 @@ export class ClickUpAPI {
   }
 
   static createFromSession(apiToken?: string, oauthToken?: string): ClickUpAPI {
-    const tokenToUse = oauthToken || apiToken || process.env.CLICKUP_API_TOKEN;
+    const tokenToUse = oauthToken || apiToken;
     if (!tokenToUse) {
       throw new Error("No ClickUp API token available");
     }
@@ -35,17 +38,33 @@ export class ClickUpAPI {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `ClickUp API error: ${response.status} ${response.statusText}`
+      const errorText = await response.text();
+      const error = new Error(
+        `ClickUp API error: ${response.status} ${response.statusText} - ${errorText}`
       );
+      logError(error, {
+        component: "ClickUpAPI",
+        action: "request",
+        metadata: {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          endpoint,
+          errorBody: errorText,
+        },
+      });
+      throw error;
     }
 
     return response.json();
   }
 
-  async getTasks(listId: string) {
-    const filter =
-      "archived=false&include_closed=true&order_by=created&reverse=true&limit=100&statuses[]=client%20approval&statuses[]=backup&statuses[]=declined%20(client)&statuses[]=selected";
+  async getTasks(listId: string, statuses: string[]): Promise<ClickUpTask[]> {
+    // Build status filter from the view configuration
+    const statusFilter = statuses
+      .map(s => `statuses[]=${encodeURIComponent(s)}`)
+      .join("&");
+    const filter = `archived=false&include_closed=true&order_by=created&${statusFilter}&statuses[]=selected`;
     const baseQuery = `/list/${listId}/task`;
 
     const firstResponse = await this.request(`${baseQuery}?${filter}&page=0`);
@@ -53,10 +72,12 @@ export class ClickUpAPI {
 
     if (allTasks.length < 100) return allTasks;
 
-    const promises: Promise<{ tasks: Task[] }>[] = [];
+    const promises: Promise<{ tasks: ClickUpTask[] }>[] = [];
     for (let page = 1; page <= 5; page++) {
       promises.push(
-        this.request(`${baseQuery}&page=${page}`).catch(() => ({ tasks: [] }))
+        this.request(`${baseQuery}?${filter}&page=${page}`).catch(() => ({
+          tasks: [],
+        }))
       );
     }
 
@@ -73,7 +94,15 @@ export class ClickUpAPI {
   }
 
   async getTask(taskId: string) {
-    return this.request(`/task/${taskId}`);
+    return this.request(`/task/${taskId}?include_attachments=true`);
+  }
+
+  async getTaskMembers(taskId: string) {
+    return this.request(`/task/${taskId}/member`);
+  }
+
+  async getListMembers(listId: string) {
+    return this.request(`/list/${listId}/member`);
   }
 
   async updateTaskCustomField(
@@ -81,19 +110,26 @@ export class ClickUpAPI {
     fieldId: string,
     value: string | number | null
   ) {
-    const actualValue =
-      typeof value === "string" && /^\d+$/.test(value)
-        ? parseInt(value, 10)
-        : value;
+    // Clear field: use DELETE request
+    if (value === "" || value === null || value === undefined) {
+      return this.request(`/task/${taskId}/field/${fieldId}`, {
+        method: "DELETE",
+      });
+    }
 
+    // Set field: use POST request
     return this.request(`/task/${taskId}/field/${fieldId}`, {
       method: "POST",
-      body: JSON.stringify({ value: actualValue }),
+      body: JSON.stringify({ value }),
     });
   }
 
   async getList(listId: string) {
     return this.request(`/list/${listId}`);
+  }
+
+  async getListViews(listId: string) {
+    return this.request(`/list/${listId}/view`);
   }
 
   async getFolder(folderId: string) {
@@ -118,13 +154,24 @@ export class ClickUpAPI {
 
   async createTaskComment(
     taskId: string,
-    commentText: string,
+    commentData:
+      | string
+      | {
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     assignee?: number
   ) {
     const body = {
-      comment_text: commentText,
       notify_all: true,
       ...(assignee && { assignee }),
+      ...(typeof commentData === "string"
+        ? { comment_text: commentData }
+        : commentData),
     };
 
     return this.request(`/task/${taskId}/comment`, {
@@ -135,12 +182,23 @@ export class ClickUpAPI {
 
   async updateComment(
     commentId: string,
-    commentText: string,
+    commentData:
+      | string
+      | {
+          comment_text?: string;
+          comment?: Array<{
+            type?: "tag";
+            text?: string;
+            user?: { id: number };
+          }>;
+        },
     resolved?: boolean
   ) {
     const body = {
-      comment_text: commentText,
       ...(resolved !== undefined && { resolved }),
+      ...(typeof commentData === "string"
+        ? { comment_text: commentData }
+        : commentData),
     };
 
     return this.request(`/comment/${commentId}`, {
@@ -153,5 +211,9 @@ export class ClickUpAPI {
     return this.request(`/comment/${commentId}`, {
       method: "DELETE",
     });
+  }
+
+  async getAttachment(attachmentId: string) {
+    return this.request(`/attachment/${attachmentId}`);
   }
 }

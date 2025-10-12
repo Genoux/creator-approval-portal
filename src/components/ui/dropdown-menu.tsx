@@ -3,13 +3,50 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import type * as React from "react";
-
+import { useEffect, useId } from "react";
+import { useDropdownContext } from "@/contexts/DropdownContext";
 import { cn } from "@/lib/utils";
 
 function DropdownMenu({
+  open,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+  const { openDropdownId, registerDropdown, closeDropdown } =
+    useDropdownContext();
+  const dropdownId = useId();
+  const isOpen = open ?? openDropdownId === dropdownId;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      // Simply register this dropdown as open (closes any other dropdown automatically)
+      registerDropdown(dropdownId);
+    } else {
+      // Only close if this dropdown is the one that's actually open
+      if (openDropdownId === dropdownId) {
+        closeDropdown();
+      }
+    }
+    onOpenChange?.(newOpen);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (openDropdownId === dropdownId) {
+        closeDropdown();
+      }
+    };
+  }, [openDropdownId, dropdownId, closeDropdown]);
+
+  return (
+    <DropdownMenuPrimitive.Root
+      data-slot="dropdown-menu"
+      modal={false}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    />
+  );
 }
 
 function DropdownMenuPortal({
