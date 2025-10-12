@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "pnpm test:ci && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "format": "biome check --write",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "test:ci": "vitest --run"
+    "test:ci": "vitest --run",
+    "verify": "pnpm test:ci && pnpm lint"
   },
   "dependencies": {
     "@automattic/number-formatters": "^1.0.12",
@@ -20,6 +21,7 @@
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-select": "^2.2.5",
