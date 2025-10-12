@@ -1,3 +1,6 @@
+// TODO: Fix selected tab animation layout.
+// Removed for now
+
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
@@ -43,7 +46,6 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
     <div ref={ref} className="relative">
       {isVisible ? (
         <motion.div
-          layout
           key="task-card"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

@@ -31,5 +31,6 @@ export type {
 export type {
   ApprovalLabel,
   Social,
+  StatusFilter,
   Task,
 } from "./tasks";

@@ -1,4 +1,4 @@
-import type { ApprovalLabel } from "@/types";
+import type { ApprovalLabel, StatusFilter } from "@/types";
 
 interface StatusConfig {
   label: ApprovalLabel;
@@ -14,7 +14,8 @@ export const STATUS_CONFIG: StatusConfig[] = [
   { label: "For Review", displayLabel: "For Review" },
 ];
 
-export function getDisplayLabel(label: ApprovalLabel): string {
-  return STATUS_CONFIG.find(c => c.label === label)?.displayLabel || label;
+export function getDisplayLabel(filter: StatusFilter): string {
+  if (filter === "All") return "All";
+  return STATUS_CONFIG.find(c => c.label === filter)?.displayLabel || filter;
 }
 

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import type { ApprovalLabel, Task } from "@/types";
+import type { StatusFilter, Task } from "@/types";
 import {
   getDisplayLabel,
   SELECTED_STATUSES,
@@ -18,8 +18,8 @@ import { Skeleton } from "../ui/skeleton";
 
 interface StatusTabsProps {
   tasks: Task[];
-  activeStatus: ApprovalLabel;
-  onStatusChange: (status: ApprovalLabel) => void;
+  activeStatus: StatusFilter;
+  onStatusChange: (status: StatusFilter) => void;
   loading: boolean;
 }
 
@@ -30,19 +30,24 @@ export function StatusTabs({
   loading,
 }: StatusTabsProps) {
   // Memoize task counts to prevent recalculation on every render
-  const tasksByStatus = useMemo(
-    () =>
-      STATUS_CONFIG.reduce(
-        (acc, config) => {
-          acc[config.label] = tasks.filter(
-            task => task.status.label === config.label
-          ).length;
-          return acc;
-        },
-        {} as Record<string, number>
-      ),
-    [tasks]
-  );
+  const tasksByStatus = useMemo(() => {
+    const counts = STATUS_CONFIG.reduce(
+      (acc, config) => {
+        acc[config.label] = tasks.filter(
+          task => task.status.label === config.label
+        ).length;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    counts.All = SELECTED_STATUSES.reduce(
+      (sum, status) => sum + (counts[status] || 0),
+      0
+    );
+
+    return counts;
+  }, [tasks]);
 
   const selectedCount = useMemo(
     () =>
@@ -53,10 +58,10 @@ export function StatusTabs({
     [tasksByStatus]
   );
 
-  const isSelectedActive = useMemo(
-    () => SELECTED_STATUSES.includes(activeStatus),
-    [activeStatus]
-  );
+  const isSelectedActive = useMemo(() => {
+    if (activeStatus === "All") return true;
+    return SELECTED_STATUSES.includes(activeStatus);
+  }, [activeStatus]);
 
   const otherStatuses = useMemo(
     () => STATUS_CONFIG.filter(c => !SELECTED_STATUSES.includes(c.label)),
@@ -80,7 +85,7 @@ export function StatusTabs({
           <div className="flex gap-2 flex-wrap">
             <Button
               variant="secondary"
-              onClick={() => onStatusChange(SELECTED_STATUSES[0])}
+              onClick={() => onStatusChange("All")}
               className={cn(
                 "py-5 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75",
                 isSelectedActive && "bg-[#2A0006] text-white hover:bg-[#2A0006]"
@@ -112,12 +117,21 @@ export function StatusTabs({
                   variant="secondary"
                   className="py-5 gap-1 text-sm bg-[#F9F7F7] cursor-pointer rounded-full hover:bg-black/5 transition-colors duration-75"
                 >
-                  {getDisplayLabel(activeStatus)} ({tasksByStatus[activeStatus]}
-                  )
+                  {getDisplayLabel(activeStatus)} (
+                  {tasksByStatus[activeStatus] || 0})
                   <ChevronDownIcon className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => onStatusChange("All")}
+                  className={cn(
+                    "cursor-pointer",
+                    activeStatus === "All" && "bg-black/5"
+                  )}
+                >
+                  {getDisplayLabel("All")} ({tasksByStatus.All || 0})
+                </DropdownMenuItem>
                 {SELECTED_STATUSES.map(status => (
                   <DropdownMenuItem
                     key={status}

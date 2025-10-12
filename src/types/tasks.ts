@@ -38,3 +38,8 @@ export type ApprovalLabel =
   | "Good (Approved)"
   | "Sufficient (Backup)"
   | "Poor Fit (Rejected)";
+
+/**
+ * Filter type for UI - includes "All" which is not an actual approval status
+ */
+export type StatusFilter = ApprovalLabel | "All";
