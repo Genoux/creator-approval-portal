@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import type { ApiResponse, ApprovalLabel, Task } from "@/types";
 import { logError } from "@/utils/errors";
-import { APPROVAL_LABELS, getApprovalOptionId } from "@/utils/status";
+import { getApprovalOptionId } from "@/utils/status";
 import { showToast } from "@/utils/ui";
 import { useUpdateTaskStatus } from "./useUpdateTaskStatus";
 
@@ -108,29 +108,25 @@ export function useTasks(
 
   const handleApprove = useCallback(
     (task: Task) =>
-      handleStatusUpdate(task, APPROVAL_LABELS.PERFECT, "Creator approved!"),
+      handleStatusUpdate(task, "Perfect (Approved)", "Creator approved!"),
     [handleStatusUpdate]
   );
 
   const handleGood = useCallback(
     (task: Task) =>
-      handleStatusUpdate(
-        task,
-        APPROVAL_LABELS.GOOD,
-        "Creator approved as Good!"
-      ),
+      handleStatusUpdate(task, "Good (Approved)", "Creator approved as Good!"),
     [handleStatusUpdate]
   );
 
   const handleBackup = useCallback(
     (task: Task) =>
-      handleStatusUpdate(task, APPROVAL_LABELS.BACKUP, "Marked as backup!"),
+      handleStatusUpdate(task, "Sufficient (Backup)", "Marked as backup!"),
     [handleStatusUpdate]
   );
 
   const handleDecline = useCallback(
     (task: Task) =>
-      handleStatusUpdate(task, APPROVAL_LABELS.REJECTED, "Creator declined"),
+      handleStatusUpdate(task, "Poor Fit (Rejected)", "Creator declined"),
     [handleStatusUpdate]
   );
 

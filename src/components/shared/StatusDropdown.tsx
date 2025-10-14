@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Dot } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,7 +72,10 @@ export function StatusDropdown({ task, className }: StatusDropdownProps) {
                 : "cursor-pointer"
             )}
           >
-            {config.displayLabel}
+            <span>
+              <Dot className="w-4 h-4 text-black" />
+            </span>
+            {config.actionLabel}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

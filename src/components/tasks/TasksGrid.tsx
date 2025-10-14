@@ -20,7 +20,7 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
   const isPriority = index < INITIAL_VISIBLE_CARDS;
 
   useEffect(() => {
-    if (isVisible) return; // Already visible, no need to observe
+    if (isVisible) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -30,7 +30,7 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
         }
       },
       {
-        rootMargin: "0px", // Load 200px before coming into view
+        rootMargin: "0px",
         threshold: 0.1,
       }
     );
@@ -79,6 +79,11 @@ interface TasksGridProps {
     description: string;
   };
   loading: boolean;
+  /**
+   * Key to trigger animation reset when filter changes
+   * Pass the active status/filter to force component remount
+   */
+  animationKey?: string;
 }
 
 export function TasksGrid({
@@ -88,6 +93,7 @@ export function TasksGrid({
     description: "Creators will appear here when they're assigned this status.",
   },
   loading,
+  animationKey,
 }: TasksGridProps) {
   if (tasks.length === 0 && !loading) {
     return (
@@ -109,7 +115,11 @@ export function TasksGrid({
             />
           ))
         : tasks.map((task, index) => (
-            <LazyTaskCard key={task.id} task={task} index={index} />
+            <LazyTaskCard
+              key={animationKey ? `${animationKey}-${task.id}` : task.id}
+              task={task}
+              index={index}
+            />
           ))}
     </div>
   );

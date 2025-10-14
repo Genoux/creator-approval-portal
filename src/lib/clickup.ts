@@ -64,7 +64,7 @@ export class ClickUpAPI {
     const statusFilter = statuses
       .map(s => `statuses[]=${encodeURIComponent(s)}`)
       .join("&");
-    const filter = `archived=false&include_closed=true&order_by=created&${statusFilter}&statuses[]=selected`;
+    const filter = `archived=false&include_closed=true&order_by=updated&${statusFilter}&statuses[]=selected`;
     const baseQuery = `/list/${listId}/task`;
 
     const firstResponse = await this.request(`${baseQuery}?${filter}&page=0`);

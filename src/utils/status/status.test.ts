@@ -29,16 +29,22 @@ describe("STATUS_CONFIG", () => {
 
     expect(displayLabels).toContain("Perfect");
     expect(displayLabels).toContain("Good");
-    expect(displayLabels).toContain("Backup");
-    expect(displayLabels).toContain("Reject");
-    expect(displayLabels).toContain("For Review");
+    expect(displayLabels).toContain("Backups");
+    expect(displayLabels).toContain("Rejected");
+    expect(displayLabels).toContain("Needs review");
   });
 
   it("should have correct task status mappings", () => {
-    const perfectConfig = STATUS_CONFIG.find(c => c.label === "Perfect (Approved)");
+    const perfectConfig = STATUS_CONFIG.find(
+      c => c.label === "Perfect (Approved)"
+    );
     const goodConfig = STATUS_CONFIG.find(c => c.label === "Good (Approved)");
-    const backupConfig = STATUS_CONFIG.find(c => c.label === "Sufficient (Backup)");
-    const rejectedConfig = STATUS_CONFIG.find(c => c.label === "Poor Fit (Rejected)");
+    const backupConfig = STATUS_CONFIG.find(
+      c => c.label === "Sufficient (Backup)"
+    );
+    const rejectedConfig = STATUS_CONFIG.find(
+      c => c.label === "Poor Fit (Rejected)"
+    );
     const reviewConfig = STATUS_CONFIG.find(c => c.label === "For Review");
 
     expect(perfectConfig?.taskStatus).toBe("selected");
@@ -76,17 +82,17 @@ describe("getDisplayLabel", () => {
 
   it("should return correct display label for Sufficient (Backup)", () => {
     const result = getDisplayLabel("Sufficient (Backup)" as ApprovalLabel);
-    expect(result).toBe("Backup");
+    expect(result).toBe("Backups");
   });
 
   it("should return correct display label for Poor Fit (Rejected)", () => {
     const result = getDisplayLabel("Poor Fit (Rejected)" as ApprovalLabel);
-    expect(result).toBe("Reject");
+    expect(result).toBe("Rejected");
   });
 
   it("should return correct display label for For Review", () => {
     const result = getDisplayLabel("For Review" as ApprovalLabel);
-    expect(result).toBe("For Review");
+    expect(result).toBe("Needs review");
   });
 
   it("should return original label for unknown status", () => {

@@ -8,9 +8,9 @@ import { StatusTabs } from "@/components/shared/StatusTabs";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { StatusConfirmationProvider } from "@/contexts/StatusConfirmationContext";
+import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
 import type { StatusFilter } from "@/types";
-import { getDisplayLabel, SELECTED_STATUSES } from "@/utils/status";
-import { APPROVAL_LABELS } from "@/utils/status/constants";
+import { getDisplayLabel, getSelectedTasks } from "@/utils/status";
 
 function ManagementContent({
   activeStatus,
@@ -20,25 +20,21 @@ function ManagementContent({
   setActiveStatus: (status: StatusFilter) => void;
 }) {
   const { tasks, isLoading, selectedListId } = useCreatorManagement();
+  const totalTaskCount = useTaskCounts(tasks, "All");
 
   const filteredTasks = useMemo(() => {
+    if (activeStatus === "Selected") {
+      return getSelectedTasks(tasks);
+    }
     if (activeStatus === "All") {
-      const selectedTasks = tasks.filter(task =>
-        SELECTED_STATUSES.includes(task.status.label)
-      );
-      // Sort: Perfect first, then Good
-      return selectedTasks.sort((a, b) => {
-        if (a.status.label === APPROVAL_LABELS.PERFECT) return -1;
-        if (b.status.label === APPROVAL_LABELS.PERFECT) return 1;
-        return 0;
-      });
+      return tasks;
     }
     return tasks.filter(task => task.status.label === activeStatus);
   }, [tasks, activeStatus]);
 
   return (
     <div key={selectedListId} className="flex flex-col gap-8">
-      <DashboardHeader loading={isLoading} taskCount={tasks.length} />
+      <DashboardHeader loading={isLoading} taskCount={totalTaskCount} />
       <div className="flex flex-col gap-4">
         <StatusTabs
           tasks={tasks}
@@ -54,6 +50,7 @@ function ManagementContent({
               "Creators will appear here when they're assigned this status.",
           }}
           loading={isLoading}
+          animationKey={activeStatus}
         />
       </div>
     </div>
