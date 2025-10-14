@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "d3phw8pj0ea6u1.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "attachments.clickup.com",
+      },
     ],
   },
 };
@@ -28,11 +32,11 @@ const nextConfig: NextConfig = {
 export default process.env.NODE_ENV === "development"
   ? nextConfig
   : withSentryConfig(nextConfig, {
-      org: "inbeat-67",
-      project: "javascript-nextjs",
-      silent: !process.env.CI,
-      widenClientFileUpload: true,
-      tunnelRoute: "/monitoring",
-      disableLogger: true,
-      automaticVercelMonitors: true,
-    });
+    org: "inbeat-67",
+    project: "javascript-nextjs",
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    tunnelRoute: "/monitoring",
+    disableLogger: true,
+    automaticVercelMonitors: true,
+  });
