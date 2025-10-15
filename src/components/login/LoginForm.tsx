@@ -46,15 +46,13 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0 shadow-none">
-        <CardContent className="grid p-0 md:grid-cols-2 h-[500px]">
-          <div className="p-6 md:p-8 flex items-center justify-center">
+        <CardContent className="grid p-0 md:grid-cols-2 h-[400px] md:h-[500px]">
+          <div className="flex items-center justify-center">
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex flex-col items-center md:items-start text-center md:text-start gap-4">
                 <InBeatIcon className="w-16 h-16" />
-                <div className="flex flex-col gap-2">
-                  <h1 className="text-2xl font-bold">
-                    Creator Approval Portal
-                  </h1>
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-2xl font-bold">Creator Approval</h1>
                   <p className="text-muted-foreground text-balance">
                     Sign in with ClickUp to continue
                   </p>
@@ -63,7 +61,7 @@ export function LoginForm({
               <Button
                 variant="default"
                 onClick={handleClickUpLogin}
-                className="w-full cursor-pointer bg-black hover:bg-black/90"
+                className="w-fit cursor-pointer self-center md:self-start bg-black hover:bg-black/90"
                 size="lg"
               >
                 <ClickupColorIcon className="w-8 h-8" />

@@ -23,8 +23,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/contexts/AuthContext";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import { cn } from "@/lib/utils";
 
 const handleLogout = async () => {

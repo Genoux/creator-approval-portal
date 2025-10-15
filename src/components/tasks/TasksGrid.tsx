@@ -1,9 +1,6 @@
-// TODO: Fix selected tab animation layout.
-// Removed for now
-
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
 import { ErrorBlock } from "@/components/shared/ErrorBlock";
+import { useIntersectionObserver } from "@/hooks/ui/useIntersectionObserver";
 import type { Task } from "@/types";
 import { Skeleton } from "../ui/skeleton";
 import { TaskCard } from "./TaskCard";
@@ -11,36 +8,11 @@ import { TaskCard } from "./TaskCard";
 const INITIAL_VISIBLE_CARDS = 4;
 const SKELETON_COUNT = 4;
 
-// Lazy loading wrapper for TaskCard
 function LazyTaskCard({ task, index }: { task: Task; index: number }) {
-  const [isVisible, setIsVisible] = useState(index < INITIAL_VISIBLE_CARDS);
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Priority load first 4 images (above-the-fold)
   const isPriority = index < INITIAL_VISIBLE_CARDS;
-
-  useEffect(() => {
-    if (isVisible) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: "0px",
-        threshold: 0.1,
-      }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible]);
+  const { isVisible, ref } = useIntersectionObserver({
+    initiallyVisible: isPriority,
+  });
 
   return (
     <div ref={ref} className="relative">

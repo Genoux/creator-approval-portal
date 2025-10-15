@@ -5,8 +5,8 @@ import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import { getSelectedTasks } from "@/utils/status";
 
 export function SelectionsClient() {

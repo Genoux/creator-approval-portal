@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { useCommentActions } from "@/hooks/data/comments/useCommentActions";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import type { Comment } from "@/types";
 import {
   deserializeMentions,
@@ -15,7 +15,6 @@ import { CommentInput } from "./CommentInput";
 interface CommentFormProps {
   taskId: string;
   onCommentSent?: () => void;
-  // Edit mode props
   editingComment?: Comment;
   onSave?: () => void;
   onCancel?: () => void;

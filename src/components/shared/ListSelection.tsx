@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import { Button } from "../ui/button";
 
 interface ListSelectionProps {

@@ -10,7 +10,6 @@ import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
 import { cn } from "@/lib/utils";
 import type { StatusFilter, Task } from "@/types";
 import {
-  getChildStatuses,
   getDisplayLabel,
   getTabConfig,
   isTabActive,
@@ -43,7 +42,7 @@ export function StatusTabs({
 }: StatusTabsProps) {
   const tasksByStatus = useTaskCounts(tasks);
   const currentConfig = getTabConfig(activeStatus);
-  const childStatuses = getChildStatuses(activeStatus);
+  const childStatuses = currentConfig?.childStatuses ?? [];
   const showDropdown = currentConfig?.isGroup ?? false;
 
   if (loading) {

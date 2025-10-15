@@ -6,11 +6,11 @@ import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { StatusTabs } from "@/components/shared/StatusTabs";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
 import { StatusConfirmationProvider } from "@/contexts/StatusConfirmationContext";
 import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import type { StatusFilter } from "@/types";
-import { getDisplayLabel, getSelectedTasks } from "@/utils/status";
+import { filterTasksByStatus, getDisplayLabel } from "@/utils/status";
 
 function ManagementContent({
   activeStatus,
@@ -22,15 +22,10 @@ function ManagementContent({
   const { tasks, isLoading, selectedListId } = useCreatorManagement();
   const totalTaskCount = useTaskCounts(tasks, "All");
 
-  const filteredTasks = useMemo(() => {
-    if (activeStatus === "Selected") {
-      return getSelectedTasks(tasks);
-    }
-    if (activeStatus === "All") {
-      return tasks;
-    }
-    return tasks.filter(task => task.status.label === activeStatus);
-  }, [tasks, activeStatus]);
+  const filteredTasks = useMemo(
+    () => filterTasksByStatus(tasks, activeStatus),
+    [tasks, activeStatus]
+  );
 
   return (
     <div key={selectedListId} className="flex flex-col gap-8">
