@@ -35,10 +35,6 @@ export const showToast = {
     message: string,
     description?: string
   ) => {
-    if (type === "success") {
-      toast.success(message, { id, description, ...toastStyle });
-    } else {
-      toast.error(message, { id, description, ...toastStyle });
-    }
+    toast[type](message, { id, description, ...toastStyle });
   },
 };

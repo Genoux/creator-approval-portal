@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ClickUpTask } from "@/types/clickup";
 import type { Task } from "@/types/tasks";
-import { ClickUpTransformer } from "./clickup-transformer";
+import { transformClickUpTask } from "./clickup-transformer";
 
 // Mock the dependencies
 vi.mock("@automattic/number-formatters", () => ({
@@ -44,12 +44,10 @@ vi.mock("@/utils", () => ({
   },
 }));
 
-describe("ClickUpTransformer", () => {
-  let transformer: ClickUpTransformer;
+describe("transformClickUpTask", () => {
   const originalConsoleWarn = console.warn;
 
   beforeEach(() => {
-    transformer = new ClickUpTransformer();
     console.warn = vi.fn();
   });
 
@@ -93,7 +91,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result: Task = transformer.transform(clickUpTask);
+      const result: Task = transformClickUpTask(clickUpTask);
 
       expect(result.id).toBe("123");
       expect(result.title).toBe("Test Creator");
@@ -112,7 +110,7 @@ describe("ClickUpTransformer", () => {
         custom_fields: [],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
 
       expect(console.warn).toHaveBeenCalledWith(
         '⚠️  Task "No Approval Field" (456) is missing "Client Approval" field'
@@ -159,7 +157,7 @@ describe("ClickUpTransformer", () => {
           ],
         };
 
-        const result = transformer.transform(task);
+        const result = transformClickUpTask(task);
         expect(result.status.label).toBe(expected);
       }
     });
@@ -183,7 +181,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
       expect(result.status.label).toBe("For Review");
     });
 
@@ -234,7 +232,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
 
       expect(result.er.text).toBe("5.2%");
       expect(result.er.formula).toBe("formula_value");
@@ -284,7 +282,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
 
       expect(result.socials).toHaveLength(4);
       expect(result.socials[0].platform).toBe("Instagram");
@@ -310,7 +308,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
       expect(result.followerCount).toBeNull();
     });
 
@@ -338,7 +336,7 @@ describe("ClickUpTransformer", () => {
         ],
       };
 
-      const result = transformer.transform(clickUpTask);
+      const result = transformClickUpTask(clickUpTask);
       expect(result.er.text).toBe("rich_text_version");
     });
   });

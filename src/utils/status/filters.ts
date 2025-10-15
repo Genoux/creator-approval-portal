@@ -1,5 +1,5 @@
-import type { Task } from "@/types";
-import { SELECTED_STATUSES } from "./approval-statuses";
+import type { StatusFilter, Task } from "@/types";
+import { SELECTED_STATUSES } from "./config";
 
 /**
  * Filters tasks to only selected statuses (Perfect & Good)
@@ -16,4 +16,25 @@ export function getSelectedTasks(tasks: Task[]): Task[] {
       if (b.status.label === "Perfect (Approved)") return 1;
       return 0;
     });
+}
+
+/**
+ * Filters tasks by status filter type
+ */
+export function filterTasksByStatus(
+  tasks: Task[],
+  statusFilter: StatusFilter
+): Task[] {
+  const filterStrategies: Record<
+    string,
+    (tasks: Task[]) => Task[]
+  > = {
+    Selected: getSelectedTasks,
+    All: (tasks) => tasks,
+  };
+
+  const filterFn = filterStrategies[statusFilter];
+  if (filterFn) return filterFn(tasks);
+
+  return tasks.filter(task => task.status.label === statusFilter);
 }

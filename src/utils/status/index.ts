@@ -1,3 +1,3 @@
-export * from "./approval-statuses";
+export * from "./config";
 export * from "./filters";
-export * from "./tab-config";
+export * from "./helpers";
