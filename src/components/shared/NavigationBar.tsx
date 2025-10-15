@@ -23,7 +23,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "@/contexts/AuthContext";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
+import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 import { cn } from "@/lib/utils";
 
 const handleLogout = async () => {
@@ -42,12 +43,7 @@ export function NavigationBar({ className }: { className?: string }) {
   const isManagementActive = pathname === "/dashboard/management";
   const isSelectionsActive = pathname === "/dashboard/selections";
 
-  const approvedCount = tasks.filter(
-    task =>
-      task.status.label === "Perfect (Approved)" ||
-      task.status.label === "Good (Approved)" ||
-      task.taskStatus === "selected"
-  ).length;
+  const approvedCount = useTaskCounts(tasks, "Selected");
 
   return (
     <nav className={className}>
@@ -73,7 +69,7 @@ export function NavigationBar({ className }: { className?: string }) {
                   isManagementActive && "bg-black/5 hover:bg-black/5"
                 )}
               >
-                Management
+                All Creators
               </Button>
             </Link>
 
@@ -85,7 +81,7 @@ export function NavigationBar({ className }: { className?: string }) {
                   isSelectionsActive && "bg-black/5 hover:bg-black/5"
                 )}
               >
-                My Selections
+                Approved
                 {approvedCount > 0 && (
                   <span className="inline-flex items-center justify-center rounded-full min-w-5 h-5 px-1.5 text-xs font-medium bg-black/90 text-white leading-none">
                     {approvedCount}

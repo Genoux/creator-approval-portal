@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 
 export function NoListsFound() {
   const { refetch } = useCreatorManagement();

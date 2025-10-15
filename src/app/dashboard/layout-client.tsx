@@ -1,10 +1,10 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { InBeatIcon } from "@/components/icons/inBeat";
 import { ModalDisclaimer } from "@/components/shared/ModalDisclaimer";
 import { NoListsFound } from "@/components/shared/NoListsFound";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
 
 interface LayoutClientProps {
   children: React.ReactNode;
@@ -14,9 +14,7 @@ interface LayoutClientProps {
 function Loading() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
-      <div className="flex items-center justify-center gap-0.5">
-        <LoaderCircle className="w-4 h-4 animate-spin text-muted-foreground" />
-      </div>
+      <InBeatIcon className="w-16 h-16 text-foreground" animate />
     </div>
   );
 }

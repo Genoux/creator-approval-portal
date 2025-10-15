@@ -40,6 +40,6 @@ export type ApprovalLabel =
   | "Poor Fit (Rejected)";
 
 /**
- * Filter type for UI - includes "All" which is not an actual approval status
+ * Filter type for UI - includes "All" and "Selected" which are not actual approval statuses
  */
-export type StatusFilter = ApprovalLabel | "All";
+export type StatusFilter = ApprovalLabel | "All" | "Selected";

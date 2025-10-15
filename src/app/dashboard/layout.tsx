@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { CreatorManagementProvider } from "@/contexts/CreatorManagementContext";
+import { CreatorDataProvider } from "@/contexts/CreatorDataContext";
+import { ListSelectionProvider } from "@/contexts/ListSelectionContext";
 import { getServerSession } from "@/lib/auth";
 import { hasAcknowledged } from "@/lib/disclaimer-actions";
 import { LayoutClient } from "./layout-client";
@@ -25,9 +26,13 @@ export default async function DashboardLayout({
 
   return (
     <AuthProvider session={session}>
-      <CreatorManagementProvider>
-        <LayoutClient showDisclaimer={showDisclaimer}>{children}</LayoutClient>
-      </CreatorManagementProvider>
+      <ListSelectionProvider>
+        <CreatorDataProvider>
+          <LayoutClient showDisclaimer={showDisclaimer}>
+            {children}
+          </LayoutClient>
+        </CreatorDataProvider>
+      </ListSelectionProvider>
     </AuthProvider>
   );
 }

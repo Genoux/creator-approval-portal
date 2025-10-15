@@ -6,6 +6,19 @@ const nextConfig: NextConfig = {
     APP_VERSION: require("./package.json").version,
     BUILD_TIME: new Date().toISOString(),
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

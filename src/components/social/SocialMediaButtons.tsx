@@ -29,13 +29,7 @@ const PLATFORM_ICONS = {
   Portfolio: ExternalLinkIcon,
 } as const;
 
-const ICON_STYLES = "w-4 h-4 text-white transition-colors";
-
-export function SocialMediaButtons({
-  socials,
-  variant = "light",
-  className,
-}: SocialMediaButtonsProps) {
+export function SocialMediaButtons({ socials }: SocialMediaButtonsProps) {
   return (
     <section className="flex gap-1">
       {socials.map(({ url, platform }) => {
@@ -52,21 +46,12 @@ export function SocialMediaButtons({
                   onClick={e => e.stopPropagation()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={cn(
-                    "group p-1.5 rounded-md hover:bg-white/10 transition-colors border",
-                    variant === "dark" && "hover:bg-black/10",
-                    className
-                  )}
+                  className="p-1.5 rounded-md hover:bg-black/5 transition-colors border"
                 >
-                  <Icon
-                    className={cn(
-                      ICON_STYLES,
-                      variant === "dark" && "text-black"
-                    )}
-                  />
+                  <Icon className="w-4 h-4 text-black transition-colors" />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent>{platform}</TooltipContent>
+              <TooltipContent className="z-[9999]">{platform}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         );

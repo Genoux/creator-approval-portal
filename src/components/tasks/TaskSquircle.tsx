@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useGetStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
-import { getDisplayLabel } from "@/utils/status";
+import { getDisplayLabel, getStatusColors } from "@/utils/status";
 import { StatusDropdown } from "../shared/StatusDropdown";
 import { Badge } from "../ui/badge";
 import { CardDescription, CardTitle } from "../ui/card";
@@ -33,6 +33,7 @@ export function TaskSquircle({
   const isReadOnly = useGetStatusConfirmation() === null;
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const statusColors = getStatusColors(status.label);
 
   const handleLoadingComplete = () => {
     setIsImageLoading(false);
@@ -110,7 +111,14 @@ export function TaskSquircle({
                 </div>
                 {isReadOnly ? (
                   <div className="flex items-center gap-2">
-                    <Badge className="border-white/10 bg-white/10 backdrop-blur-md rounded-3xl text-white px-2 py-1">
+                    <Badge className="flex items-center gap-1.5 border-white/10 bg-white/10 backdrop-blur-md rounded-3xl text-white px-2 py-1">
+                      <div
+                        className={cn(
+                          "w-2.5 h-2.5 rounded-full border",
+                          statusColors.dot,
+                          statusColors.border
+                        )}
+                      />
                       {getDisplayLabel(status.label)}
                     </Badge>
                   </div>

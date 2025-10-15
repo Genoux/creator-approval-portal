@@ -10,7 +10,11 @@ import {
 import { useStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
 import type { ApprovalLabel, Task } from "@/types";
-import { getDisplayLabel, STATUS_CONFIG } from "@/utils/status";
+import {
+  getDisplayLabel,
+  getStatusColors,
+  STATUS_CONFIG,
+} from "@/utils/status";
 
 interface StatusDropdownProps {
   task: Task;
@@ -21,6 +25,7 @@ export function StatusDropdown({ task, className }: StatusDropdownProps) {
   const { handleStatusChange, isTaskPending } = useStatusConfirmation();
   const currentLabel = task.status.label;
   const [isOpen, setIsOpen] = useState(false);
+  const statusColors = getStatusColors(currentLabel);
 
   const handleStatusClick = (status: ApprovalLabel) => {
     if (currentLabel === status || isTaskPending(task.id)) return;
@@ -41,13 +46,24 @@ export function StatusDropdown({ task, className }: StatusDropdownProps) {
             e.stopPropagation();
           }}
         >
-          {getDisplayLabel(currentLabel)}
-          <ChevronDownIcon
-            className={cn(
-              "w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180",
-              isOpen && "rotate-180"
-            )}
-          />
+          <div className="flex items-center gap-2">
+            <div
+              className={cn(
+                "w-2.5 h-2.5 rounded-full border",
+                statusColors.dot,
+                statusColors.border
+              )}
+            />
+            <div className="flex items-center gap-1">
+              {getDisplayLabel(currentLabel)}
+              <ChevronDownIcon
+                className={cn(
+                  "w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180",
+                  isOpen && "rotate-180"
+                )}
+              />
+            </div>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -72,7 +88,7 @@ export function StatusDropdown({ task, className }: StatusDropdownProps) {
                 : "cursor-pointer"
             )}
           >
-            {config.displayLabel}
+            {config.actionLabel}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

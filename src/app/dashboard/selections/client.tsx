@@ -5,21 +5,17 @@ import { Footer } from "@/components/shared/FooterBar";
 import { NavigationBar } from "@/components/shared/NavigationBar";
 import { TasksGrid } from "@/components/tasks/TasksGrid";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreatorManagement } from "@/contexts/CreatorManagementContext";
-import { isSelectedStatus } from "@/utils/status";
+import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
+import { useCreatorManagement } from "@/hooks/useCreatorManagement";
+import { getSelectedTasks } from "@/utils/status";
 
 export function SelectionsClient() {
   const { isLoading, tasks } = useCreatorManagement();
 
-  // Memoize filtered tasks to prevent recalculation on every render
-  const approvedTasks = useMemo(
-    () =>
-      tasks.filter(
-        task =>
-          isSelectedStatus(task.status.label) || task.taskStatus === "selected"
-      ),
-    [tasks]
-  );
+  const selectedCount = useTaskCounts(tasks, "Selected");
+
+  // Memoize filtered and sorted tasks (Perfect first, then Good)
+  const approvedTasks = useMemo(() => getSelectedTasks(tasks), [tasks]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -33,8 +29,8 @@ export function SelectionsClient() {
               </h1>
               {!isLoading ? (
                 <p className="text-gray-600 mt-1">
-                  You have {approvedTasks.length} creator
-                  {approvedTasks.length !== 1 ? "s" : ""} selected
+                  You have {selectedCount} creator
+                  {selectedCount !== 1 ? "s" : ""} selected
                 </p>
               ) : (
                 <Skeleton className="w-54 h-4 mt-3" />
