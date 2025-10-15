@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { ClickupColorIcon } from "@/components/icons/clickupColor";
@@ -44,52 +45,61 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0 shadow-none">
-        <CardContent className="grid p-0 md:grid-cols-2 h-[400px] md:h-[500px]">
-          <div className="flex items-center justify-center">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col items-center md:items-start text-center md:text-start gap-4">
-                <InBeatIcon className="w-16 h-16" />
-                <div className="flex flex-col gap-1">
-                  <h1 className="text-2xl font-bold">Creator Approval</h1>
-                  <p className="text-muted-foreground text-balance">
-                    Sign in with ClickUp to continue
-                  </p>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <Card className="overflow-hidden p-0 shadow-none">
+          <CardContent className="grid p-0 md:grid-cols-2 h-[400px] md:h-[500px]">
+            <div className="flex items-center justify-center">
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <InBeatIcon className="w-16 h-16" />
+                  <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold">Creator Approval</h1>
+                    <p className="text-muted-foreground text-balance">
+                      Sign in with ClickUp to continue
+                    </p>
+                  </div>
                 </div>
+                <Button
+                  variant="default"
+                  onClick={handleClickUpLogin}
+                  className="w-fit cursor-pointer self-center bg-black hover:bg-black/90"
+                  size="lg"
+                >
+                  <ClickupColorIcon className="w-8 h-8" />
+                  <span className="text-sm">Sign in with ClickUp</span>
+                </Button>
               </div>
-              <Button
-                variant="default"
-                onClick={handleClickUpLogin}
-                className="w-fit cursor-pointer self-center md:self-start bg-black hover:bg-black/90"
-                size="lg"
-              >
-                <ClickupColorIcon className="w-8 h-8" />
-                <span className="text-sm">Sign in with ClickUp</span>
-              </Button>
             </div>
-          </div>
-          <div className="relative bg-muted hidden md:block">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Image
-                src="/login-image.png"
-                alt="Login Background"
-                fill
-                className="object-cover"
-              />
+            <div className="relative bg-muted hidden md:block">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Image
+                  src="/login-image.avif"
+                  alt="Creator Approval"
+                  priority
+                  fill
+                  style={{ objectFit: "cover" }}
+                  className="object-cover"
+                />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="text-muted-foreground text-center text-xs text-balance flex justify-between px-2">
-        <span>beta-{process.env.APP_VERSION}</span>
-        <Link
-          href="mailto:dev@inbeat.agency"
-          className="hover:underline underline-offset-4"
-        >
-          Contact Support
-        </Link>
+          </CardContent>
+        </Card>
+        <div className="text-muted-foreground text-center text-xs text-balance flex justify-between px-2">
+          <span>beta-{process.env.APP_VERSION}</span>
+          <Link
+            href="mailto:dev@inbeat.agency"
+            className="hover:underline underline-offset-4"
+          >
+            Contact Support
+          </Link>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
