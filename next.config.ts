@@ -9,15 +9,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow',
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
           },
         ],
       },
-    ]
+    ];
   },
   images: {
     remotePatterns: [
@@ -45,11 +45,11 @@ const nextConfig: NextConfig = {
 export default process.env.NODE_ENV === "development"
   ? nextConfig
   : withSentryConfig(nextConfig, {
-    org: "inbeat-67",
-    project: "javascript-nextjs",
-    silent: !process.env.CI,
-    widenClientFileUpload: true,
-    tunnelRoute: "/monitoring",
-    disableLogger: true,
-    automaticVercelMonitors: true,
-  });
+      org: "inbeat-67",
+      project: "javascript-nextjs",
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      tunnelRoute: "/monitoring",
+      disableLogger: true,
+      automaticVercelMonitors: true,
+    });

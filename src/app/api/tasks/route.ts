@@ -12,7 +12,11 @@ export async function GET(request: NextRequest) {
 
     if (!listId || !statusesParam) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, message: "listId and statuses are required", data: null },
+        {
+          success: false,
+          message: "listId and statuses are required",
+          data: null,
+        },
         { status: 400 }
       );
     }

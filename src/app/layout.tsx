@@ -1,5 +1,3 @@
-// TODO: Not sure if this is the best way to handle global dropwdowns, but it works for now
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -24,7 +22,7 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000"
   ),
-  title: "Creator Approval Portal",
+  title: "Creator Approval",
   description: "Manage creator approvals synced with ClickUp",
 };
 

@@ -42,4 +42,3 @@ export function isTabActive(
 
   return false;
 }
-

@@ -14,7 +14,9 @@ export async function register() {
 
 export const onRequestError =
   process.env.NODE_ENV === "production"
-    ? async (...args: Parameters<typeof import("@sentry/nextjs").captureRequestError>) => {
+    ? async (
+        ...args: Parameters<typeof import("@sentry/nextjs").captureRequestError>
+      ) => {
         const Sentry = await import("@sentry/nextjs");
         return Sentry.captureRequestError(...args);
       }

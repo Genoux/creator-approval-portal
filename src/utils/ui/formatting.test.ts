@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  formatFollowerCount,
-  formatTimeAgo
-} from "./formatting";
+import { formatFollowerCount, formatTimeAgo } from "./formatting";
 
 describe("formatFollowerCount", () => {
   it("should format millions correctly", () => {

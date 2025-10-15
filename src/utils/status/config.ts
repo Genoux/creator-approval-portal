@@ -141,10 +141,12 @@ export interface StatusActionConfig {
  */
 export function getStatusColors(label: ApprovalLabel) {
   const config = STATUS_CONFIG.find(config => config.label === label);
-  return config?.color || {
-    dot: "bg-gray-500/50",
-    border: "border-gray-500/70",
-  };
+  return (
+    config?.color || {
+      dot: "bg-gray-500/50",
+      border: "border-gray-500/70",
+    }
+  );
 }
 
 export const ACTION_CONFIG: Record<
@@ -188,4 +190,3 @@ export const ACTION_CONFIG: Record<
     },
   },
 };
-

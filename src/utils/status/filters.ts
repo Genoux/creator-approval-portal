@@ -25,12 +25,9 @@ export function filterTasksByStatus(
   tasks: Task[],
   statusFilter: StatusFilter
 ): Task[] {
-  const filterStrategies: Record<
-    string,
-    (tasks: Task[]) => Task[]
-  > = {
+  const filterStrategies: Record<string, (tasks: Task[]) => Task[]> = {
     Selected: getSelectedTasks,
-    All: (tasks) => tasks,
+    All: tasks => tasks,
   };
 
   const filterFn = filterStrategies[statusFilter];

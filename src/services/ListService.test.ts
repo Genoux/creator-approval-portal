@@ -36,8 +36,8 @@ describe("getSharedLists", () => {
     );
 
     // Suppress console.log and console.warn in tests
-    vi.spyOn(console, "log").mockImplementation(() => { });
-    vi.spyOn(console, "warn").mockImplementation(() => { });
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -81,9 +81,7 @@ describe("getSharedLists", () => {
   describe("Creator Management list filtering", () => {
     it("should find and return Creator Management list with status filters", async () => {
       const mockTeams = [{ id: "team1", name: "Team 1" }];
-      const mockSharedLists = [
-        { id: "list1", name: "Creator Management" },
-      ];
+      const mockSharedLists = [{ id: "list1", name: "Creator Management" }];
       const mockViews = {
         required_views: {
           list: {
@@ -200,7 +198,11 @@ describe("getSharedLists", () => {
 
       const result = await getSharedLists(mockApiToken, mockUserAccessToken);
 
-      expect(result[0].statusFilters).toEqual(["approved", "pending", "review"]);
+      expect(result[0].statusFilters).toEqual([
+        "approved",
+        "pending",
+        "review",
+      ]);
     });
 
     it("should skip non-string status values (like closed objects)", async () => {
@@ -378,7 +380,9 @@ describe("getSharedLists", () => {
       await getSharedLists(mockApiToken, mockUserAccessToken);
 
       expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("Error fetching shared resources for team team1"),
+        expect.stringContaining(
+          "Error fetching shared resources for team team1"
+        ),
         mockError
       );
     });
@@ -435,7 +439,11 @@ describe("getSharedLists", () => {
 
       const result = await getSharedLists(mockApiToken, mockUserAccessToken);
 
-      expect(result[0].statusFilters).toEqual(["approved", "pending", "review"]);
+      expect(result[0].statusFilters).toEqual([
+        "approved",
+        "pending",
+        "review",
+      ]);
     });
 
     it("should handle empty values array", async () => {
