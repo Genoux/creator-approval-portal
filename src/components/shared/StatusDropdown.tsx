@@ -32,14 +32,23 @@ export function StatusDropdown({ task, className }: StatusDropdownProps) {
     handleStatusChange(task, status);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (isTaskPending(task.id)) return;
+    setIsOpen(open);
+  };
+
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu
+      open={isOpen && !isTaskPending(task.id)}
+      onOpenChange={handleOpenChange}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           disabled={isTaskPending(task.id)}
           className={cn(
             "border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 hover:text-white focus:ring-0! focus:ring-offset-0 data-[state=open]:ring-0 rounded-full h-10 w-full cursor-pointer flex gap-0.5 border transition-colors disabled:opacity-50",
-            className
+            className,
+            isTaskPending(task.id) && "opacity-50 pointer-events-none"
           )}
           onClick={e => {
             e.preventDefault();

@@ -90,7 +90,7 @@ export const SELECTED_STATUSES: ApprovalLabel[] = STATUS_CONFIG.filter(
 interface TabConfig {
   id: StatusFilter;
   displayLabel: string;
-  tooltip: string;
+  tooltip?: string;
   isGroup?: boolean;
   childStatuses?: ApprovalLabel[];
 }
@@ -121,7 +121,6 @@ export const TAB_CONFIGS: TabConfig[] = [
   {
     id: "All",
     displayLabel: "All",
-    tooltip: "All creators in this project",
   },
 ];
 

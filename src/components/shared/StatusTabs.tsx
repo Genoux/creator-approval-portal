@@ -8,13 +8,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTaskCounts } from "@/hooks/data/tasks/useTaskCounts";
 import { cn } from "@/lib/utils";
-import type { StatusFilter, Task } from "@/types";
-import {
-  getDisplayLabel,
-  getTabConfig,
-  isTabActive,
-  TAB_CONFIGS,
-} from "@/utils/status";
+import type { ApprovalLabel, StatusFilter, Task } from "@/types";
+import { getDisplayLabel, isTabActive, TAB_CONFIGS } from "@/utils/status";
 import { Skeleton } from "../ui/skeleton";
 import {
   Tooltip,
@@ -41,9 +36,15 @@ export function StatusTabs({
   loading,
 }: StatusTabsProps) {
   const tasksByStatus = useTaskCounts(tasks);
-  const currentConfig = getTabConfig(activeStatus);
-  const childStatuses = currentConfig?.childStatuses ?? [];
-  const showDropdown = currentConfig?.isGroup ?? false;
+
+  // Check if activeStatus is a child of a group (e.g., "Perfect" belongs to "Selected")
+  const dropdownConfig =
+    TAB_CONFIGS.find(config =>
+      config.childStatuses?.includes(activeStatus as ApprovalLabel)
+    ) || TAB_CONFIGS.find(t => t.id === activeStatus);
+
+  const childStatuses = dropdownConfig?.childStatuses ?? [];
+  const showDropdown = !!childStatuses.length;
 
   if (loading) {
     return (
@@ -64,46 +65,55 @@ export function StatusTabs({
     <div className="flex gap-2 w-full flex-wrap justify-between items-center">
       <TooltipProvider>
         <div className="flex gap-2 flex-wrap">
-          {TAB_CONFIGS.map(tabConfig => (
-            <Tooltip key={tabConfig.id}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="secondary"
-                  onClick={() => onStatusChange(tabConfig.id)}
-                  className={cn(
-                    TAB_CLASS,
-                    isTabActive(tabConfig.id, activeStatus) && ACTIVE_CLASS
-                  )}
-                >
-                  {tabConfig.displayLabel} ({tasksByStatus[tabConfig.id] || 0})
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{tabConfig.tooltip}</TooltipContent>
-            </Tooltip>
-          ))}
+          {TAB_CONFIGS.map(tabConfig => {
+            const button = (
+              <Button
+                variant="secondary"
+                onClick={() => onStatusChange(tabConfig.id)}
+                className={cn(
+                  TAB_CLASS,
+                  isTabActive(tabConfig.id, activeStatus) && ACTIVE_CLASS
+                )}
+              >
+                {tabConfig.displayLabel} ({tasksByStatus[tabConfig.id] || 0})
+              </Button>
+            );
+
+            if (!tabConfig.tooltip) {
+              return <div key={tabConfig.id}>{button}</div>;
+            }
+
+            return (
+              <Tooltip key={tabConfig.id}>
+                <TooltipTrigger asChild>{button}</TooltipTrigger>
+                <TooltipContent>{tabConfig.tooltip}</TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
 
-        {showDropdown && currentConfig && (
+        {showDropdown && dropdownConfig && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" className={cn(TAB_CLASS, "gap-1")}>
-                {getDisplayLabel(activeStatus)} (
-                {tasksByStatus[activeStatus] || 0})
+                {activeStatus === dropdownConfig.id
+                  ? "All"
+                  : getDisplayLabel(activeStatus)}{" "}
+                ({tasksByStatus[activeStatus] || 0})
                 <ChevronDownIcon className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => onStatusChange(currentConfig.id)}
+                onClick={() => onStatusChange(dropdownConfig.id)}
                 className={cn(
                   "cursor-pointer",
-                  activeStatus === currentConfig.id && "bg-black/5"
+                  activeStatus === dropdownConfig.id && "bg-black/5"
                 )}
               >
-                All {currentConfig.displayLabel} (
-                {tasksByStatus[currentConfig.id] || 0})
+                All ({tasksByStatus[dropdownConfig.id] || 0})
               </DropdownMenuItem>
-              {childStatuses.map(status => (
+              {childStatuses.map((status: ApprovalLabel) => (
                 <DropdownMenuItem
                   key={status}
                   onClick={() => onStatusChange(status)}
