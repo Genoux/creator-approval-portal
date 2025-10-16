@@ -65,8 +65,9 @@ export function InBeatIcon({
       }}
       transition={{
         duration: 2,
+        delay: 0.1,
         repeat: Number.POSITIVE_INFINITY,
-        ease: "easeInOut",
+        ease: [0.45, 0.05, 0.55, 0.95],
       }}
     >
       <motion.path
@@ -77,7 +78,9 @@ export function InBeatIcon({
           opacity: 1,
         }}
         transition={{
-          opacity: { duration: 0.5 },
+          delay: 0.2,
+          duration: 0.5,
+          ease: "easeIn",
         }}
       />
       <motion.path
@@ -88,7 +91,10 @@ export function InBeatIcon({
           opacity: 1,
         }}
         transition={{
-          opacity: { duration: 0.5, delay: 0.2 },
+          opacity: {
+            duration: 0.5,
+            ease: "easeIn",
+          },
         }}
       />
     </motion.svg>
