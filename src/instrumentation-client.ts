@@ -8,7 +8,26 @@ Sentry.init({
   dsn: "https://6d714363b6a2f9cebd1a4d4146909378@o4510138100023296.ingest.us.sentry.io/4510138104545280",
 
   // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+  integrations: [
+    Sentry.replayIntegration(),
+    Sentry.feedbackIntegration({
+      colorScheme: "light",
+      enableScreenshot: true,
+      autoInject: true,
+      showBranding: false,
+      triggerLabel: "Feedback",
+      formTitle: "Share Feedback",
+      messagePlaceholder: "Describe your issue or share your thoughts",
+      submitButtonLabel: "Send",
+      nameLabel: "Name",
+      namePlaceholder: "Your name",
+      emailLabel: "Email",
+      emailPlaceholder: "your.email@example.com",
+      isRequiredLabel: "(required)",
+      addScreenshotButtonLabel: "Add screenshot",
+      removeScreenshotButtonLabel: "Remove screenshot",
+    }),
+  ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
