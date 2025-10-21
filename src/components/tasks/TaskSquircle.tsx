@@ -2,6 +2,7 @@ import { Squircle } from "@squircle-js/react";
 import { ImageOff } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { useGetStatusConfirmation } from "@/contexts/StatusConfirmationContext";
 import { cn } from "@/lib/utils";
@@ -105,7 +106,14 @@ export function TaskSquircle({
                     </CardTitle>
 
                     <CardDescription className="text-white/80 text-sm">
-                      <p>{socials[0]?.handle}</p>
+                      <Link
+                        href={socials[0]?.url}
+                        target="_blank"
+                        className="text-white/80 text-sm hover:text-white hover:underline"
+                        rel="noopener noreferrer"
+                      >
+                        {socials[0]?.handle}
+                      </Link>
                     </CardDescription>
                   </div>
                 </div>

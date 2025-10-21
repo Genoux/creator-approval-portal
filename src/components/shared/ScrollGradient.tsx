@@ -25,17 +25,25 @@ export function ScrollGradient({
   className,
 }: ScrollGradientProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [hasScroll, setHasScroll] = useState(false);
 
   useEffect(() => {
     const element = scrollRef.current;
     if (!element) return;
 
     const handleScroll = () => {
+      const isScrollable = element.scrollHeight > element.clientHeight;
+      setHasScroll(isScrollable);
+
+      if (!isScrollable) {
+        setIsScrolled(false);
+        return;
+      }
+
       if (position === "top") {
         const scrolled = element.scrollTop > 0;
         setIsScrolled(scrolled);
       } else {
-        // For bottom gradient: show when not scrolled to bottom
         const isAtBottom =
           element.scrollHeight - element.scrollTop === element.clientHeight;
         setIsScrolled(!isAtBottom);
@@ -43,13 +51,18 @@ export function ScrollGradient({
     };
 
     element.addEventListener("scroll", handleScroll);
-    // Check initial state
     handleScroll();
+
+    const resizeObserver = new ResizeObserver(handleScroll);
+    resizeObserver.observe(element);
 
     return () => {
       element.removeEventListener("scroll", handleScroll);
+      resizeObserver.disconnect();
     };
   }, [scrollRef, position]);
+
+  if (!hasScroll) return null;
 
   const positionClasses =
     position === "top"
@@ -58,18 +71,20 @@ export function ScrollGradient({
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isScrolled ? 1 : 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className={cn(
-          "absolute left-0 right-0 z-10 pointer-events-none",
-          height,
-          positionClasses,
-          className
-        )}
-      />
+      {isScrolled && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className={cn(
+            "absolute left-0 right-0 z-10 pointer-events-none",
+            height,
+            positionClasses,
+            className
+          )}
+        />
+      )}
     </AnimatePresence>
   );
 }

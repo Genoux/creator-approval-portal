@@ -69,7 +69,7 @@ export function CommentList({
       <div ref={scrollRef} className="h-full overflow-y-auto relative">
         {comments.length === 0 ? (
           <ErrorBlock
-            title="No comments yet"
+            title="No comments"
             description="Comments will appear here"
             icon={<MessageCircle className="w-5 h-5" />}
             className="h-full border-none shadow-none absolute top-0 left-0 right-0 bottom-0"
