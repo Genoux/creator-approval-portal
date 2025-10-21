@@ -12,6 +12,7 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
   const isPriority = index < INITIAL_VISIBLE_CARDS;
   const { isVisible, ref } = useIntersectionObserver({
     initiallyVisible: isPriority,
+    rootMargin: "400px",
   });
 
   return (
@@ -23,9 +24,8 @@ function LazyTaskCard({ task, index }: { task: Task; index: number }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{
-            delay: index * 0.1,
-            duration: 0.4,
-            ease: "easeInOut",
+            duration: 0.2,
+            ease: "easeOut",
           }}
         >
           <TaskCard task={task} priority={isPriority} />

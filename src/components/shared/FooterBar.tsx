@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="px-6 py-12">
       <div className="flex justify-center items-center text-center w-full">
         <div className="text-sm text-black/60">
-          v{process.env.APP_VERSION} - All rights reserved © InBeat{" "}
+          v{process.env.APP_VERSION} - All rights reserved © inBeat{" "}
           {new Date().getFullYear()}
         </div>
       </div>
