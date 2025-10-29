@@ -57,7 +57,19 @@ export async function verifyAuthToken(
   token: string
 ): Promise<AuthSession | null> {
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const result = await jwtVerify(token, secret);
+
+    // Ensure result and payload exist before destructuring
+    if (!result || !result.payload) {
+      logError(new Error("Invalid JWT verification result"), {
+        component: "Auth",
+        action: "verify_token",
+        metadata: { tokenLength: token.length },
+      });
+      return null;
+    }
+
+    const { payload } = result;
 
     return {
       listId: payload.listId as string | undefined,
@@ -68,7 +80,11 @@ export async function verifyAuthToken(
       exp: payload.exp as number,
     };
   } catch (error) {
-    logError(error, { component: "Auth", action: "verify_token" });
+    logError(error, {
+      component: "Auth",
+      action: "verify_token",
+      metadata: { tokenLength: token.length },
+    });
     return null;
   }
 }

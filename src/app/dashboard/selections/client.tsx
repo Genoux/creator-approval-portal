@@ -12,10 +12,10 @@ import { getSelectedTasks } from "@/utils/status";
 export function SelectionsClient() {
   const { isLoading, tasks } = useCreatorManagement();
 
-  const selectedCount = useTaskCounts(tasks, "Selected");
+  const selectedCount = useTaskCounts(tasks ?? [], "Selected");
 
   // Memoize filtered and sorted tasks (Perfect first, then Good)
-  const approvedTasks = useMemo(() => getSelectedTasks(tasks), [tasks]);
+  const approvedTasks = useMemo(() => getSelectedTasks(tasks ?? []), [tasks]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

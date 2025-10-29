@@ -67,7 +67,7 @@ export function useCreatorData(listId: string | null): UseCreatorDataResult {
 
   return {
     sharedLists,
-    tasks,
+    tasks: tasks ?? [],
     workspaceUsers,
     isLoading,
     error,

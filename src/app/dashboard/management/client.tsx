@@ -20,10 +20,10 @@ function ManagementContent({
   setActiveStatus: (status: StatusFilter) => void;
 }) {
   const { tasks, isLoading, selectedListId } = useCreatorManagement();
-  const totalTaskCount = useTaskCounts(tasks, "All");
+  const totalTaskCount = useTaskCounts(tasks ?? [], "All");
 
   const filteredTasks = useMemo(
-    () => filterTasksByStatus(tasks, activeStatus),
+    () => filterTasksByStatus(tasks ?? [], activeStatus),
     [tasks, activeStatus]
   );
 
