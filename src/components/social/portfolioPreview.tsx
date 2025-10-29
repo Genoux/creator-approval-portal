@@ -44,7 +44,7 @@ export function PortfolioPreview({
 }: PortfolioPreviewProps) {
   const url = type === "inbeat" ? portfolio.inBeatPortfolio : portfolio.example;
 
-  if (!url) return null;
+  if (!url || typeof url !== "string" || url.trim() === "") return null;
   const platform = getPlatform(url);
   const Icon = platform.icon;
 

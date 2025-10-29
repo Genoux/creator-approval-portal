@@ -106,14 +106,18 @@ export function TaskSquircle({
                     </CardTitle>
 
                     <CardDescription className="text-white/80 text-sm">
-                      <Link
-                        href={socials[0]?.url}
-                        target="_blank"
-                        className="text-white/80 text-sm hover:text-white hover:underline"
-                        rel="noopener noreferrer"
-                      >
-                        {socials[0]?.handle}
-                      </Link>
+                      {socials[0]?.url ? (
+                        <Link
+                          href={socials[0].url}
+                          target="_blank"
+                          className="text-white/80 text-sm hover:text-white hover:underline"
+                          rel="noopener noreferrer"
+                        >
+                          {socials[0]?.handle}
+                        </Link>
+                      ) : (
+                        <span>{socials[0]?.handle}</span>
+                      )}
                     </CardDescription>
                   </div>
                 </div>
