@@ -66,9 +66,9 @@ export function useCreatorData(listId: string | null): UseCreatorDataResult {
   }, [refetchList, refetchTasks]);
 
   return {
-    sharedLists,
+    sharedLists: sharedLists ?? [],
     tasks: tasks ?? [],
-    workspaceUsers,
+    workspaceUsers: workspaceUsers ?? [],
     isLoading,
     error,
     refetch,
