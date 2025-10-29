@@ -35,7 +35,7 @@ export function StatusTabs({
   onStatusChange,
   loading,
 }: StatusTabsProps) {
-  const tasksByStatus = useTaskCounts(tasks);
+  const tasksByStatus = useTaskCounts(tasks ?? []);
 
   // Check if activeStatus is a child of a group (e.g., "Perfect" belongs to "Selected")
   const dropdownConfig =

@@ -67,7 +67,7 @@ export function TasksGrid({
   loading,
   animationKey,
 }: TasksGridProps) {
-  if (tasks.length === 0 && !loading) {
+  if ((tasks ?? []).length === 0 && !loading) {
     return (
       <ErrorBlock
         title={empty.title}
@@ -86,7 +86,7 @@ export function TasksGrid({
               className="h-[500px] w-full rounded-3xl bg-[#F9F7F7]"
             />
           ))
-        : tasks.map((task, index) => (
+        : (tasks ?? []).map((task: Task, index: number) => (
             <LazyTaskCard
               key={animationKey ? `${animationKey}-${task.id}` : task.id}
               task={task}

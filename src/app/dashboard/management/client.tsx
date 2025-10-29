@@ -32,7 +32,7 @@ function ManagementContent({
       <DashboardHeader loading={isLoading} taskCount={totalTaskCount} />
       <div className="flex flex-col gap-4">
         <StatusTabs
-          tasks={tasks}
+          tasks={tasks ?? []}
           activeStatus={activeStatus}
           onStatusChange={setActiveStatus}
           loading={isLoading}

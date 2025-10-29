@@ -9,6 +9,9 @@ import { SELECTED_STATUSES } from "./config";
  * @returns Filtered and sorted array of selected tasks
  */
 export function getSelectedTasks(tasks: Task[]): Task[] {
+  if (!tasks || !Array.isArray(tasks)) {
+    return [];
+  }
   return tasks
     .filter(task => SELECTED_STATUSES.includes(task.status.label))
     .sort((a, b) => {
@@ -25,6 +28,9 @@ export function filterTasksByStatus(
   tasks: Task[],
   statusFilter: StatusFilter
 ): Task[] {
+  if (!tasks || !Array.isArray(tasks)) {
+    return [];
+  }
   const filterStrategies: Record<string, (tasks: Task[]) => Task[]> = {
     Selected: getSelectedTasks,
     All: tasks => tasks,

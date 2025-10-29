@@ -31,7 +31,7 @@ export function useTaskCounts(
     // Count each approval status
     const statusCounts = STATUS_CONFIG.reduce(
       (acc, config) => {
-        acc[config.label] = tasks.filter(
+        acc[config.label] = (tasks ?? []).filter(
           task => task.status.label === config.label
         ).length;
         return acc;
@@ -49,7 +49,7 @@ export function useTaskCounts(
     const allCounts: TaskCountsMap = {
       ...statusCounts,
       Selected: selectedCount,
-      All: tasks.length,
+      All: (tasks ?? []).length,
     };
 
     return allCounts;
