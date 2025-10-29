@@ -20,11 +20,15 @@ function ManagementContent({
   setActiveStatus: (status: StatusFilter) => void;
 }) {
   const { tasks, isLoading, selectedListId } = useCreatorManagement();
-  const totalTaskCount = useTaskCounts(tasks ?? [], "All");
+
+  // Ensure tasks is always an array for dependency array stability
+  const tasksArray = tasks ?? [];
+
+  const totalTaskCount = useTaskCounts(tasksArray, "All");
 
   const filteredTasks = useMemo(
-    () => filterTasksByStatus(tasks ?? [], activeStatus),
-    [tasks, activeStatus]
+    () => filterTasksByStatus(tasksArray, activeStatus),
+    [tasksArray, activeStatus]
   );
 
   return (
@@ -32,7 +36,7 @@ function ManagementContent({
       <DashboardHeader loading={isLoading} taskCount={totalTaskCount} />
       <div className="flex flex-col gap-4">
         <StatusTabs
-          tasks={tasks ?? []}
+          tasks={tasksArray}
           activeStatus={activeStatus}
           onStatusChange={setActiveStatus}
           loading={isLoading}

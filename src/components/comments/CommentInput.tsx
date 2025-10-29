@@ -26,7 +26,7 @@ export function CommentInput({
   children,
 }: CommentInputProps) {
   // Transform users for react-mentions format
-  const mentionUsers: MentionUser[] = users.map(user => ({
+  const mentionUsers: MentionUser[] = (users ?? []).map(user => ({
     id: user.id.toString(),
     display: user.username || user.email || `User ${user.id}`,
     username: user.username,

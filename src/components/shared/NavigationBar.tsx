@@ -43,7 +43,7 @@ export function NavigationBar({ className }: { className?: string }) {
   const isManagementActive = pathname === "/dashboard/management";
   const isSelectionsActive = pathname === "/dashboard/selections";
 
-  const approvedCount = useTaskCounts(tasks, "Selected");
+  const approvedCount = useTaskCounts(tasks ?? [], "Selected");
 
   return (
     <nav className={className}>
