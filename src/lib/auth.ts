@@ -105,26 +105,6 @@ export async function getServerSession(): Promise<AuthSession | null> {
   }
 }
 
-// export async function validateClickUpCredentials(
-//   listId: string
-// ): Promise<boolean> {
-//   try {
-//     const apiToken = process.env.CLICKUP_API_TOKEN;
-//     if (!apiToken) {
-//       console.error("CLICKUP_API_TOKEN not found in environment");
-//       return false;
-//     }
-
-//     // Use ClickUpAPI wrapper for consistent error handling and caching
-//     const clickup = new ClickUpAPI(apiToken);
-//     await clickup.getList(listId);
-//     return true;
-//   } catch (error) {
-//     console.error("ClickUp validation error:", error);
-//     return false;
-//   }
-// }
-
 // Shared auth middleware for API routes
 export async function withAuth<T>(
   request: NextRequest,
