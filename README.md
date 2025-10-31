@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Creator Approval Portal
 
-## Getting Started
+Next.js application for reviewing and approving creator profiles from ClickUp tasks. Provides a specialized interface for viewing creator profiles, assigning approval statuses, and managing comments while syncing all changes back to ClickUp.
 
-First, run the development server:
+<img width="2854" height="1852" alt="image" src="https://github.com/user-attachments/assets/cd270236-bd73-4896-b78c-802b6a5a90e2" />
+<img width="2834" height="1852" alt="image" src="https://github.com/user-attachments/assets/9a2a6a90-dad3-4661-857e-084adfbc4d41" />
+
+## Features
+
+- Review creator profiles with social media handles, follower counts, and engagement rates
+- Assign approval statuses that sync to ClickUp custom fields
+- Filter creators by approval status
+- Comment on tasks with user mentions
+- Select and switch between ClickUp lists
+
+## Prerequisites
+
+- Node.js 18+ 
+- pnpm
+- ClickUp OAuth application credentials
+
+## Installation
+
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory with the following variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+JWT_SECRET=your-jwt-secret-key
+CLICKUP_CLIENT_ID=your-clickup-client-id
+CLICKUP_CLIENT_SECRET=your-clickup-client-secret
+```
 
-## Learn More
+The `JWT_SECRET` is required for session management. Generate a secure random string.
 
-To learn more about Next.js, take a look at the following resources:
+The ClickUp OAuth credentials require a ClickUp application. In your ClickUp OAuth app settings, add your domain(s) to the redirect URL list:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Development: `localhost:3000`
+- Production: `your-domain.com` (e.g., `creators.inbeat.agency`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application automatically builds the full redirect URI as `{protocol}://{domain}/auth/clickup/callback` from the request origin, so ClickUp only needs the domain portion.
 
-## Deploy on Vercel
+## Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Start the development server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev
+```
+
+The application runs on `http://localhost:3000` with hot module replacement enabled via Turbopack.
+
+Format code:
+
+```bash
+pnpm format
+```
+
+Lint code:
+
+```bash
+pnpm lint
+```
+
+## Testing
+
+Run tests:
+
+```bash
+pnpm test
+```
+
+Run tests in UI mode:
+
+```bash
+pnpm test:ui
+```
+
+Run tests with coverage:
+
+```bash
+pnpm test:coverage
+```
+
+Run tests in CI mode:
+
+```bash
+pnpm test:ci
+```
+
+Run verification (tests + lint):
+
+```bash
+pnpm verify
+```
+
+## Production
+
+Build for production:
+
+```bash
+pnpm build
+```
+
+Start production server:
+
+```bash
+pnpm start
+```
+
+Production builds include Sentry error monitoring integration.
+
+## Project Structure
+
+```
+src/
+├── app/                   # Next.js App Router routes
+│   ├── api/               # API route handlers
+│   ├── auth/              # Authentication routes
+│   └── dashboard/         # Dashboard pages
+├── components/            # React components
+│   ├── comments/         # Comment components
+│   ├── shared/           # Shared UI components
+│   ├── tasks/            # Task components
+│   └── ui/               # Shadcn UI primitives
+├── contexts/             # React contexts
+├── hooks/                # Custom React hooks
+│   ├── data/             # Data fetching hooks
+│   └── ui/               # UI utility hooks
+├── lib/                   # Core utilities
+│   ├── auth.ts           # JWT authentication
+│   └── clickup.ts        # ClickUp API client
+├── services/             # Business logic
+├── transformers/         # Data transformers
+├── types/                # TypeScript types
+└── utils/                # Helper functions
+```
+
+## Architecture
+
+The application uses Next.js App Router with React Server Components by default.
+
+Authentication uses ClickUp OAuth flow, storing session data in JWT tokens within httpOnly cookies. Middleware protects dashboard routes by verifying tokens.
+
+Data fetching uses React Query with server-side fetching in Server Components and client-side mutations in Client Components. The ClickUp API client centralizes all external API calls.
+
+Status updates modify ClickUp custom fields directly through API calls with optimistic UI updates. Comments support rich text rendering using Quill Delta format with user mention parsing.
+
+Error handling includes React error boundaries, Sentry integration for production errors, and toast notifications for user feedback.
+
+## Troubleshooting
+
+If authentication fails, verify that your ClickUp OAuth application has the correct domain added to the redirect URL list. The domain should match your deployment host (e.g., `creators.inbeat.agency` or `localhost:3000` for development). The application automatically appends `/auth/clickup/callback` to the domain.
+
+If tasks don't load, check that the selected ClickUp list contains tasks with the expected custom fields for approval status. The application reads custom fields from ClickUp tasks to determine creator profiles and approval statuses.
+
+For deployment issues, ensure all environment variables are set correctly in your deployment platform. The application will fail to start if `JWT_SECRET` is missing.
+
+## Support
+
+For issues or questions, contact the dev team at dev@inbeat.agency.
