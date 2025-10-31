@@ -2,6 +2,9 @@
 
 Next.js application for reviewing and approving creator profiles from ClickUp tasks. Provides a specialized interface for viewing creator profiles, assigning approval statuses, and managing comments while syncing all changes back to ClickUp.
 
+<img width="2854" height="1852" alt="image" src="https://github.com/user-attachments/assets/cd270236-bd73-4896-b78c-802b6a5a90e2" />
+<img width="2834" height="1852" alt="image" src="https://github.com/user-attachments/assets/9a2a6a90-dad3-4661-857e-084adfbc4d41" />
+
 ## Features
 
 - Review creator profiles with social media handles, follower counts, and engagement rates
