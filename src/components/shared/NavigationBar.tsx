@@ -59,7 +59,7 @@ export function NavigationBar({ className }: { className?: string }) {
         </div>
 
         {/* Navigation Tabs */}
-        {user && (
+        {user && sharedLists.length > 0 && (
           <div className="gap-2 hidden sm:flex">
             <Link href="/dashboard/management" prefetch={true}>
               <Button
@@ -93,7 +93,7 @@ export function NavigationBar({ className }: { className?: string }) {
         )}
 
         <div className="flex items-center gap-2">
-          {user && (
+          {user && sharedLists.length > 0 && (
             <div className="flex gap-2 sm:hidden">
               <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger asChild>
