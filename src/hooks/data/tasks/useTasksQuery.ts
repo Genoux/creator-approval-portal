@@ -50,6 +50,9 @@ export function useTasksQuery(
       if (error instanceof Error && error.message.includes("401")) {
         return false;
       }
+      if (error instanceof Error && error.message.includes("400")) {
+        return false;
+      }
       return failureCount < 2;
     },
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -58,7 +61,7 @@ export function useTasksQuery(
   return {
     data: data || [],
     isLoading,
-    error: error as Error | null,
+    error: isQueryEnabled ? (error as Error | null) : null,
     refetch,
   };
 }

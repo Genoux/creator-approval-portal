@@ -33,11 +33,21 @@ export function useCreatorData(listId: string | null): UseCreatorDataResult {
     refetch: refetchList,
   } = useSharedLists();
 
+  const isValidList = useMemo(
+    () =>
+      !listLoading &&
+      listId !== null &&
+      sharedLists.some(l => l.listId === listId),
+    [sharedLists, listId, listLoading]
+  );
+
   // Extract statusFilters from selected list for fetching tasks
   const statusFilters = useMemo(
     () => sharedLists.find(l => l.listId === listId)?.statusFilters || [],
     [sharedLists, listId]
   );
+
+  const effectiveListId = !listLoading && isValidList ? listId : null;
 
   const {
     data: tasks = [],
@@ -49,21 +59,23 @@ export function useCreatorData(listId: string | null): UseCreatorDataResult {
     handleBackup,
     handleDecline,
     isTaskPending,
-  } = useTasks(listId, statusFilters);
+  } = useTasks(effectiveListId, statusFilters);
 
   const {
     data: workspaceUsers = [],
     isLoading: usersLoading,
     error: usersError,
-  } = useWorkspaceUsers(listId);
+  } = useWorkspaceUsers(effectiveListId);
 
   const isLoading = listLoading || tasksLoading || usersLoading;
-  const error = listError || tasksError || usersError;
+  const error = listError || (isValidList ? tasksError || usersError : null);
 
   const refetch = useCallback(() => {
     refetchList();
-    refetchTasks();
-  }, [refetchList, refetchTasks]);
+    if (effectiveListId) {
+      refetchTasks();
+    }
+  }, [refetchList, refetchTasks, effectiveListId]);
 
   return {
     sharedLists: sharedLists ?? [],
